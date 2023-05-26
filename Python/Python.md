@@ -146,3 +146,64 @@ list = list(map(int,input().split(",")))
 这样就可以将输入的用逗号分隔开的字符串转换为一个列表了
 
 ![20230422161933](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230422161933.png)
+
+## 4 列表和字典
+
+### 4.1 sorted函数
+
+```py
+studs = [{'sid':'103','Chinese': 90,'Math':95,'English':92},{'sid':'101','Chinese': 80,'Math':85,'English':82},{'sid':'102','Chinese': 70,'Math':75,'English':72}]
+
+scores = {}
+for stud in studs:
+    sid = stud['sid']
+    scores[sid] = [stud['Chinese'], stud['Math'], stud['English']]
+
+
+sorted_scores = sorted(scores.items(), key=lambda x: x[0])
+
+i = 0
+
+for sid, grades in sorted_scores:
+    i+=1
+    if i==3:
+        print(f"{sid}:{grades}",end="")
+    else:
+        print(f"{sid}:{grades}")
+```
+
+![20230520180715](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230520180715.png)
+
+>python中的数值比较
+```py
+x=2
+
+y=2.0
+
+if(x==y): print(“Equal”)
+
+else: print(“No Equal”)
+```
+
+输出Equal,虽然它们的数据类型不同，但在进行相等性比较时，Python会自动进行类型转换以便进行比较。在这种情况下，整数2和浮点数2.0是相等的，因为它们表示相同的数值。
+
+>这个斐波那契数列
+
+```py
+f(n)=f(n−2)+f(n−1) (n≥3)
+
+def f(n):
+    if n<=1:
+        return n
+    else:
+        return f(n-2) + f(n-1)
+
+```
+
+
+---
+
+## 考试
+
+1. 记得看关于字符串的函数
+    - 转换ascii值的函数

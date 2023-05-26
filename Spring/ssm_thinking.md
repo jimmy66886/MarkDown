@@ -3205,8 +3205,9 @@ public class JdbcTemplateTestTwo {
 
 在配置之前,首先看一下什么时候需要事务,或者说什么时候需要回滚?这里假设一个条件,比如当用户购买书时,如果书的库存不足,那就会出问题,这里可以使用**无符号的数据类型来限定库存余额**,当然也可以在java代码中实现,比如,如果余额不足,那就抛出异常即可,没有异常就造异常
 
->tx-annotation.xml
-Spring的配置文件
+> tx-annotation.xml
+> Spring的配置文件
+
 ```xml
 <?xml version="1.0" encoding="UTF-8"?>
 <beans xmlns="http://www.springframework.org/schema/beans"
@@ -3386,15 +3387,14 @@ public class BookDaoImplByMe implements BookDaoByMe {
 }
 ```
 
->此时没有事务管理,用户余额为50,如果买第一本书,价格80,此时就会报错,但是由于MySql默认是一条Sql就会自动提交一次事务,所以就导致了库存是减少了,但是用户的余额并没有变
-
+> 此时没有事务管理,用户余额为50,如果买第一本书,价格80,此时就会报错,但是由于MySql默认是一条Sql就会自动提交一次事务,所以就导致了库存是减少了,但是用户的余额并没有变
 
 下面就是重头戏了,给service层添加上事务管理
 
-
->**出现异常就回滚**
+> **出现异常就回滚**
 
 先看需要的配置
+
 ```xml
 <!--    配置事务管理器-->
     <bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
@@ -3413,18 +3413,21 @@ public class BookDaoImplByMe implements BookDaoByMe {
 
 配置"开启事务的注解驱动"后,就会发现左边出现了环绕通知的图标
 ![1667467190856](image/ssm_thinking/1667467190856.png)
+
 <!-- ![20221103171953](https://gcore.jsdelivr.net/gh/jimmy66886/picgo@main/img/20221103171953.png) -->
 
->给方法添加上事务管理
-不需要写任何的代码,只需要一个注释,那么这个类/方法就被事务管理了--@Transactional
-此时,buyBookByMe这个方法就被事务管理了,如果出现异常,就会回滚
+> 给方法添加上事务管理
+> 不需要写任何的代码,只需要一个注释,那么这个类/方法就被事务管理了--@Transactional
+> 此时,buyBookByMe这个方法就被事务管理了,如果出现异常,就会回滚
 
 声明式事务的步骤:
+
 1. 在Spring的配置文件中配置事务管理器
 2. 开启事务的注解驱动
 3. 在需要被事务管理的方法上添加上@Transactional注解,该方法就会被事务管理
 
 @Transactional注解标识的位置
+
 1. 标识在方法上
 2. 标识在类上,则类中所有的方法都会被事务管理
 
@@ -3446,9 +3449,10 @@ public class BookDaoImplByMe implements BookDaoByMe {
 
 **@Transactional的属性**
 
->只读
-对一个查询操作来说,如果我们把它设置成只读,就能够明确的告诉数据库,这个操作不涉及写操作,这样数据库就能针对查询操作来进行优化
-默认为false
+> 只读
+> 对一个查询操作来说,如果我们把它设置成只读,就能够明确的告诉数据库,这个操作不涉及写操作,这样数据库就能针对查询操作来进行优化
+> 默认为false
+
 ```java
     @Transactional(
             readOnly = true
@@ -3457,10 +3461,10 @@ public class BookDaoImplByMe implements BookDaoByMe {
 
 **注意,如果设置了只读,这时如果进行修改,就会报SQLException:Connection is read-only. Queries leading to data modification are not allowed**
 
->超时
-事务在执行过程中,有可能遇到某些问题,导致程序卡住,从而长时间占用数据库资源,而长时间占用资源,大概率是因为程序运行出现了问题(可能是Java程序或者MySql数据库或网络连接等等)
-这个时候出现问题的程序应该被回滚,撤销它已做的操作,事务结束,把资源让出来,让其他正常程序可以执行
-概括来说就是一句话,超时回滚,释放资源
+> 超时
+> 事务在执行过程中,有可能遇到某些问题,导致程序卡住,从而长时间占用数据库资源,而长时间占用资源,大概率是因为程序运行出现了问题(可能是Java程序或者MySql数据库或网络连接等等)
+> 这个时候出现问题的程序应该被回滚,撤销它已做的操作,事务结束,把资源让出来,让其他正常程序可以执行
+> 概括来说就是一句话,超时回滚,释放资源
 
 默认值是-1,意为一直等
 
@@ -3471,6 +3475,7 @@ public class BookDaoImplByMe implements BookDaoByMe {
 ```
 
 此时在service中,给这个程序休眠5s(*在调用核心代码之前添加以下代码*)
+
 ```java
         try {
             TimeUnit.SECONDS.sleep(5);
@@ -3481,8 +3486,9 @@ public class BookDaoImplByMe implements BookDaoByMe {
 
 如果超时,则会报:TransactionTimedOutException: Transaction timed out: deadline was...
 
->回滚策略
-声明式事务默认只针对运行时异常回滚,编译时异常不回滚
+> 回滚策略
+> 声明式事务默认只针对运行时异常回滚,编译时异常不回滚
+
 - rollbackFor属性:需要设置一个Class类型的对象
 - rollbackForClassName属性:需要设置一个字符串类型的全类名
 - noRollbackFor属性:需要设置一个Class类型的对象
@@ -3493,6 +3499,7 @@ public class BookDaoImplByMe implements BookDaoByMe {
 看一种情况,比如在所有的更新库存更新余额执行完之后,执行一个sout(1/0),此时会抛出数学运算异常,但上面的更新是没问题的,由于还是抛出了异常,所以造成回滚
 
 此时设置:
+
 ```java
     @Transactional(
             {noRollbackFor = ArithmeticException.class}
@@ -3500,19 +3507,21 @@ public class BookDaoImplByMe implements BookDaoByMe {
 
     )
 ```
+
 noRollbackFor是一个数组,但是如果只有一个数据的话,是不用写大括号的
 
 就可以实现
 
->事务的隔离级别
-数据库系统必须具有隔离并发运行各个事物的能力,使它们不会相互影响,避免各种并发问题,一个事务与其他事务隔离的程度称为隔离级别,SQL标准中规定了多种事务隔离级别,不同隔离级别对应不同的干扰程度,隔离级别越高,数据一致性就越好,但并发行越弱
+> 事务的隔离级别
+> 数据库系统必须具有隔离并发运行各个事物的能力,使它们不会相互影响,避免各种并发问题,一个事务与其他事务隔离的程度称为隔离级别,SQL标准中规定了多种事务隔离级别,不同隔离级别对应不同的干扰程度,隔离级别越高,数据一致性就越好,但并发行越弱
 
 就那几个隔离级别,一般来说不需要设置,默认为"可重复读"-REPEATABLE READ-确保Transaction01可以多次从一个字段中读取到相同的值,即Transaction01执行期间禁止其他事务对这个字段进行更新
 而还有一个**串行化**,确保Transaction01可以多次从一个表中读取到相同的行,在Transaction01执行期间,进制其他事务对这个表进行添加,更新,删除操作,可以避免任何并发问题,但性能十分低下
 **只有特殊情况下才使用串行化,一般都是用默认的可重复读**
 
->各个隔离级别解决并发问题的能力:
-![1667558279260](image/ssm_thinking/1667558279260.png)
+> 各个隔离级别解决并发问题的能力:
+> ![1667558279260](image/ssm_thinking/1667558279260.png)
+
 <!-- ![20221104183801](https://gcore.jsdelivr.net/gh/jimmy66886/picgo@main/img/20221104183801.png) -->
 
 ```java
@@ -3525,10 +3534,11 @@ noRollbackFor是一个数组,但是如果只有一个数据的话,是不用写�
     )
 ```
 
->事务的传播行为
-这个是什么意思呢,举个例子,我现在有100块,要去买两本书,买完第一本,就没钱买第二本了
+> 事务的传播行为
+> 这个是什么意思呢,举个例子,我现在有100块,要去买两本书,买完第一本,就没钱买第二本了
 
 来看代码:
+
 ```java
 package com.zzmr.spring.service;
 
@@ -3547,6 +3557,7 @@ public interface CheckoutService {
 ```
 
 serviceImpl
+
 ```java
 package com.zzmr.spring.service.impl;
 
@@ -3572,8 +3583,8 @@ public class CheckoutServiceImpl implements CheckoutService {
 }
 ```
 
-
 测试类:
+
 ```java
     @Test
     public void testTwo(){
@@ -3586,11 +3597,13 @@ public class CheckoutServiceImpl implements CheckoutService {
 
 此时在BookServiceImpl中
 设置:
+
 ```java
     @Transactional(
             propagation = Propagation.REQUIRES_NEW
     )
 ```
+
 此时就会发现,第一本能买成功,第二本不行
 
 #### 基于XML的声明式事务
@@ -3607,9 +3620,11 @@ public class CheckoutServiceImpl implements CheckoutService {
         <aop:advisor advice-ref="tx" pointcut="execution(* com.zzmr.spring.service.impl.*.*(..))"></aop:advisor>
     </aop:config>
 ```
+
 这个就是基于xml的声明式事务的配置信息
 
 还有jar包,不然运行不了
+
 ```xml
         <dependency>
             <groupId>org.springframework</groupId>
@@ -3622,6 +3637,7 @@ SpringMVC开始
 嗯
 
 ## SpringMVC
+
 2022年11月6日 20点25分
 *快要开始做项目了,有点慌,跟他们学的东西不太一样,咱又没人家学的精,只能用人家的方法来写了*
 
@@ -3642,10 +3658,11 @@ C: Controller,控制层,指工程中的Servlet,作用是接收请求和响应浏
 ### 基本配置
 
 #### 配置web.xml
+
 之前的web.xml要配置好多好多Servlet,而现在只需要配置一个-**DispatcherServelt**
 
->url-pattern中 /表示匹配浏览器向服务器发送的所有请求(不包括jsp) /*表示匹配浏览器向服务器发送的所有请求(包括jsp)
-为什么不用/* ? 因为DispatcherServlet处理不了jsp的请求,jsp会被tomcat默认的配置-JspServlet来处理
+> url-pattern中 /表示匹配浏览器向服务器发送的所有请求(不包括jsp) /*表示匹配浏览器向服务器发送的所有请求(包括jsp)
+> 为什么不用/* ? 因为DispatcherServlet处理不了jsp的请求,jsp会被tomcat默认的配置-JspServlet来处理
 
 ```xml
 <?xml version="1.0" encoding="UTF-8"?>
@@ -3678,6 +3695,7 @@ C: Controller,控制层,指工程中的Servlet,作用是接收请求和响应浏
 ```
 
 #### 创建请求控制器
+
 前端控制器处理了所有浏览器发送的请求,但是具体的请求有不同的处理过程,就需要创建处理具体请求的类-请求控制器,这个类不需要继承什么,只需要加上@Controller注解,那这个普通的类就变成了请求控制器,不过要想实现这个操作,**需要在SpringMVC的配置文件中扫描对应的包才行**
 
 请求控制器中每一个处理请求的方法称为控制器方法
@@ -3693,7 +3711,6 @@ public class HelloController {
 
 SpringMVC的配置文件是在SpringMVC初始化时完成加载的
 默认是要放在web-inf下,名字是servlet-name+ -servlet.xml,**实际上配置文件还是要放在resources下,然后在web.xml中引入即可**
-
 
 ```xml
 <?xml version="1.0" encoding="UTF-8"?>
@@ -3727,10 +3744,10 @@ SpringMVC的配置文件是在SpringMVC初始化时完成加载的
 
 </beans>
 ```
+
 配置了什么**视图前缀**,**视图后缀**之后,就可以直接通过逻辑视图(视图的名字)来访问了
 比如之前是/WEB-INF/templates/index.html
 而视图前缀就是/WEB-INF/templates,视图后缀就是.html,所以可以直接通过index来访问
-
 
 #### 创建控制器方法
 
@@ -3748,6 +3765,7 @@ SpringMVC的配置文件是在SpringMVC初始化时完成加载的
 
 **当浏览器发送一个请求,如果请求路径和@RequestMapping的括号里面的路径是一样的话,这个请求就会被该控制器方法处理**
 **在return之后,就会被视图解析器解析,然后在逻辑视图前面加上视图前缀,在逻辑视图后面加上视图后缀:**
+
 ```xml
                     <bean class="org.thymeleaf.spring5.templateresolver.SpringResourceTemplateResolver">
 <!--                        index-->
@@ -3761,6 +3779,7 @@ SpringMVC的配置文件是在SpringMVC初始化时完成加载的
 ```
 
 #### 测试
+
 ```html
 <!DOCTYPE html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
@@ -3774,18 +3793,18 @@ SpringMVC的配置文件是在SpringMVC初始化时完成加载的
 </body>
 </html>
 ```
+
 这里使用的是thymeleaf解析的路径,也就是下面的th:href="@{/hello}"
 如果直接写/hello,这时浏览器会解析成localhost:8080,并不会有上下文路径,而@{/hello}就可以解析成localhost:8080/上下文路径
-
-
 
 到这里,其实还有一些扩展的东西
 
 1. 将SpringMVC配置文件放到resource目录下的操作:
-将在servlet标签中添加<init-param>初始化参数,指定param-name和param-value就行了,param-value就是配置文件的文件名
+   将在servlet标签中添加`<init-param>`初始化参数,指定param-name和param-value就行了,param-value就是配置文件的文件名
 
 而load-on-startup标签是将DispatcherServlet的初始化时间提前到服务器启动时
 为什么要设置这么呢?因为DispatcherServlet在初始化时要做的工作非常多,所以提前初始化能够提高效率
+
 ```xml
     <servlet>
         <servlet-name>SpringMVC</servlet-name>
@@ -3800,11 +3819,12 @@ SpringMVC的配置文件是在SpringMVC初始化时完成加载的
     </servlet>
 ```
 
-
 ### @RequestMapping注解
+
 **开始深入了**
 
 首先做的还是简单的配置
+
 1. 复制pom.xml中的一些依赖,从打包方式开始,一直复制到最后
 2. 然后配置web.xml,就是配置servlet(DispatcherServlet)
 3. 然后配置springmvc配置文件(直接复制之前的,因为基本没什么区别)
@@ -3812,6 +3832,7 @@ SpringMVC的配置文件是在SpringMVC初始化时完成加载的
 配置完,就开始写controller了
 
 可以单独写一个访问首页的控制器-PortalController.java
+
 ```java
 package com.zzmr.controller;
 
@@ -3828,6 +3849,7 @@ public class PortalController {
 ```
 
 #### @RequestMapping注解的功能
+
 @RequestMapping注解的作用就是将请求和处理请求的控制器方法关联起来,建立映射关系
 SpringMVC接受到指定的请求,就会来找到映射关系中对应的控制器方法来处理这个请求
 
@@ -3835,8 +3857,9 @@ SpringMVC接受到指定的请求,就会来找到映射关系中对应的控制�
 
 1. 标识在方法上,设置映射请求路径的具体信息
 2. 标识到类上,设置映射请求路径的初始信息
-这种方式就相当于,**要先匹配类上的路径,再匹配到方法上的路径,才能处理请求**
-比如这样:
+   这种方式就相当于,**要先匹配类上的路径,再匹配到方法上的路径,才能处理请求**
+   比如这样:
+
 ```java
 package com.zzmr.controller;
 
@@ -3857,32 +3880,39 @@ public class TestRequestMappingController {
 
 此时类上的是/test,而方法上的是/hello
 如果html文件中是这样写的:
+
 ```html
 <a th:href="@{/hello}">测试@RequestMapping注解所标识的位置</a>
 ```
+
 就访问不到,要写成这样:
+
 ```html
 <a th:href="@{/test/hello}">测试@RequestMapping注解所标识的位置</a>
 ```
+
 **也就是类上的路径加上方法的路径才是一个完整的路径**
 
->这个是非常有用的,举个例子,老师和学生同时有一个查询的方法,请求路径都是/list,此时SpringMVC就不能分辨到底是学生的/list还是老师的/list,就会报错,在类上添加注解,可以解决这个问题,比如在学生类上添加/student,而请求查询所有学生信息就用的是/student/list,查询老师就是/teacher/list,这样就不会冲突了
-
+> 这个是非常有用的,举个例子,老师和学生同时有一个查询的方法,请求路径都是/list,此时SpringMVC就不能分辨到底是学生的/list还是老师的/list,就会报错,在类上添加注解,可以解决这个问题,比如在学生类上添加/student,而请求查询所有学生信息就用的是/student/list,查询老师就是/teacher/list,这样就不会冲突了
 
 #### @RequestMapping的value属性
 
 这个value属性,其实就是路径,可以设置多个:
+
 ```java
     @RequestMapping({"/hello", "/abc"})
     public String hello(){
         return "success";
     }
 ```
+
 设置多个的效果:该控制器方法可以处理多个请求:
+
 ```html
 <a th:href="@{/hello}">测试@RequestMapping注解所标识的位置</a>
 <a th:href="@{/abc}">测试@RequestMapping注解所标识的位置</a>
 ```
+
 此时两个都能访问到
 
 *之前的servlet也是可以实现的,只需要多设置几个url-pattern*
@@ -3906,16 +3936,20 @@ public class TestRequestMappingController {
         return "success";
     }
 ```
+
 此时就只能处理post请求了
+
 ```html
 <a th:href="@{/abc}">测试@RequestMapping的value属性</a><br>
 <form th:action="@{/hello}" method="post">
     <input type="submit" value="测试@RequestMapping的method属性">
 </form>
 ```
+
 这两个,就只能下面的form表单能请求成功,因为是post请求,上面的是get请求
 
 改成:
+
 ```java
     @RequestMapping(
             value = {"/hello", "/abc"},
@@ -3925,15 +3959,15 @@ public class TestRequestMappingController {
         return "success";
     }
 ```
+
 此时既能处理get,也能处理post
 
->405错误:若浏览器所发送的请求的请求路径和@RequestMapping注解value属性匹配,但是请求方式不匹配,此时页面报错,405 - Request method 'xxx' not supported
-
+> 405错误:若浏览器所发送的请求的请求路径和@RequestMapping注解value属性匹配,但是请求方式不匹配,此时页面报错,405 - Request method 'xxx' not supported
 
 #### @RequestMapping的param属性
 
->在@RequestMapping的基础上,结合请求方式的一些派生注解:
-@GetMapping,@PostMapping,@DeleteMapping,@PutMapping,这些注解的效果和@RequestMapping注解的作用类似,只是里面不用再写method了,而是将method属性内置到了注解当中
+> 在@RequestMapping的基础上,结合请求方式的一些派生注解:
+> @GetMapping,@PostMapping,@DeleteMapping,@PutMapping,这些注解的效果和@RequestMapping注解的作用类似,只是里面不用再写method了,而是将method属性内置到了注解当中
 
 @RequestMapping注解的params属性
 
@@ -3944,8 +3978,8 @@ public class TestRequestMappingController {
 3. "param=value": 表示当前所匹配请求的请求参数中必须携带param参数且值必须为value
 4. "param!=value": 表示当前所匹配请求的请求参数可以不携带param,如果携带,必须不能等于value
 
-
 **下面的params条件就是,必须有username,必须不能有password,必须有age,且等于20,gender可以不携带,但如果携带不能为男**
+
 ```java
     @RequestMapping(
             value = {"/hello", "/abc"},
@@ -3956,29 +3990,35 @@ public class TestRequestMappingController {
         return "success";
     }
 ```
+
 <!-- ![1670555849427](image/ssm_thinking/1670555849427.png) -->
+
 ![20221209111735](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20221209111735.png)
 
-
-
->如果遇到params属性不匹配的情况,就会报这个错误:
-HTTP Status 400 - Parameter conditions "xxxxx" not met for actual request parameters:
+> 如果遇到params属性不匹配的情况,就会报这个错误:
+> HTTP Status 400 - Parameter conditions "xxxxx" not met for actual request parameters:
 
 那如何设置请求参数呢,有两种方式:
+
 1. 直接?拼接
+
 ```html
 <a th:href="@{/hello?username=admin}">测试params属性</a>
 ```
+
 2. 小括号的形式
+
 ```html
 <a th:href="@{/hello(username='admin')}">测试params属性</a>
 ```
+
 **有什么区别吗?没有,只是第一种写法,会报红,但实际运行时没问题**
+
 <!-- ![1670555121712](image/ssm_thinking/1670555121712.png) -->
+
 ![20221209110526](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20221209110526.png)
 
 **但是param用的并不多,还是value和method用的比较多**
-
 
 #### @RequestMapping的headers属性(了解)
 
@@ -3987,20 +4027,24 @@ HTTP Status 400 - Parameter conditions "xxxxx" not met for actual request parame
 @RequestMapping注解的headers属性是一个字符串类型的数组,可以用过四种表达式设置请求头信息和请求映射的匹配关系
 
 这四种和上面的params类似,但又有些区别
+
 <!-- ![1670556190250](image/ssm_thinking/1670556190250.png) -->
+
 ![20221209112315](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20221209112315.png)
 
 若当前请求满足@RequestMapping注解的value和method属性,但是不满足headers属性,此时页面显示404错误,即资源未找到
 
-
 #### SpringMVC支持ant风格的路径
+
 说白了就是用特殊符号来表示路径片段
+
 1. ?:表示任意的单个字符
 2. *:表示任意的0个或多个字符
 3. \**:表示任意层数的任意目录
-注意:在使用**时,只能使用/\*\*/xxx的方式
+   注意:在使用**时,只能使用/\*\*/xxx的方式
 
 示例1:
+
 ```java
     /**
      * ？：任意的单个字符
@@ -4013,6 +4057,7 @@ HTTP Status 400 - Parameter conditions "xxxxx" not met for actual request parame
 ```
 
 此时就可以匹配a(任意字符)c的请求了,**但是某些特殊字符是不行的,比如?**
+
 ```html
 <a th:href="@{/abc/test/ant}">测试Ant</a>
 <a th:href="@{/acc/test/ant}">测试Ant</a>
@@ -4020,34 +4065,43 @@ HTTP Status 400 - Parameter conditions "xxxxx" not met for actual request parame
 ```
 
 示例2:
+
 ```java
     @RequestMapping("/a*c/test/ant")
     public String testAnt(){
         return "success";
     }
 ```
+
 此时可以匹配任意个数的任意字符,但是也不能有特殊字符:?,/
 
 示例3:
+
 ```java
     @RequestMapping("/**/test/ant")
     public String testAnt(){
         return "success";
     }
 ```
+
 此时可以表示任意层数的任意目录,但是要注意写法:**\*\*只能写在双斜线中,前后不能有任何的字符**
+
 <!-- ![1670638579526](image/ssm_thinking/1670638579526.png) -->
+
 ![20221210101622](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20221210101622.png)
 
 #### SpringMVC支持路径中的占位符(重点)
+
 原始方式: /deleteUser?id=1
 rest方式: /deleteUser/1
 又是这个rest方式:RESTful,当时看的时候迷迷瞪瞪的
->SpringMVC路径中的占位符常用于RESTful更各种,当请求路径种将某些数据通过路径的方式传输到服务器中,就可以在相应的@RequestMapping注解的value属性中通过占位符{xxx}表示传输的数据,在通过@PathVariable注解,将占位符所表示的数据赋值给控制器方法的形参
+
+> SpringMVC路径中的占位符常用于RESTful更各种,当请求路径种将某些数据通过路径的方式传输到服务器中,就可以在相应的@RequestMapping注解的value属性中通过占位符{xxx}表示传输的数据,在通过@PathVariable注解,将占位符所表示的数据赋值给控制器方法的形参
 
 **说白了就是将发送的请求参数也作为路径的一部分**
 
 主要就是要用{}和@PathVariable(""),
+
 ```java
     @RequestMapping("/test/rest/{username}/{id}")
     public String testRest(@PathVariable("id") Integer id, @PathVariable("username") String username) {
@@ -4058,15 +4112,17 @@ rest方式: /deleteUser/1
 ```
 
 此时:
+
 ```html
 <a th:href="@{/test/rest/admin/1}">测试@ReqeustMapping注解的value属性中的占位符</a>
 ```
-后端就可以获取到admin和1了
 
+后端就可以获取到admin和1了
 
 ### SpringMVC获取请求参数
 
 1. 通过ServletAPI获取,也就是老式的获取方式,主要就是要注意request是从哪里来的,是前端控制器检测方法用的是什么,就会给什么
+
 ```java
     @RequestMapping("/param/servletAPI")
     public String getParamByServletAPI(HttpServletRequest request) {
@@ -4086,9 +4142,9 @@ rest方式: /deleteUser/1
 </form>
 ```
 
-
 2. 通过控制器方法的形参获取
-这种方法太简单了,只需要在形参位置写上和name一样的名字,就可以直接获取了,不用加注解,也不用写request
+   这种方法太简单了,只需要在形参位置写上和name一样的名字,就可以直接获取了,不用加注解,也不用写request
+
 ```java
     @RequestMapping("/param")
     public String getParam(String username,String password){
@@ -4107,6 +4163,7 @@ rest方式: /deleteUser/1
 ```
 
 但是如果请求参数和形参名不一致呢,也就是自己设置的不一致,此时可以使用@RquestParam注解
+
 ```java
     @RequestMapping("/param")
     public String getParam(@RequestParam("userName") String username, String password){
@@ -4119,8 +4176,10 @@ rest方式: /deleteUser/1
 *但是我感觉多此一举*,相当于多一个映射,用于请求参数和形参不一致的情况
 
 还有就是@RequestParam注解的其他属性值
+
 1. required,默认为true,表示必须传这个参数,如果不传,报400
 2. defaultValue,当设置了defaultValue时,无论required是true还是false,当没传参数时,就是用默认值,传了,那就使用传的参数
+
 ```java
     @RequestMapping("/param")
     public String getParam(@RequestParam(value = "userName",required = false,defaultValue = "hello") String username, String password){
@@ -4150,16 +4209,19 @@ rest方式: /deleteUser/1
         return "success";
     }
 ```
+
 当然获取cookie的前提是要有,所以在上面的/param/servletAPI中添加了:
+
 ```java
         HttpSession session = request.getSession();
 ```
-**此时先访问/param/servletAPI,然后再访问/param,就可以获取到jsessionId的cookie了**
 
+**此时先访问/param/servletAPI,然后再访问/param,就可以获取到jsessionId的cookie了**
 
 ### 通过pojo获取请求参数
 
 这种以后用的也是很多
+
 ```java
     @RequestMapping("/param/pojo")
     public String getParamByPojo(User user){
@@ -4176,6 +4238,7 @@ rest方式: /deleteUser/1
 解决获取请求参数的乱码问题,可以使用SpringMVC提供的编码过滤器CharacterEncodingFilter,但是必须在web.xml中进行注册
 
 把这个放到web.xml中就可以了
+
 ```xml
     <!--    配置Spring的编码过滤器 -->
     <filter>
@@ -4196,29 +4259,28 @@ rest方式: /deleteUser/1
     </filter-mapping>
 ```
 
->还有一个要注意的地方
-Tomcat7，如果不在server.xml中设置字符集的话，那GET和POST都是乱码(中文乱码)
-Tomcat8，解决了GET请求乱码的问题，但是没有解决POST请求乱码，此时在web.xml中设置filter过滤器即可
+> 还有一个要注意的地方
+> Tomcat7，如果不在server.xml中设置字符集的话，那GET和POST都是乱码(中文乱码)
+> Tomcat8，解决了GET请求乱码的问题，但是没有解决POST请求乱码，此时在web.xml中设置filter过滤器即可
 
 **SpringmVC中处理编码的过滤器一定要配置在其他过滤器之前,否则无效**
-
 
 ### 域对象共享数据
 
 #### 使用ServletAPI向request域对象共享数据
+
 这还是老式的方式setAttribute()
-
-
 
 #### 使用ModelAndView向request域对象共享数据
 
->不管使用的是哪种方式,到最后都会被转换为ModelAndView的形式共享数据,这也是为什么推荐使用这个的原因
+> 不管使用的是哪种方式,到最后都会被转换为ModelAndView的形式共享数据,这也是为什么推荐使用这个的原因
 
 具体步骤:
+
 1. 创建ModelAndView对象
 2. 共享数据:addObject()
 3. 设置视图:setViewName()
-**注意,如果使用ModelAndView,就必须将ModelAndView对象返回**
+   **注意,如果使用ModelAndView,就必须将ModelAndView对象返回**
 
 ```java
 @RequestMapping("/test/mav")
@@ -4239,6 +4301,7 @@ Tomcat8，解决了GET请求乱码的问题，但是没有解决POST请求乱码
 
 那如何获取数据呢?
 哈哈哈哈哈哈艹
+
 ```html
 <!--  thymeleaf中的语法，使用${}渲染p标签中的内容-->
 <p th:text="${testRequestScope}"></p>
@@ -4247,8 +4310,10 @@ Tomcat8，解决了GET请求乱码的问题，但是没有解决POST请求乱码
 #### 使用Model向请求域中共享数据
 
 这可能是最常用的方式了,因为相较于ModelAndView,这个明显简单一些
+
 - 对象不用自己创建,直接写在形参位置即可
 - 视图直接返回,不需要setView对象
+
 ```java
     @RequestMapping("/test/model")
     public String testModel(Model model){
@@ -4257,10 +4322,10 @@ Tomcat8，解决了GET请求乱码的问题，但是没有解决POST请求乱码
     }
 ```
 
-
 #### 使用ModelMap向请求域中共享数据
 
 这种也是很简单,几乎一模一样
+
 ```java
     @RequestMapping("/test/modelMap")
     public String testModelMap(ModelMap modelMap){
@@ -4270,6 +4335,7 @@ Tomcat8，解决了GET请求乱码的问题，但是没有解决POST请求乱码
 ```
 
 #### 使用map向请求域中共享数据
+
 区别仅在于形参的对象不同
 
 ```java
@@ -4280,14 +4346,13 @@ Tomcat8，解决了GET请求乱码的问题，但是没有解决POST请求乱码
     }
 ```
 
-
-
 #### Model和ModelMap和map的关系
 
 **无论是使用Model,ModelMap,Map,底层都是同一个类:**
 org.springframework.validation.support.BindingAwareModelMap
 
 #### 向session域和application域中共享数据
+
 建议还是使用老式的共享方式:setAttribute
 因为SpringMVC提供的方式比原生servlet更复杂一些
 
@@ -4310,28 +4375,28 @@ org.springframework.validation.support.BindingAwareModelMap
 session是直接使用session对象,而application也是使用session,但是要获取servletContext对象再设置
 
 而获取域中的数据:
+
 ```html
 <!--  在thymeleaf中，如果要获取session和application域中的数据，要写上session/application.xxx的形式-->
 <p th:text="${session.testSessionScope}"></p>
 <p th:text="${application.testApplicationScope}"></p>
 ```
 
-
 ### SpringMVC的视图
+
 SpringMVC中的视图是View接口,视图的作用是渲染数据,将模型Model中的数据展示给用户
 SpringMVC视图的种类很多,默认有转发视图和重定向视图
 当工程引入jstl的依赖,转发视图会自动转换为jstlView
 若使用的视图技术为Thymeleaf,在SpringMVC的配置文件中配置了Thymeleaf的视图解析器,由此视图解析器解析之后所得到的是ThymeleafView
 
-
 #### ThymeleafView
 
 **当控制器方法中所设置的视图名称没有任何前缀时,此时的视图名称会被SpringMVC配置文件中所配置的视图解析器解析,视图名称拼接视图前缀和视图后缀所得到的最终路径,会通过转发的方式实现跳转**
 
-
-
 #### InternalResourceView
+
 就是在视图前加上"forward:"
+
 ```java
     @RequestMapping("/test/view/forward")
     public String testInternalResourceView(){
@@ -4339,9 +4404,9 @@ SpringMVC视图的种类很多,默认有转发视图和重定向视图
         return "forward:/test/model";
     }
 ```
+
 但是这个用的不多的,因为原来实现的就是转发,这个也是转发
 **以后用的最多的还是Thymeleaf**
-
 
 #### 重定向视图RedirectView
 
@@ -4352,12 +4417,12 @@ SpringMVC视图的种类很多,默认有转发视图和重定向视图
     }
 ```
 
-
-
->总结来说,使用转发视图时,使用Thymeleaf视图,使用重定向时,使用重定向视图,而访问页面失败时,**就使用转发,访问成功就使用重定向**
+> 总结来说,使用转发视图时,使用Thymeleaf视图,使用重定向时,使用重定向视图,而访问页面失败时,**就使用转发,访问成功就使用重定向**
 
 #### 视图控制器view-controller
+
 当控制器方法中,仅仅用来实现页面跳转,即只需要设置视图名称时,可以将处理器方法使用view-controller标签进行表示
+
 ```xml
     <!--    开启mvc的注解驱动-->
     <mvc:annotation-driven/>
@@ -4373,24 +4438,25 @@ SpringMVC视图的种类很多,默认有转发视图和重定向视图
 ### RESTful
 
 #### RESTful简介
->其实我又开始迷茫了
-因为这个视频看完好像也是没学到什么
-还是要做项目啊
-到底是先用SSM做一个项目,然后再学boot
-还是先学boot,再做项目呢
-看完再说吧
-害
+
+> 其实我又开始迷茫了
+> 因为这个视频看完好像也是没学到什么
+> 还是要做项目啊
+> 到底是先用SSM做一个项目,然后再学boot
+> 还是先学boot,再做项目呢
+> 看完再说吧
+> 害
 
 创建新的工程
 
-
 我也不知道到底有什么用,反正就是看吧,看明白就好
-
 
 #### RESTful模拟CRUD
 
 **要注意,form表单只有两种提交方式,get和post,是没有put和delete的,要想实现这两种方式,需要以下步骤:**
+
 1. 设置过滤器(要注意一定要设置在编码过滤器的后面)
+
 ```xml
 <!--    设置处理请求方式的过滤器   -->
     <filter>
@@ -4402,20 +4468,21 @@ SpringMVC视图的种类很多,默认有转发视图和重定向视图
         <url-pattern>/*</url-pattern>
     </filter-mapping>
 ```
+
 2. 设置name为_method的input标签,并保证form表单是post请求方式
+
 ```html
 <form th:action="@{/user}" method="post">
     <input type="hidden" name="_method" value="put">
     <input type="submit" value="修改用户信息">
 </form>
 ```
-**name必须为_method,value为要设置的请求方式**
 
+**name必须为_method,value为要设置的请求方式**
 
 那代码都在这了,因为没啥难的,所以就一块放了
 
->这里使用了派生注解
-
+> 这里使用了派生注解
 
 ```java
 package com.zzmr.controller;
@@ -4474,6 +4541,7 @@ public class TestRestController {
 ```
 
 然后就是页面
+
 ```html
 <!DOCTYPE html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
@@ -4504,8 +4572,7 @@ public class TestRestController {
 
 这次所谓的测试并没有链接数据库,还是只是模拟一下
 
->真的是,用了新键盘两天,就感觉原来的键盘手感怪怪的
-
+> 真的是,用了新键盘两天,就感觉原来的键盘手感怪怪的
 
 **这个案例好像也学不到什么,但是可以学一下,如何展示集合中的数据**
 这个还是挺有用的:
@@ -4537,38 +4604,43 @@ public class TestRestController {
 </table>
 ```
 
-
->静态资源的访问
-在自己写的工程中的web.xml有DispatcherServlet,我们重写了一个url-pattern,为斜杆/,这就直接覆盖了tomcat自带的defaultServlet,而DistpathcerServlet是不能处理静态资源的,所以此时引入静态资源是404
+> 静态资源的访问
+> 在自己写的工程中的web.xml有DispatcherServlet,我们重写了一个url-pattern,为斜杆/,这就直接覆盖了tomcat自带的defaultServlet,而DistpathcerServlet是不能处理静态资源的,所以此时引入静态资源是404
 
 解决办法
+
 ```xml
 <!--    配置默认的servlet处理静态资源-->
     <mvc:default-servlet-handler/>
 ```
+
 但是想用这个,还需要:
+
 ```xml
     <mvc:annotation-driven/>
 ```
+
 此时就实现了:**请求先让DispatcherServlet处理,如果处理不了,比如静态资源,再转给默认的servlet处理(tomcat自带的)**
 
-
 **还有一个要注意的点,之前写的默认跳转首页的那个,其实还可以用到一些其他地方,比如要跳转到添加页面,此时是不需要controller处理的,就让它直接跳过去,就可以直接在springmvc.xml中配置上**
+
 ```xml
     <mvc:view-controller path="/to/add" view-name="employee_add"/>
 ```
 
-
 **还有要注意的地方**
 路径的拼接:
+
 ```html
      <a th:href="@{'/employee/'+${employee.id}}">update</a>
 ```
+
 **单引号括起来,然后用加号拼接**
 
 **然后,写了一堆vue,我已经啥都不会了哈哈哈哈**
 
 然后把代码放着吧
+
 ```java
 package com.zzmr.controller;
 
@@ -4644,13 +4716,14 @@ public class EmployeeController {
 }
 ```
 
-
 ### SpringMVC处理ajax请求
+
 之前学过吗?忘了,翻翻web的笔记看看,还真是学过,笑死,忘的一干二净
 
->好久没见了
+> 好久没见了
 
 #### axios
+
 这个又是什么?这个没啥印象好像
 
 手好干啊,摸这个新键盘有一种让人起鸡皮疙瘩的感觉
@@ -4660,15 +4733,16 @@ public class EmployeeController {
 @RequestBody注解的使用=>将请求体中的内容和控制器方法的形参进行绑定
 **将json格式的请求参数转换为java对象**
 如何使用?
-1. 导入jackson的依赖
-2. 在SpringMVC的配置文件中设置开启mvc的注解驱动:<mvc:annotation-driven>
-3. 在处理请求的控制器方法的形参位置直接设置json格式的请求参数要转化的java类型的形参,使用@RequestBody注解标识即可
 
+1. 导入jackson的依赖
+2. 在SpringMVC的配置文件中设置开启mvc的注解驱动:[mvc:annotation-driven](mvc:annotation-driven)
+3. 在处理请求的控制器方法的形参位置直接设置json格式的请求参数要转化的java类型的形参,使用@RequestBody注解标识即可
 
 @ResponseBody,将所标识的控制器方法的返回值作为响应报文的响应体响应到浏览器
 使用@ResponseBody注解响应浏览器json格式的数据
+
 1. 导入jackson的依赖
-2. 在SpringMVC的配置文件中设置开启mvc的注解驱动:<mvc:annotation-driven>
+2. 在SpringMVC的配置文件中设置开启mvc的注解驱动:[mvc:annotation-driven](mvc:annotation-driven)
 3. 将需要转化为json字符串的java对象直接作为控制器方法的返回值,使用@ResponseBody注解标识控制器方法,就可以将java对象直接转化为json字符串,并响应到浏览器
 
 ```java
@@ -4679,15 +4753,16 @@ public class EmployeeController {
         return user;
     }
 ```
+
 **总结来说,就听懂一点:服务器想给浏览器发送一个Java类时,可以使用@ResponseBody注解,这个注解可以将Java对象直接转化为json字符串返回到浏览器,不需要多余的操作,非常方便**
 
->常用的Java对象转化为json的结果
-实体类->json对象
-map->json对象
-list->json数组
-
+> 常用的Java对象转化为json的结果
+> 实体类->json对象
+> map->json对象
+> list->json数组
 
 map集合:
+
 ```java
     @RequestMapping("/test/ResponseBody/json")
     @ResponseBody
@@ -4704,6 +4779,7 @@ map集合:
 ```
 
 list集合:
+
 ```java
     @RequestMapping("/test/ResponseBody/json")
     @ResponseBody
@@ -4718,26 +4794,26 @@ list集合:
 
 其实这些东西也没啥难的吧
 
-
 还有一个注解也挺有用的
 **@RestController注解**
 此注解是一个复合注解,标识在控制器的类上,就相当于为类添加了@Controller注解,并且为其中的每个方法添加了@ResponseBody注解
 
-
-
 ### 文件上传和下载
+
 文件上传和下载
 上次听完这个,现在已经忘干净了
 好像没学过一样
 这个好像挺麻烦的
 
 #### 文件下载
+
 ResponseEntity用于控制器方法的返回值类型,该控制器方法的返回值就是响应到浏览器的响应报文,使用ResponseEntity实现下载文件的功能
 
 要注意getRealPath()方法,这个方法如果括号里不写字符串,则返回的是整个项目在服务器中的位置,如果加上了字符串,则会将字符串拼接到位置的后面
 String realPath = servletContext.getRealPath("");
 
 下载的代码,基本相似,以后用到直接复制就行
+
 ```java
 @RequestMapping("/test/down")
     public ResponseEntity<byte[]> testResponseEntity(HttpSession session) throws IOException {
@@ -4766,13 +4842,15 @@ String realPath = servletContext.getRealPath("");
     }
 ```
 
-
 #### 文件上传
+
 文件上传的条件:
+
 1. form表单的请求方式必须为post
 2. form表单必须设置属性enctype="multipart/form-data"
 
 先添加依赖:
+
 ```xml
         <!-- https://mvnrepository.com/artifact/commons-fileupload/commons-fileupload -->
         <dependency>
@@ -4783,8 +4861,8 @@ String realPath = servletContext.getRealPath("");
     </dependencies>
 ```
 
-
 控制器方法:
+
 ```java
     @RequestMapping("/test/up")
     public String testUp(MultipartFile photo, HttpSession session) throws IOException {
@@ -4808,6 +4886,7 @@ String realPath = servletContext.getRealPath("");
 ```
 
 注意form表单
+
 ```html
     <form th:action="@{/test/up}" method="post" enctype="multipart/form-data">
         头像<input type="file" name="photo"><br>
@@ -4816,6 +4895,7 @@ String realPath = servletContext.getRealPath("");
 ```
 
 以及配置文件中的bean
+
 ```xml
     <!--    配置文件上传解析器-->
     <bean id="multipartResolver" class="org.springframework.web.multipart.commons.CommonsMultipartResolver"></bean>
@@ -4832,8 +4912,8 @@ String realPath = servletContext.getRealPath("");
         //拼接一个新的文件名
         fileName = uuid + hz;
 ```
-思路就是使用uuid,先用fileName.lastIndexOf()方法获取原始文件名最后的点的索引,然后使用substring()方法来截断,获取到后缀,再生成一个uuid,最后拼接
 
+思路就是使用uuid,先用fileName.lastIndexOf()方法获取原始文件名最后的点的索引,然后使用substring()方法来截断,获取到后缀,再生成一个uuid,最后拼接
 
 文件上传和下载也看完了,也没啥东西,主要就是思路
 
@@ -4852,16 +4932,20 @@ String realPath = servletContext.getRealPath("");
 了解
 
 #### 配置拦截器
+
 就了解一下如何配置拦截器吧
 一个标签:
+
 ```xml
     <mvc:interceptors>
         <bean class="com.zzmr.interceptor.FirstInterceptor"></bean>
     </mvc:interceptors>
 ```
+
 这样就可以配置FirstInterceptor这个类为一个拦截器
 
 其他的配置方式:ref,引用其他的bean
+
 ```xml
     <bean id="firstInterceptor" class="com.zzmr.interceptor.FirstInterceptor"></bean>
 
@@ -4876,6 +4960,7 @@ String realPath = servletContext.getRealPath("");
 
 第三种配置方式,更精确,因为上面两种都是默认对所有的请求进行拦截,而下面这种可以更加的精确,也可以进行排除
 而/\*则表示上下文目录下的一层目录,意思就是http://localhost:8080/SpringMVC/first,只能拦截一层目录,如果有多层则不进行拦截,/\*\*就表示所有目录
+
 ```xml
     <mvc:interceptors>
         <mvc:interceptor>
@@ -4887,9 +4972,8 @@ String realPath = servletContext.getRealPath("");
     </mvc:interceptors>
 ```
 
-
-
 **拦截器中的方法:**
+
 ```java
     /**
      * preHandle方法，在控制器方法之前执行，return false，表示拦截，返回true，表示放行
@@ -4911,16 +4995,13 @@ String realPath = servletContext.getRealPath("");
     }
 ```
 
-
-
-
 #### 拦截器的执行顺序
 
 拦截器方法的执行:
+
 - preHandle() 在控制器方法执行之前  返回值表示对控制器方法的拦截(false)或放行(true)
 - postHandle() 在控制器方法执行之后
 - afterCompletion()  在控制器方法执行之后，且渲染视图完毕之后执行
-
 
 **多个拦截器的执行顺序**
 多个拦截器的执行顺序和拦截器在SpringVC的**配置文件中的配置的顺序有关**
@@ -4928,6 +5009,7 @@ preHandle()  按照配置的顺序执行，而postHandle() 和 afterCompletion()
 若拦截器中有某个拦截器的preHandle()返回值false
 
 preHandle()返回false的情况:
+
 - 若拦截其中某个拦截器的preHandle()返回了false和它之前的拦截器的preHandle()都会执行
 - 所有的拦截器的post()都不执行
 - 拦截器的preHandle()返回false之前的拦截器的afterCompletion会执行
@@ -4936,14 +5018,13 @@ preHandle()返回false的情况:
 用灰木轴用多了,发现这个茶轴用起来好硬啊哈哈哈哈哈艹
 手被惯坏了都
 
-
 ### 异常处理
+
 这块看之前的笔记吧,懒得写了
 反正内容都差不多
 
-
-
 ### 基于注解配置SpringMVC
+
 这个好好看看吧
 
 在Servlet3.0环境中,容器会在类路径中查找实现javax.servlet.ServletContainerInitializer接口的类,如果找到的话就用它来配置Servlet容器
@@ -4951,9 +5032,8 @@ Spring提供了这个接口的实现,名为SpringServletContainerInitializer,这
 
 #### 创建初始化类,代替web.xml
 
->在Servlet3.0环境中,容器会在类路径中查找实现javax.servlet.ServletContainerInitializer接口的类,如果找到的话就用它来配置Servlet容器
-Spring提供了这个接口的实现,名为SpringServletContainerInitializer,这个类反过来又会查找实现WebApplicationInitializer的类并配置的任务交给它们来完成,Spring3.2引入了一个便利的WebApplicationInitializer基础实现,名为AbstractAnnotationConfigDispatcherServletInitializer,当我们的类扩展了AbstractAnnotationConfigDispatcherServletInitializer并将其部署到Servlet3.0容器的时候,容器会自动发现它,并用它来配置Servlet上下文
-
+> 在Servlet3.0环境中,容器会在类路径中查找实现javax.servlet.ServletContainerInitializer接口的类,如果找到的话就用它来配置Servlet容器
+> Spring提供了这个接口的实现,名为SpringServletContainerInitializer,这个类反过来又会查找实现WebApplicationInitializer的类并配置的任务交给它们来完成,Spring3.2引入了一个便利的WebApplicationInitializer基础实现,名为AbstractAnnotationConfigDispatcherServletInitializer,当我们的类扩展了AbstractAnnotationConfigDispatcherServletInitializer并将其部署到Servlet3.0容器的时候,容器会自动发现它,并用它来配置Servlet上下文
 
 上代码吧注释都写好了
 以后其实是用这种方式比较多吧,如果是开发项目,这种方式要比xml配置快,但是后期可能维护起来比较麻烦,但是开发时还是经常用注解的
@@ -5024,6 +5104,7 @@ public class WebInit extends AbstractAnnotationConfigDispatcherServletInitialize
 #### 创建WebConfig来代替SpringMVC配置文件
 
 还是挺多的,不过那个视图解析器可以直接复制,都是类似的内容
+
 ```java
 package com.zzmr.config;
 
@@ -5161,6 +5242,7 @@ public class WebConfig implements WebMvcConfigurer {
 明天见
 
 #### SpringConfig代替Spring的配置文件
+
 ```java
 package com.zzmr.config;
 
@@ -5175,23 +5257,23 @@ import org.springframework.context.annotation.Configuration;
 public class SpringConfig {
 }
 ```
-没错里面啥都有没有,用到的时候再配置吧
 
+没错里面啥都有没有,用到的时候再配置吧
 
 ### SpringMVC执行流程
 
 看之前的吧
 
-
 ## SSM整合
+
 又到了最后关头
 这次好好看看吧,看完就开始做项目/下一阶段
 
 ### ContextLoaderListener
+
 监听器,Spring提供了监听器ContextLoaderListener,实现ServletContextListener接口,可监听ServletContext的状态,在web服务器启动,读取Spring的配置文件,创建Spring的IOC容器,web应用中必须在web.xml中配置
->什么意思呢,就是设置一个监听器,若服务器一启动,就去寻找Spring的配置文件,创建Spring的IOC容器,以便于SpringMVC的Controller层能够实现自动装配service,然后要实现这个功能,要在web.xml中配置
 
-
+> 什么意思呢,就是设置一个监听器,若服务器一启动,就去寻找Spring的配置文件,创建Spring的IOC容器,以便于SpringMVC的Controller层能够实现自动装配service,然后要实现这个功能,要在web.xml中配置
 
 ### 准备工作
 
@@ -5352,8 +5434,8 @@ public class SpringConfig {
 </project>
 ```
 
-
 #### SQL
+
 数据库文件
 
 ```sql
@@ -5552,21 +5634,20 @@ public class WebConfig implements WebMvcConfigurer {
 #### Spring的配置类-SpringConfig
 
 首先一个很重要的知识点,就是@ComponentScan注解的使用,因为我们要对某些类进行排除,Spring对除控制层之外的所有进行扫描,所以应该排除控制层
+
 ```java
 @ComponentScan(
         value = "com.zzmr",
         excludeFilters = {@ComponentScan.Filter(type = FilterType.ANNOTATION,value = Controller.class)})
 ```
-以上就是排除的用法,FilterType.ANNOTATION就是用注解来排除,后面的value就是注解的class
 
+以上就是排除的用法,FilterType.ANNOTATION就是用注解来排除,后面的value就是注解的class
 
 哈哈哈哈出现问题了吧,配置好扫描组件之后,剩下的就不会配置了,什么数据源啊,整合MyBatis啊,都不会配置
 
 所以啊,我还是去看之前的xml了
 害
 高估自己了
-
-
 
 ### 断档重开
 
@@ -5791,6 +5872,7 @@ public class WebConfig implements WebMvcConfigurer {
 ```
 
 #### SpringMVC的配置文件
+
 ```xml
 <?xml version="1.0" encoding="UTF-8"?>
 <beans xmlns="http://www.springframework.org/schema/beans"
@@ -5845,7 +5927,9 @@ public class WebConfig implements WebMvcConfigurer {
 ```
 
 #### 配置Spring的配置文件
+
 整合了MyBatis
+
 ```xml
 <?xml version="1.0" encoding="UTF-8"?>
 <beans xmlns="http://www.springframework.org/schema/beans"
@@ -5914,6 +5998,7 @@ SqlSession创建代理实现类对象，并将这些对象交给ioc容器管理-
 ```
 
 #### MyBatis的配置文件
+
 ```xml
 <?xml version="1.0" encoding="UTF-8" ?> <!DOCTYPE configuration PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-config.dtd">
@@ -5925,7 +6010,7 @@ SqlSession创建代理实现类对象，并将这些对象交给ioc容器管理-
     objectWrapperFactory?,reflectorFactory?,plugins?,environments?,databaseIdProvider?,mappers?)"-->
 
 
-<!--    &lt;!&ndash;    引入properties文件，此后就可在当前文件中使用 来访问 value &ndash;&gt;-->
+<!--    <!–    引入properties文件，此后就可在当前文件中使用 来访问 value –>-->
 <!--    <properties resource="jdbc.properties"/>-->
 
     <settings>
@@ -5975,7 +6060,6 @@ SqlSession创建代理实现类对象，并将这些对象交给ioc容器管理-
 但是整合的目的是将配置文件写到一起吗?
 并不是,整合的目的是让Spring的IOC容器可以直接获取到mapper接口的代理实现类对象(MapperScannerConfigurer),然后在service就可以直接自动装配mapper接口的代理实现类对象了,非常方便
 
-
 #### 其他代码
 
 那也没必要写了,自己明白就行了
@@ -5983,7 +6067,480 @@ SqlSession创建代理实现类对象，并将这些对象交给ioc容器管理-
 好了,我把这个项目的其余功能实现了:添加,删除,修改,测试也没有问题,但是这个项目太简单了啊
 没什么内容,代码全在ssm_last里面了,tomcat部署在了SSM_XML中,啥时候想看了就回去看看,里面的内容麻雀虽小五脏俱全.
 
-
 不过这也算是我的SSM的基础已经学完了,但是我还没有做项目的能力,前端太薄弱了,啥都不会,所以现在学什么?
 路在何方?
 路在脚下
+
+## Endless
+
+所以还是重新学一下这个mybatis这块,sql实在是不会写了...
+
+害,当初没好好学,现在真是追悔莫及
+
+---
+
+### 映射关系
+
+表结构:
+1. t_emp_old:
+![20230526105411](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230526105411.png)
+2. t_dept:
+![20230526105424](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230526105424.png)
+
+
+> **当字段名和属性名不一致时,该怎么办**?
+
+1. sql中起别名,比如数据库中是emp_id,而Java属性是empId,那么可以这样写sql:
+
+```sql
+    select emp_id empId,emp_name empName ,age,gender from t_emp where emp_id = #{empId};
+```
+
+2. 给核心配置文件加上如下设置,就可以自定映射下划线和驼峰
+
+```xml
+    <settings>
+<!--        将下划线映射为驼峰-->
+        <setting name="mapUnderscoreToCamelCase" value="true"/>
+
+    </settings>
+```
+
+---
+
+*所以当时看这个课的时候,是什么心情呢?*
+
+### 自定义映射resultMap
+
+仔细看看笔记,其实也是挺明白的,就是写的地方优点...
+
+1. 多对一的映射关系:
+   - 级联
+   - association
+   - 分步查询
+2. 一对多的映射关系:
+   - collection
+   - 分步查询
+
+#### resultMap最基本的使用
+
+>**resultMap中的标签/属性**
+- id设置主键的映射关系
+- result设置其余字段的映射关系
+- column字段名
+- property属性名
+
+
+用于处理数据库表字段和Java属性名不匹配的情况:
+
+依然还是数据库中emp_id,emp_name,而java类是empId和empName
+
+这时就可以使用resultMap来自定义映射关系:
+
+```xml
+    <resultMap id="empResultMap" type="Emp">
+        <id column="emp_id" property="empId"></id>
+        <result column="emp_name" property="empName"></result>
+        <result column="age" property="age"></result>
+        <result column="gender" property="gender"></result>
+    </resultMap>
+
+    <select id="getEmpByEmpId" resultMap="empResultMap">
+        select *
+        from t_emp_old
+        where emp_id = #{empId};
+    </select>
+```
+
+主要就是emp_id和empId之间的写法,column表示数据库中的字段,而property表示属性名
+
+#### 处理多对一映射关系
+
+>场景:查询员工信息以及员工所对应的部门信息
+
+**这时,就要注意多对一这种关系如何处理了-如何设置java实体类的属性**
+1. **在一的一方设置多的一方类型的集合**
+2. 在多的一方设置一的一方的类的对象
+
+>**Emp.java**
+```java
+public class Emp {
+    private Integer empId;
+    private String empName;
+    private Integer age;
+    private String gender;
+    private Dept dept;
+}
+```
+
+>Dept.java
+```java
+public class Dept {
+    private Integer deptId;
+    private String deptName;
+    private List<Emp> emps;
+}
+```
+
+定义根据员工id查询员工和该员工对应的部门信息的方法:
+```java
+    Emp getEmpAndDeptByEmpIdNew(@Param("empId") Integer empId);
+```
+
+这个就涉及到两个表关联之间的关系了,什么A`∪`B和A`∩`B,还有各种各样的关系,害,突然意识到,我可能需要把之前mysql的关联查询也重新学一遍了,这几天就少打点游戏吧,把什么`left join`,和`right join`,和`inner join`都重新看一遍...
+
+>mapper映射文件中该怎么写(resultMap和sql)
+
+**什么意思呢,就是你看这个方法,是根据员工id查询员工信息已经员工对应的部门信息,而员工类中是有一个部门类的,这时通过sql查询,查询出的`dept_id`和`dept_name`要映射为一个Dept对象,此时就要使用`association`来实现了**
+
+一共三种方式来处理字段和类对应的关系:
+1. 级联
+2. association
+3. 分布查询
+
+##### 级联处理
+
+什么意思呢,就是**单纯使用**`resultMap`:
+```xml
+<!--    级联查询的方式-->
+    <resultMap id="empAndDeptMapJiLian" type="Emp">
+        <id column="emp_id" property="empId"></id>
+        <result column="emp_name" property="empName"></result>
+        <result column="age" property="age"></result>
+        <result column="gender" property="gender"></result>
+        <result column="dept_id" property="dept.deptId"></result>
+        <result column="dept_name" property="dept.deptName"></result>
+    </resultMap>
+
+    <!--    Emp getEmpAndDeptByEmpIdNew(@Param("empId") Integer empId);-->
+    <select id="getEmpAndDeptByEmpIdNew" resultMap="empAndDeptMapJiLian">
+        SELECT t_emp_old.*,
+               t_dept.*
+        FROM t_emp_old
+                 LEFT JOIN t_dept ON t_emp_old.dept_id = t_dept.dept_id
+        WHERE t_emp_old.emp_id = 1
+    </select>
+```
+
+**区别在哪**?
+区别在于处理dept_id和dept_name和dept属性的映射关系时,使用了result,column依然是查询出的列名,而**property对应的就是`dept.deptId`和`dept.deptName`了**,这就相当于,将查询出的字段dept_id与Emp类中dept属性中的deptId属性进行对应(有点拗口,但是这么说没问题啊没问题),此时得到正确的数据:
+![20230525234025](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230525234025.png)
+*不用在意dept后面有个emps,那个是toString的输出,只要查到deptId和deptName就算成功了*
+
+
+##### association处理
+
+这里使用association标签进行多对一的映射关系:
+```xml
+<!--    association的方式-->
+    <resultMap id="empAndDeptMap" type="Emp">
+        <id column="emp_id" property="empId"></id>
+        <result column="emp_name" property="empName"></result>
+        <result column="age" property="age"></result>
+        <result column="gender" property="gender"></result>
+        <association property="dept" javaType="Dept">
+            <id column="dept_id" property="deptId"></id>
+            <result column="dept_name" property="deptName"></result>
+        </association>
+    </resultMap>
+
+    <!--    Emp getEmpAndDeptByEmpIdNew(@Param("empId") Integer empId);-->
+    <select id="getEmpAndDeptByEmpIdNew" resultMap="empAndDeptMap">
+        SELECT t_emp_old.*,
+               t_dept.*
+        FROM t_emp_old
+                 LEFT JOIN t_dept ON t_emp_old.dept_id = t_dept.dept_id
+        WHERE t_emp_old.emp_id = 1
+    </select>
+```
+
+**这里要注意什么?**
+要注意association标签的使用,association标签中的属性有property和javaType等,property是属性名-就是Emp类中Dept属性的属性名dept,而javaType就表示该属性是什么类型的:Dept呗,此时就可以在association中正常的写映射关系了
+
+>**一对一和多对一有什么区别?**
+没有区别,处理起来是一样的步骤
+
+还有就是,说白了,`association`就是用来处理实体类类型的属性的,你看,这个Emp类中有一个Dept类型的属性,就可以通过`association`来处理,所以它还可以用来处理一对一的关系
+
+##### 分步查询处理:
+
+23点56分
+这个明天再看吧,睡觉
+
+分步查询,也就是使用多个sql进行查询,重点在于,**这个查询应该分为几步,每一步应该干什么**
+
+所以,查询员工信息以及员工对应的部门信息,可以分为两步:
+1. 根据员工id查询员工信息
+2. 根据员工对应的部门id在部门表中查询部门信息
+
+第一步的内容:
+接口:
+```java
+    /**
+     * 分步查询员工以及对应的部门信息-step one
+     * @param empId
+     * @return
+     */
+    Emp getEmpAndDeptByStepOneNew(@Param("empId") Integer empId);
+```
+
+sql:
+```xml
+    <resultMap id="empAndDeptOne" type="Emp">
+        <id column="emp_id" property="empId"></id>
+        <result column="emp_name" property="empName"></result>
+        <result column="age" property="age"></result>
+        <result column="gender" property="gender"></result>
+        <association property="dept"
+                     select="com.zzmr.mybatis.mapper.DeptMapper.getEmpAndDeptByStepTwoNew"
+                     column="dept_id">
+        </association>
+    </resultMap>
+
+    <!--    Emp getEmpAndDeptByStepOneNew(@Param("empId") Integer empId);-->
+    <select id="getEmpAndDeptByStepOneNew" resultMap="empAndDeptOne">
+        select *
+        from t_emp_old
+        where emp_id = #{empId};
+    </select>
+```
+
+**这里就要注意association的使用了,比之前多了一个`select`属性,它适用于指定下一步查询的sql唯一标识,或者说是方法的全路径**,而方法的全路径可以使用idea的copy reference,但是注意,拷过来的是长这样:`com.zzmr.mybatis.mapper.EmpMapper#getEmpAndDeptByStepOneNew`,没错,前面都没问题,但是最后那个方法的位置是变成了`#`号,所以会导致mybatis找不到对应的sql,要把井号改为点才行,**还有就是`column`表示给第二步查询传入的参数
+
+下面看第二步查询:
+
+这里将第二步查询的接口放在了DeptMapper中了,当然,放在EmpMapper是一样的,但是为了结构更加清晰明了,还是放在了DeptMapper中
+
+接口
+```java
+    /**
+     * 分步查询员工以及所对应员工信息的第二步
+     * @param deptId
+     * @return
+     */
+    Dept getEmpAndDeptByStepTwoNew(@Param("deptId") Integer deptId);
+```
+sql:
+```xml
+    <!--    Dept getEmpAndDeptByStepTwoNew(@Param("deptId") Integer deptId);-->
+    <select id="getEmpAndDeptByStepTwoNew" resultType="Dept">
+        select *
+        from t_dept
+        where dept_id = #{deptId}
+    </select>
+```
+
+第二步就简单的多了,可以看出,stepTwo方法接收一个deptId,此时第一步中association中的`column`就派上用场了,它就用来指定传给第二步查询的参数,这里要根据**查询出员工信息中对应的部门id,在部门表中根据id来查询部门信息**
+
+association中的property依然是用于将查询的结果赋值给emp中的dept属性(**这里由于第二步查询的返回值是一个dept对象,所以第一步不需要再处理一次dept_id和dept_name跟deptId和deptName的映射关系了**)
+
+查询结果:
+![20230526090830](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230526090830.png)
+
+>那能用一条sql查出的结果,为什么要用两条sql呢?
+这里就要引入分步查询的优点-延迟加载
+
+##### 延迟加载
+
+需要在配置文件中设置全局配置信息
+
+```xml
+    <settings>
+<!--        开启延迟加载-->
+        <setting name="lazyLoadingEnabled" value="true"/>
+    </settings>
+```
+
+这样就开启了延迟加载,此时修改测试方法,再执行刚才的byStepOne:
+```java
+    @Test
+    public void testGetEmpAndDeptByStepNew() {
+        SqlSession sqlSession = SqlSessionUtil.getSqlSession();
+        EmpMapper mapper = sqlSession.getMapper(EmpMapper.class);
+        Emp emp = mapper.getEmpAndDeptByStepOneNew(3);
+        System.out.println(emp.getEmpName());
+    }
+```
+
+此时我们只获取emp.getEmpName()而不获取部门信息,此时只会执行一条sql:
+![20230526094226](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230526094226.png)
+
+把延迟加载配置给注掉,再测试,两条sql:
+![20230526094310](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230526094310.png)
+
+此时就能感受到延迟加载的好处了
+
+但是延迟加载和另外一个属性也有关:`aggressiveLazyLoading`,当开启时,**任何该对象的方法调用都会加载该对象的所有属性,否则,每个属性都会按需加载**
+
+```xml
+        <setting name="aggressiveLazyLoading" value="false"/>
+```
+
+此时就实现了按需加载,获取的数据是什么,就只会执行相应的sql,此时可以通过association和collection中的fetchType属性设置当前的分布查询是否使用延迟加载,`fetchType="lazy"`就是开启延迟加载,而等于eager就是立即加载
+
+```xml
+    <resultMap id="empAndDeptOne" type="Emp">
+        <id column="emp_id" property="empId"></id>
+        <result column="emp_name" property="empName"></result>
+        <result column="age" property="age"></result>
+        <result column="gender" property="gender"></result>
+        <association property="dept" fetchType="eager"
+                     select="com.zzmr.mybatis.mapper.DeptMapper.getEmpAndDeptByStepTwoNew"
+                     column="dept_id">
+        </association>
+    </resultMap>
+
+    <!--    Emp getEmpAndDeptByStepOneNew(@Param("empId") Integer empId);-->
+    <select id="getEmpAndDeptByStepOneNew" resultMap="empAndDeptOne">
+        select *
+        from t_emp_old
+        where emp_id = #{empId};
+    </select>
+```
+
+看,此时fetchType为eager,即使开启了延迟加载和关闭了按需加载,依然是执行全部的sql
+
+总结:
+1. 想要实现延迟加载,一个`lazyLoadingEnabled=true`即可完成,但是老师建议是加上`aggressiveLazyLoading=false`,这样依然是默认延迟加载
+2. 当配置文件如上面所示,又想要实现立即加载,只需要在associaiton中设置`fetchType=eager`,即可实现立即加载,而不设置或者是设置`fetchType=lazy`时,都是延迟加载
+
+ok,多对一搞定了,应该是搞定了,下面继续看一对多
+
+#### 处理一对多映射关系
+
+一共两种方式:
+1. collection
+2. 分步查询
+
+##### collection处理一对多
+
+把上面的部门类再拿下来看一下:
+>Dept.java
+```java
+public class Dept {
+    private Integer deptId;
+    private String deptName;
+    private List<Emp> emps;
+}
+```
+
+**没错,就是在一的一方设置多的一方的集合,其实就是一句话:对一,对应对象,对多,对应集合**
+
+重点就在于,将联查得到的员工信息,封装为一个List集合,下图就是sql查询出的结果,可以看出,部门信息肯定是一样的,不同的地方就在于emp的信息,就要把这多个emp信息封装为一个`List<Emp>`集合
+
+![20230526103921](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230526103921.png)
+
+看sql:
+```xml
+    <resultMap id="deptAndEmpMapNew" type="Dept">
+        <id column="dept_id" property="deptId"></id>
+        <result column="dept_name" property="deptName"></result>
+        <collection property="emps" ofType="Emp">
+            <id column="emp_id" property="empId"></id>
+            <result column="emp_name" property="empName"></result>
+            <result column="age" property="age"></result>
+            <result column="gender" property="gender"></result>
+        </collection>
+    </resultMap>
+
+    <!--    Dept getDeptAndEmpByDeptIdNew(@Param("deptId") Integer deptId);-->
+    <select id="getDeptAndEmpByDeptIdNew" resultMap="deptAndEmpMapNew">
+        SELECT *
+        FROM t_dept
+                 INNER JOIN t_emp_old ON t_emp_old.dept_id = t_dept.dept_id
+        where t_dept.dept_id = #{deptId}
+    </select>
+```
+
+这里就用到collection标签了,它可以用于处理**一对多和多对多的关系**,collection的属性也是有property,表示tpye类中的属性名,什么意思呢,往上看Dept类,是不是有一个`List<Emp> emps`,这个emps就是要填在property中的内容,而ofType就表示要封装的集合的泛型,collection会将结果集中的多条emp信息封装为一个emp集合,而每个emp对象中字段的对应关系,就还是和之前的写法一样.
+
+测试:
+```java
+    @Test
+    public void testDeptAndEmpByDeptIdNew() {
+        SqlSession sqlSession = SqlSessionUtil.getSqlSession();
+        DeptMapper mapper = sqlSession.getMapper(DeptMapper.class);
+        Dept deptInfo = mapper.getDeptAndEmpByDeptIdNew(2);
+        System.out.println(deptInfo);
+    }
+```
+
+结果:
+![20230526105306](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230526105306.png)
+
+##### 分步查询处理一对多
+
+还是分两步,我想想
+1. 根据部门id查询部门信息
+2. 根据部门id再去员工信息表中查询所有匹配的员工
+
+第一步的接口:
+```java
+    /**
+     * 根据部门id查询部门所对应的所有员工-step1-根据部门id查询部门信息
+     * @param deptId
+     * @return
+     */
+    Dept getDeptAndEmpStepOneNew(@Param("deptId") Integer deptId);
+```
+
+sql:
+```xml
+    <resultMap id="deptAndEmpStepMap" type="Dept">
+        <id property="deptId" column="dept_id"></id>
+        <result property="deptName" column="dept_name"></result>
+        <collection property="emps" select="com.zzmr.mybatis.mapper.EmpMapper.getDeptAndEmpStepTwoNew" column="dept_id">
+        </collection>
+    </resultMap>
+
+    <!--    Dept getDeptAndEmpStepOneNew(@Param("deptId") Integer deptId);-->
+    <select id="getDeptAndEmpStepOneNew" resultMap="deptAndEmpStepMap">
+        select *
+        from t_dept
+        where dept_id = #{deptId}
+    </select>
+```
+
+第一步查询就是**根据部门id查询部门信息**,而resultMap才是重点,这里使用collection时,也是使用了select指定下一步查询的sql唯一标识,以及传递的参数dept_id
+
+第二步的接口:
+```java
+    /**
+     * 分布查询-根据部门id查询部门信息以及部门对应的所有员工的信息-step2-根据部门id查询员工信息
+     * @param deptId
+     * @return
+     */
+    List<Emp> getDeptAndEmpStepTwoNew(@Param("deptId") Integer deptId);
+```
+
+第二步的sql:
+```xml
+    <!-- List<Emp> getDeptAndEmpStepTwoNew(@Param("deptId") Integer deptId); -->
+    <select id="getDeptAndEmpStepTwoNew" resultType="Emp">
+        select * from t_emp_old where dept_id = #{deptId}
+    </select>
+```
+
+这里就是直接使用的resultType,因为查询出的结果就是一个一个的Emp,第二步返回的结果会交给第一步的collection来处理,使多个Emp对象封装为一个`List<Emp>`集合,最后再将这个集合赋给emps
+
+
+再看一下延迟加载的效果:
+测试代码:
+```java
+    @Test
+    public void testDeptAndEmpByDeptIdByStepNew() {
+        SqlSession sqlSession = SqlSessionUtil.getSqlSession();
+        DeptMapper mapper = sqlSession.getMapper(DeptMapper.class);
+        Dept deptInfo = mapper.getDeptAndEmpStepOneNew(2);
+        System.out.println(deptInfo.getDeptName());
+    }
+```
+
+测试结果:
+![20230526120306](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230526120306.png)
+
+当只获取getDeptName,此时就不涉及到员工的信息,所以只会执行第一条sql语句..
+
+
+ok,现在应该是比之前好一点了
+
