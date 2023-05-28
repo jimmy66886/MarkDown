@@ -679,7 +679,7 @@ WHERE
 	d.location_id IS NULL
 ```
 
->9. **查询部门名为`Sales`或`IT`的员工信息
+>9. **查询部门名为`Sales`或`IT`的员工信息**
 
 ```sql
 SELECT
