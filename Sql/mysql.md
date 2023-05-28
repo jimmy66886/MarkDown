@@ -547,3 +547,152 @@ FROM
 
 嗯...暂时到这吧.
 2023年5月27日18点47分
+
+嗯...
+仔细想了以下,感觉还是把练习题也过一遍吧
+
+### 1.4 练习题
+
+>1. **显示`所有`员工的姓名,部门号,和部门名称**
+
+```sql
+SELECT
+	e.last_name,
+	e.department_id,
+	d.department_name 
+FROM
+	employees e
+	-- 普通写法:
+	LEFT JOIN departments d ON e.department_id = d.department_id
+	-- 高级写法:
+	-- LEFT JOIN departments d USING(department_id)
+```
+
+>2. **查询部门号为90的员工的job_id和90号部门的location_id**
+
+```sql
+SELECT
+	e.job_id,
+	d.location_id 
+FROM
+	employees e
+	INNER JOIN departments d ON e.department_id = d.department_id 
+WHERE
+	e.department_id = 90
+```
+
+>3. **选择`所有有`奖金的员工的last_name,department_name,location_id,city**
+
+*e.commission_pct是奖金*
+
+注意,这里是左连接,因为有一个人是有奖金,但是没有部门的:
+![20230528001438](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230528001438.png)
+```sql
+SELECT
+	e.last_name,
+	d.department_name,
+	e.commission_pct,
+	l.location_id,
+	l.city 
+FROM
+	employees e
+	LEFT JOIN departments d ON e.department_id = d.department_id
+	LEFT JOIN locations l ON d.location_id = l.location_id 
+WHERE
+	e.commission_pct IS NOT NULL
+```
+
+>4. **选择city在Toronto工作的员工的last_name,job_id,department_id,department_name**
+
+这里就不涉及到外连接了,因为只有有部门的员工才有city这个对应的属性
+
+```sql
+SELECT
+	e.last_name,
+	e.job_id,
+	e.department_id,
+	d.department_name 
+FROM
+	employees e
+	INNER JOIN departments d ON e.department_id = d.department_id
+	INNER JOIN locations l ON d.location_id = l.location_id 
+WHERE
+	l.city = 'Toronto'
+```
+
+>5. **查询员工所在的部门名称,部门地址,姓名,工作,工资,其中员工所在的部门的部门名称为'Executive'**
+
+```sql
+SELECT
+	d.department_name,
+	l.street_address,
+	e.last_name,
+	j.job_title,
+	e.salary 
+FROM
+	employees e
+	JOIN departments d ON e.department_id = d.department_id
+	JOIN locations l ON d.location_id = l.location_id
+	INNER JOIN jobs j ON e.job_id = j.job_id 
+WHERE
+	d.department_name = 'Executive'
+```
+
+>6. **选择指定员工的姓名,员工号,以及他的管理者的姓名和员工号,结果类似于下面的格式:**
+`employees  Emp#  manager  Mgr#`
+
+```sql
+SELECT
+	e.last_name "employees",
+	e.employee_id "Emp#",
+	m.last_name "manager",
+	m.employee_id "Mgr#" 
+FROM
+	employees e
+	LEFT JOIN employees m ON e.manager_id = m.employee_id
+```
+
+>7. **查询哪些部门没有员工**
+
+相当于员工表中没有的部门id,因为是is null啊,这样就排除了员工表中出现的部门id,也就是派出了有员工的部门,只剩下没有员工的部门
+
+```sql
+SELECT
+	d.department_id,
+	d.department_name
+FROM
+	employees e
+	RIGHT JOIN departments d ON e.department_id = d.department_id 
+WHERE
+	e.department_id IS NULL
+```
+
+>8. **查询哪个城市没有部门**
+
+```sql
+SELECT
+	city 
+FROM
+	locations l
+	LEFT JOIN departments d ON l.location_id = d.location_id 
+WHERE
+	d.location_id IS NULL
+```
+
+>9. **查询部门名为`Sales`或`IT`的员工信息
+
+```sql
+SELECT
+	e.last_name,
+	d.department_id,
+	d.department_name 
+FROM
+	employees e
+	JOIN departments d ON e.department_id = d.department_id 
+WHERE
+	d.department_name IN (
+		'Sales',
+	'IT')
+```
+
+ok,课后题也加进来了,告一段落.
