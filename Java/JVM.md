@@ -632,4 +632,157 @@ public class StackDeepTest {
 1. 每个线程都有自己的栈,栈的数据都是以`栈帧(Stack Frame)`的格式存在
 2. 在这个线程上正在执行的每个方法都各自对应一个栈帧
 3. 栈帧是一个内存区快,是一个数据集,维系着方法执行过程中的各种数据信息
+4. JVM直接对Java栈的操作只有两个,就是对栈帧的**压栈**和**出栈**,遵循先进后出的原则
+5. **在一条活动线程中,一个时间点上,只会有一个活动的栈帧**,即只有当前正在执行的方法的栈帧(栈顶栈帧)是有效的,这个栈帧(Current Frame),与当前帧帧相对应的方法就是当前方法(Current Method),定义这个方法的类就是当前类(Current Class)
+6. 执行引擎运行的所有字节码指令只针对当前帧帧进行操作
+7. 如果在该方法中调用了其他方法,对应新的栈帧就会被创建出来,放在栈的顶端,成为新的当前帧
 
+```java
+package com.zzmr.java;
+
+/**
+ * @author zzmr
+ * @create 2023-07-21 12:05
+ */
+public class StackFrameTest {
+    public static void main(String[] args) {
+        StackFrameTest test = new StackFrameTest();
+        test.method1();
+    }
+
+    public void method1() {
+        System.out.println("method1()开始执行...");
+        method2();
+        System.out.println("method1()执行结束");
+
+    }
+
+    private int method2() {
+        System.out.println("method2()开始执行...");
+        int i = 10;
+        int m = (int) method3();
+        System.out.println("method2()即将结束");
+        return i + m;
+    }
+
+    private double method3() {
+        System.out.println("method3()开始执行...");
+        double j = 20.0;
+        System.out.println("method3()即将结束");
+        return j;
+    }
+}
+```
+
+![20230721121322](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230721121322.png)
+就是一个嵌套的感觉
+
+![第05章_方法与栈桢](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/第05章_方法与栈桢.jpg)
+
+---
+
+>栈运行原理
+- 不同线程中所包含的栈帧是不允许存在相互引用的,即不可能在一个栈帧之中应用另外一个线程的栈帧
+- 如果当前方法调用了其他方法,方法返回之际,当前栈帧会传回此方法的执行结果给前一个栈帧,接着,虚拟机会丢弃当前栈帧,使得前一个栈帧重新成为当前栈帧
+- Java方法有两种返回函数的方式,一种是正常的函数返回,使用return指令,另外一种是抛出异常,不管使用哪种方式,都会导致栈帧被弹出
+
+### 栈帧的内部结构
+
+每个栈帧中存储着:
+- 局部变量表(Local Variables)
+- 操作数栈(Operand Stack)或表达式栈
+- 动态链接(Dynamic Linking)或指向运行时常量池的方法引用
+- 方法返回地址(Return Address)或方法正常退出或异常退出的定义
+- 一些附加信息
+![第05章_栈桢内部结构](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/第05章_栈桢内部结构.jpg)
+
+#### 局部变量表
+
+- 局部变量表也被称之为局部变量数组或本地变量表
+- **定义为一个数字数组,主要用于存储方法参数和定义在方法体内的局部变量**,这些数据类型包括各类基本数据类型,对象引用(reference)以及returnAddress类型
+- 由于局部变量是建立在线程的栈上,是线程的私有数据,**因此不存在数据安全问题**
+- **局部变量表所需的容量大小是在编译期确定下来的**,并保存在方法的Code属性的`maximum local variables`数据项中,在方法运行期间是不会改变局部变量表的大小的
+- **方法嵌套调用的次数由栈的大小决定,一般来说,栈越大,方法嵌套调用次数越多**,对一个函数而言,它的参数和局部变量越多,使得局部变量表膨胀,它的栈帧就越大,以满足方法调用所需传递的信息增大的需求,进而函数调用就会占用更多的栈空间,导致其嵌套调用次数就会减少
+- **局部变量表中的变量只在当前方法调用中有效**,在方法执行时,虚拟机通过使用局部变量表完成参数值到参数列表的传递过程,当方法调用结束后,**随着方法栈帧的销毁,局部变量表也会随之销毁**
+
+main方法:
+![20230721132426](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230721132426.png)
+
+#### 关于Slot的理解
+
+- 参数值的存放总是在局部变量数组的index0开始的,到数组长度-1的索引结束
+- 局部变量表,最基本的存储单元是`slot(变量槽)`
+- 局部变量表中存放编译期可知的各种基本数据类型(8种),引用类型(reference),returnAddress类型的变量
+- 在局部变量表中,32位以内的类型只占用一个slot(包括returnAddress类型),64位的类型(long和double)占用两个slot
+    - byte,short,char在存储前被转换为int,boolean也被转换成int,0表示false,非零表示true
+    - long和double则占据两个slot
+![20230722162102](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230722162102.png)
+
+```txt
+这里刚好能理解为什么static方法中不能使用this了
+因为this变量不存在于当前静态方法的局部变量表中,所以引用不到
+```
+
+---
+
+比如下面这个非静态方法:
+```java
+    public void test1() {
+        Date date = new Date();
+        String name1 = "atguigu.com";
+        String info = test2(date, name1);
+        System.out.println(date + name1);
+    }
+```
+
+它的局部变量表中就有4个变量,也就是说存在`this`,且放在首位
+![20230722162657](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230722162657.png)
+
+test2中,由于weight是double类型的,会占用两个slot,weight的开始索引是3,所以下一个gender的开始索引就是5
+![20230722163137](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230722163137.png)
+
+>**栈帧中的局部变量表中的槽位是可以重用的**,如果一个局部变量过了其作用域,那么在其作用域之后申明的新的局部变量就很有可能会复用过期局部变量的槽位,从而**达到节省资源额目的**
+```java
+    public void test4() {
+        int a = 0;
+        {
+            int b = 0;
+            b = a + 1;
+        }
+        // 变量c使用之前已经销毁的变量b占据的slot的位置
+        int c = a + 1;
+    }
+```
+
+b的作用域只在代码块中,出了代码块,b就被销毁了,此时b的空间还在,所以c就直接使用的b的空间:
+![20230722164207](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230722164207.png)
+
+---
+
+静态变量与局部变量的对比
+- 参数表分配完毕之后,再根据方法体内定义的变量的顺序和作用域分配
+- 我们知道类变量表有两次初始化的机会,第一次是在准备阶段,执行系统初始化,对类变量设置零值,另一次则是在初始化阶段,赋予程序员在代码中定义的初始值
+- 和类变量初始化不同的是,局部变量表不存在系统初始化的过程,这意味着一旦定义了局部变量则必须认为的初始化,否则无法使用
+```txt
+变量的分类：按照数据类型分：① 基本数据类型  ② 引用数据类型
+                按照在类中声明的位置分：
+① 成员变量：在使用前，都经历过默认初始化赋值
+                                类变量： linking的prepare阶段：给类变量默认赋值  ---> initial阶段：给类变量显式赋值即静态代码块赋值
+                                实例变量：随着对象的创建，会在堆空间中分配实例变量空间，并进行默认赋值
+② 局部变量：在使用前，必须要进行显式赋值的！否则，编译不通过
+```
+
+---
+
+补充:
+
+- 在栈帧中,与性能调优琯溪最为密切的部分就是前面提到的局部变量表,在方法执行时,虚拟机使用局部变量表完成方法的传递
+- 局部变量表中的变量也是重要的垃圾回收根节点,只要被局部变量表中直接或间接引用的对象都不会被回收
+
+#### 操作数栈
+
+- 每一个独立的栈帧中除了包含局部变量表以外,还包含一个**后进先出**的操作数栈,也可以称之**表达式栈**
+- **操作数栈,在方法执行过程中,根据字节码指令,往栈中写入数据或提取数据,即入栈/出栈**
+    - 某些字节码指令将值压入操作数栈,其余的字节码指令将操作数去除栈,使用它们后再把结果压入栈
+    - 比如:执行复制,交换,求和等操作
+- ![20230722170500](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230722170500.png)
