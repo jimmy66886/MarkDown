@@ -794,3 +794,359 @@ b的作用域只在代码块中,出了代码块,b就被销毁了,此时b的空�
     - 64bit的类型占用两个栈单位深度
 - 操作数栈**并且采用访问索引的方式来进行数据访问的**,而是只能通过标准的入栈,出栈操作来完成一次数据访问
 
+---
+
+代码如下:
+```java
+package com.zzmr.java;
+
+/**
+ * @author zzmr
+ * @create 2023-07-22 17:23
+ */
+public class OperandStackTest {
+    public void testAddOperation() {
+        byte i = 15;
+        int j = 8;
+
+        int k = i + j;
+    }
+}
+```
+
+得到的字节码指令:
+![20230722173635](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230722173635.png)
+
+- byte,short,char,boolean,都以int型来保存,所以是`bipush`,然后将15放到操作数栈中
+- 第二行,`istore_1`,表示将上一步放入操作数栈的数据放到局部变量表中,索引为1(因为此方法是非静态的,所以0索引是this变量)
+- 下面的`bipush 8`和`istore_2`也同理
+- `iload_1`和`iload_2`表示将数据从局部变量表中取出1,2,然后放到操作数栈中,入栈
+- `iadd`就是出栈,然后将两数相加,最终将结果放到操作数栈的栈顶
+- `istore_3`将结果存入局部变量表中,索引为3
+![20230722174428](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230722174428.png)
+- 如果被调用的方法带有返回值的话,其返回值将会被压入当前栈帧的操作数栈中,并更新PC寄存器中下一条需要执行的字节码指令
+- 操作数栈中元素的数据类型必须与字节码指令的序列严格匹配,这由编译器在编译期间进行验证,同时在类加载过程中的类检验阶段的数据流分析阶段要再次验证
+- 另外,我们说Java虚拟机的**解释引擎是基于栈的执行引擎**,其中的栈指的就是操作数栈
+
+```java
+
+    public int getSum() {
+        int m = 10;
+        int n = 20;
+        int k = m + n;
+        return k;
+    }
+
+    public void testGetSum() {
+        // 获取上一个栈帧返回的结果，并保存在操作数栈中
+        int i = getSum();
+        int j = 10;
+    }
+```
+执行了`aload_0`
+![20230722181644](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230722181644.png)
+
+
+---
+
+```java
+    /**
+     * 程序面试题:
+     * i++和++i的区别:放到字节码篇章再介绍
+     */
+    public void add() {
+        // 第一类问题
+        int i1 = 10;
+        i1++;
+
+        int i2 = 10;
+        ++i2;
+
+        // 第二类问题
+        int i3 = 10;
+        int i4 = i3++;
+
+        int i5 = 10;
+        int i6 = ++i5;
+
+        // 第三类问题
+        int i7 = 10;
+        i7 = i7++;
+
+        int i8 = 10;
+        i8 = ++i8;
+
+        // 第四类问题
+        int i9 = 10;
+        int i10 = i9++ + ++i9;
+    }
+```
+
+这么恶心的题吗哈哈哈操
+![20230722182213](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230722182213.png)
+
+第一个问题,可以根据字节码指令来看,会发现字节码指令是完全一样的,这也就说明,第一种是一样的情况
+后面几个问题后续再讲
+
+>栈顶缓存(Top-of-Stack Cashing)技术
+
+前面提到,基于栈式架构的虚拟机所使用的零地址指令更加紧凑,但完成一项操作的时候必然需要使用**更多的入栈和出栈指令**,这同时也就意味着将需要更多的指令分派次数和内存读/写次数
+
+由于操作数是存储在内存中的,因此频繁地执行内存读/写操作必然会影响执行速度,为了解决这个问题,就提出了栈顶缓存技术:**将栈顶元素全部缓存在屋里CPU的寄存器中,以此降低对内存的读/写次数,提升执行引擎的执行效率**
+
+*寄存器:指令更少,执行速度更快*
+
+#### 动态链接
+
+方法返回地址,动态链接,一些附加信息三者被称为**帧数据区**
+
+- 每一个栈帧内部都包含一个指向*运行时常量池***中该栈帧所属方法的引用**,包含这个引用的目的就是为了支持当前方法的代码能够实现动态链接(Dynamic Linking),比如:invokedynamice指令
+- 在Java源文件被编译到字节码文件中时,所有的变量和方法引用都作为符号引用(Symbolic reference)保存在class文件的常量池里,比如:描述一个方法调用了另外的其他方法时,就是通过常量池中指向方法的符号用来表示的,那么**动态链接的作用就是为了将这些符号引用转换为调用方法的直接引用**
+
+#### **方法的调用**
+
+在JVM中,**将符号引用转换为调用方法的直接引用**与方法的绑定机制相关
+
+- 静态链接:当一个字节码文件被装载进JVM内部时,如果**被调用的目标方法在编译期可知且运行期保持不变时**,这种情况下调用方法的符号引用转换为直接引用的过程称之为静态链接
+- 动态链接:如果被调用的方法在编译器无法被确定下来,也就是说,只能够在程序运行期将调用方法的符号引用转换为直接引用,由于这种引用转换过程具备动态性,因此也就称为动态链接
+
+对应的方法的绑定机制为:早期绑定和晚期绑定,**绑定是一个字段,方法或者类在符号引用被替换为直接引用的过程,这仅仅发生一次**
+
+- 早期绑定:早期绑定就是指被调用的**目标方法如果在编译期可知,且运行期保持不变时**,即可将这个方法与所属的类型进行绑定,这样一来,由于明确了被调用的目标方法究竟是哪一个,因此也就可以使用静态链接的方式将符号引用转换为直接引用
+- 晚期绑定:如果**被调用的方法在编译期无法被确定下来,只能够在程序运行期间根据实际的类型绑定相关的方法**,这种绑定方式被称为晚期绑定
+
+---
+
+**虚方法与非虚方法**
+- 如果方法在编译期就确定了具体的调用版本,这个版本在运行时是不可变的,这样的方法称为**非虚方法**
+- 静态方法,私有方法,final方法,实例构造器,父类方法都是非虚方法
+- 其他方法称为虚方法
+
+虚拟机中提供了以下几条方法调用指令:
+1. 普通调用指令:
+    - **invokestatic:调用静态方法,解析阶段确定唯一方法版本**
+    - **invokespeial:调用`<init>`方法,私有及父类方法,解析阶段确定唯一方法版本**
+    - invokevirtual:调用所有虚方法
+    - invokeinterface:调用接口方法
+2. 动态调用指令
+    - invokedynamic:动态解析出所需要调用的方法,然后执行
+
+前四条指令固化在虚拟机内部,方法的调用执行不可人为干预,而invokedynamic指令则支持由用户确定方法版本,其中invokestatic指令和invokespecial指令调用的方法称为非虚方法,其余(final修饰除外)称为虚方法
+
+---
+
+**方法重写的本质**
+1. 找到操作数栈的第一个元素所执行的对象的实际类型,记作C
+2. 如果在类型C中找到与常量中的描述符合简单名称都相符的方法,则进行访问权限校验,如果通过则返回这个方法的直接引用,查找过程结束;如果不通过,则返回`Java.lang.IllegalAccessError`异常
+3. 否则,按照继承关系从下往上以此对C的各个父类进行第二步的搜索和验证过程
+4. 如果始终没有找到合适的方法,则抛出`java.lang.AbstactMethodError`异常
+
+`Java.lang.IllegalAccessError`介绍
+程序试图访问或修改一个属性或调用一个方法,这个属性或方法,你没有权限访问,一般的,这个会引起编译器异常,这个错误如果发生在运行时,就说明一个类发生了不兼容的改变
+
+---
+
+**虚方法表**
+- 在面向对象的编程中,会很频繁的使用到动态分派,如果在每次动态分派的过程中都要重新在类的方法元数据中搜索合适的目标就可能影响到执行效率,因此,为了提高性能,JVM采用在类的方法区建立一个虚方法表(非虚方法不会出现在此表中)来实现,使用索引表来代替查找
+- **每个类中都有一个虚方法表**,表中存放着各个方法的实际入口
+- 虚方法表在类加载的链接阶段被创建并开始初始化,类的变量初始值准备完成之后,JVM会把该类的方法表也初始化完成
+
+#### 方法返回地址
+
+- 存放调用该方法的PC寄存器的值
+- 一个方法的结束,有两种方式:
+    - 正常执行完成
+    - 出现未处理的异常,非正常退出
+- 无论通过哪种方式退出,在方法退出后都返回到该方法被调用的位置,方法正常退出时,**调用者的PC计数器的值作为返回地址,即调用该方法的指令的下一条指令的地址**,而通过异常退出的,返回地址是通过异常表来确定的,栈帧中一般不会保存这部分的信息
+
+
+本质上,方法的退出就是当前栈帧出栈的过程,此时,需要恢复上层方法的局部变量表,操作数栈,将返回值压入调用者栈帧的操作数栈,设置PC寄存器值等,让调用者方法继续执行下去
+
+**正常完成出口和异常完成出口的区别在于:通过异常完成出口退出的不会给他的上层调用者产生任何的返回值**
+
+---
+
+当一个方法开始执行后,只有两种方式可以退出这个方法
+1. 执行引擎遇到任意一个方法返回的字节码指令(return),会有返回值传递给上层的方法调用者,简称正常完出口
+    - 一个方法在正常调用完成之后究竟需要使用哪一个返回指令还需要根据方法返回值的实际数据类型而定
+    - 在字节码指令中,返回指令包含`ireturn(当返回值是boolean,byte,char,short和int类型时使用),lreturn,freturn,dreturn,以及areturn`,另外还有一个return指令供声明为void的方法,实例初始化方法,类和接口的初始化方法使用
+2. 在方法执行的过程中遇到了异常,并且这个异常没有在方法内进行处理,也就是说只要在本方法的异常表中没有搜索到匹配的异常处理,就会导致方法退出,简称异常完成出口
+    - 方法执行过程中抛出异常时的异常处理,存储在一个异常处理表,方便在发生异常的时候找到处理异常的代码
+    - ![20230725111939](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230725111939.png)
+
+*各种返回类型对应的情况不同:*
+![20230725111330](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230725111330.png)
+
+```java
+package com.zzmr.java;
+
+import java.io.FileReader;
+import java.io.IOException;
+import java.util.Date;
+
+/**
+ *
+ * 返回指令包含ireturn（当返回值是boolean、byte、char、short和int类型时使用）、
+ * lreturn、freturn、dreturn以及areturn，另外还有一个return指令供声明为void的方法、
+ * 实例初始化方法、类和接口的初始化方法使用。
+ *
+ * @author shkstart
+ * @create 2020 下午 4:05
+ */
+public class ReturnAddressTest {
+    public boolean methodBoolean() {
+        return false;
+    }
+
+    public byte methodByte() {
+        return 0;
+    }
+
+    public short methodShort() {
+        return 0;
+    }
+
+    public char methodChar() {
+        return 'a';
+    }
+
+    public int methodInt() {
+        return 0;
+    }
+
+    public long methodLong() {
+        return 0L;
+    }
+
+    public float methodFloat() {
+        return 0.0f;
+    }
+
+    public double methodDouble() {
+        return 0.0;
+    }
+
+    public String methodString() {
+        return null;
+    }
+
+    public Date methodDate() {
+        return null;
+    }
+
+    public void methodVoid() {
+
+    }
+
+    static {
+        int i = 10;
+    }
+
+
+    //
+    public void method2() {
+
+        methodVoid();
+
+        try {
+            method1();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void method1() throws IOException {
+        FileReader fis = new FileReader("atguigu.txt");
+        char[] cBuffer = new char[1024];
+        int len;
+        while ((len = fis.read(cBuffer)) != -1) {
+            String str = new String(cBuffer, 0, len);
+            System.out.println(str);
+        }
+        fis.close();
+    }
+
+
+}
+```
+
+>一些附加信息
+*在一些课中被省略的部分*
+栈帧中还允许携带与Java虚拟机实现相关的一些附加信息,例如:对程序调试提供支持的信息
+
+### 栈的相关面试题
+
+1. 举例栈溢出的情况(StackOverflowError)?
+    - 通过-Xss设置栈的大小;OOM(内存不足)
+2. 调整栈的大小,就能保证部出现溢出吗?
+    - 不能,调整大小,可以让StackOverflowError出现的较晚一些,但是还是可能存在溢出的
+3. 分配的栈内存越大越好吗?
+    - `治标不治本`
+4. 垃圾回收是否会涉及到虚拟机栈?
+    - 不会涉及到,`因为栈只有出栈和入栈的情况`
+5. 方法中定义的局部变量是否线程安全?
+    - 具体问题具体分析
+    - 线程安全:如果只有一个线程才可以操作此数据,则必是线程安全的,如果有多个线程操作此数据,则此数据是共享数据,如果不考虑同步机制的话,会存在线程安全问题.
+
+```java
+package com.zzmr.java;
+
+/**
+ * 面试题：
+ * 方法中定义的局部变量是否线程安全？具体情况具体分析
+ *
+ *   何为线程安全？
+ *      如果只有一个线程才可以操作此数据，则必是线程安全的。
+ *      如果有多个线程操作此数据，则此数据是共享数据。如果不考虑同步机制的话，会存在线程安全问题。
+ * @author shkstart
+ * @create 2020 下午 7:48
+ */
+public class StringBuilderTest {
+
+    int num = 10;
+
+    //s1的声明方式是线程安全的
+    public static void method1(){
+        //StringBuilder:线程不安全
+        StringBuilder s1 = new StringBuilder();
+        s1.append("a");
+        s1.append("b");
+        //...
+    }
+    //sBuilder的操作过程：是线程不安全的
+    public static void method2(StringBuilder sBuilder){
+        sBuilder.append("a");
+        sBuilder.append("b");
+        //...
+    }
+    //s1的操作：是线程不安全的
+    public static StringBuilder method3(){
+        StringBuilder s1 = new StringBuilder();
+        s1.append("a");
+        s1.append("b");
+        return s1;
+    }
+    //s1的操作：是线程安全的
+    public static String method4(){
+        StringBuilder s1 = new StringBuilder();
+        s1.append("a");
+        s1.append("b");
+        return s1.toString();
+    }
+
+    public static void main(String[] args) {
+        StringBuilder s = new StringBuilder();
+
+
+        new Thread(() -> {
+            s.append("a");
+            s.append("b");
+        }).start();
+
+        method2(s);
+
+    }
+
+}
+```
+
