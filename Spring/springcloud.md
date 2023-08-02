@@ -411,3 +411,441 @@ public class OrderController {
 从现在就开始将各种springcloud的各种技术加入到这几个模块中
 
 `Eureka`年`[ju'ri:ke]`
+
+>什么是服务治理
+Spring Cloud封装了Netflix公司开发的Eureka模块来实现服务治理
+在传统的rpc远程调用框架中,管理每个服务与服务之间依赖关系比较复杂,管理比较复杂,所以需要使用服务治理,管理服务与服务器之间的关系,可以实现服务调用,负载均衡,容错等,实现服务发现与注册
+
+---
+
+什么是服务注册与发现
+![20230801113440](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230801113440.png)
+**系统中每个微服务与Eureka Server服务注册中心维持心跳连接,来让Eureka Server来监控系统中各个微服务是否正常运行**
+![20230801113651](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230801113651.png)
+
+**Eureka包含两个组件:Eureka Server和Eureka Client**
+1. Eureka Server提供服务注册服务
+    - 各个微服务节点通过配置启动后,会在EurekaServer中进行注册,这样EurekaServer中的服务注册表中将会存储所有可用服务节点的信息,服务节点的信息可以在界面中直观看到
+2. Eureka Client通过注册中心进行访问
+    - 是一个Java客户端,用于简化EurekaServer的交互,客户端同时也具备一个内置的,使用轮询(round-robin)负载算法的负载均衡器,在应用启动后,将会在EurekaServer发送心跳(默认周期为30秒),如果EurekaServer在多个心跳周期内没有接收到某个节点的心跳,EurekaServer将会从服务注册表中把这个服务节点移除(默认90秒)
+
+---
+
+### EurekaServer服务端安装
+
+大概就是这个样子:
+![20230801115023](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230801115023.png)
+
+1. IDEA生成eurekaServer端服务注册中心,类似物业公司
+
+pom.xml:
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <parent>
+        <artifactId>cloud2020</artifactId>
+        <groupId>com.zzmr.springcloud</groupId>
+        <version>1.0-SNAPSHOT</version>
+    </parent>
+    <modelVersion>4.0.0</modelVersion>
+
+    <artifactId>cloud-eureka-server7001</artifactId>
+
+    <dependencies>
+        <!--eureka-server-->
+        <!-- https://mvnrepository.com/artifact/org.springframework.cloud/spring-cloud-starter-netflix-eureka-server -->
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-starter-netflix-eureka-server</artifactId>
+            <version>2.1.2.RELEASE</version>
+        </dependency>
+        <!-- 引入自己定义的api通用包，可以使用Payment支付Entity -->
+        <dependency>
+            <groupId>com.zzmr.springcloud</groupId>
+            <artifactId>cloud-api-commons</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <!--boot web actuator-->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-actuator</artifactId>
+        </dependency>
+        <!--一般通用配置-->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-devtools</artifactId>
+            <scope>runtime</scope>
+            <optional>true</optional>
+        </dependency>
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+        </dependency>
+    </dependencies>
+
+</project>
+```
+
+application.yml
+```yml
+server:
+  port: 7001
+
+eureka:
+  instance:
+    hostname: localhost # eureka服务端的实例名称
+  client:
+    # false表示不向注册中心注册自己
+    register-with-eureka: false
+    # false表示自己端就是注册中心，我的职责就是维护服务实例，并不需要去检索服务
+    fetch-registry: false
+    service-url:
+      # 设置与Eureka Server交互的地址查询服务和注册服务都需要依赖这个地址
+      defaultZone: http:/${eureka.instance.hostname}:${server.port}/eureka/
+```
+
+由于这个支持注册中心,所以本身并没有业务类
+
+但是启动类上要加上@EnableEurekaServer
+```java
+package com.zzmr.springcloud;
+
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.cloud.netflix.eureka.server.EnableEurekaServer;
+
+/**
+ * @author zzmr
+ * @create 2023-08-01 12:28
+ */
+@SpringBootApplication
+@EnableEurekaServer
+public class EurekaMain7001 {
+    public static void main(String[] args) {
+        SpringApplication.run(EurekaMain7001.class, args);
+    }
+}
+```
+
+启动成功:
+![20230801125240](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230801125240.png)
+
+
+### 微服务8001入住进Eureka Server
+
+EurekaClient端cloud-provider-payment8001将注册进EurekaServer成为服务提供者provider,类似尚硅谷学校对外提供授课服务
+
+1. 改Pom,添加依赖:
+```xml
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-starter-netflix-eureka-client</artifactId>
+            <version>2.1.2.RELEASE</version>
+        </dependency>
+```
+2. 写YML
+```yml
+eureka:
+  client:
+    #表示是否将自己注册进EurekaServer默认为true。
+    register-with-eureka: true
+    #是否从EurekaServer抓取已有的注册信息，默认为true。单节点无所谓，集群必须设置为true才能配合ribbon使用负载均衡
+    fetchRegistry: true
+    service-url:
+      #单机版
+      defaultZone: http://localhost:7001/eureka
+```
+3. 主启动
+加上`@EnableEurekaClient`
+4. 测试
+![20230801130232](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230801130232.png)
+
+>服务名的绑定关系:
+![20230801130344](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230801130344.png)
+
+### EurekeClient端cloud-consumer-order80
+
+将注册进EurekaServer成为服务消费者consumer,类似来尚硅谷上课消费的各位同学
+
+将该模块的pom修改为:
+```yml
+server:
+  port: 80
+
+spring:
+  application:
+    name: cloud-order-service  
+
+eureka:
+  client:
+    #表示是否将自己注册进EurekaServer默认为true。
+    register-with-eureka: true
+    #是否从EurekaServer抓取已有的注册信息，默认为true。单节点无所谓，集群必须设置为true才能配合ribbon使用负载均衡
+    fetchRegistry: true
+    service-url:
+      #单机版
+      defaultZone: http://localhost:7001/eureka
+```
+
+还是上面一样的步骤,这里不再赘述
+![20230801131013](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230801131013.png)
+
+### 集群配置
+
+Eureka集群:**互相注册,相互守望**
+![20230801133213](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230801133213.png)
+
+服务注册:将服务信息注册进注册中心
+服务发现:从注册中心上获取服务信息
+实质:存key服务名,去value调用地址
+
+![20230801131820](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230801131820.png)
+
+>问题:微服务RPC远程服务调用最核心的是什么
+是高可用,搭建Eureka注册中心集群,实现负载均衡+故障容错
+
+1. 参考7001新建模块7002
+2. 修改映射配置(模拟多台机器)
+![20230801133937](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230801133937.png)
+3. 修改配置文件
+```yml
+server:
+  port: 7001
+
+eureka:
+  instance:
+    hostname: eureka7001.com # eureka服务端的实例名称
+  client:
+    # false表示不向注册中心注册自己
+    register-with-eureka: false
+    # false表示自己端就是注册中心，我的职责就是维护服务实例，并不需要去检索服务
+    fetch-registry: false
+    service-url:
+      # 设置与Eureka Server交互的地址查询服务和注册服务都需要依赖这个地址
+      defaultZone: http://eureka7002.com:${server.port}/eureka/
+```
+
+4. 成功:
+![20230801134626](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230801134626.png)
+
+#### 订单支付两微服务注册进Eureka集群
+
+主要是修改配置文件
+```yml
+      #单机版
+#      defaultZone: http://localhost:7001/eureka
+      # 集群版
+      defaultZone: http://eureka7001.com:7001/eureka,http://eureka7002.com:7002/eureka
+```
+
+就是加上两个地址就行了
+
+?不行啊,一直是只能有一个机子能检测到微服务,而且是谁在后,谁能检测到,问问chatgpt吧
+
+奶奶滴,原来是集群那配置错了
+
+错误:
+```yml
+      defaultZone: http://eureka7002.com:${server.port}/eureka/
+```
+正确:
+```yml
+      defaultZone: http://eureka7002.com:7002/eureka/
+```
+
+就是不要用`${server.port}`了,直接写目标端口号
+
+#### 支付微服务集群配置
+
+就是增加多个`cloud-provider-payment`
+
+参考8001新建8002
+
+关键在于要需改8001/8002的Controller
+
+修改之后的:
+```java
+package com.zzmr.springcloud.controller;
+
+import com.zzmr.springcloud.entities.CommonResult;
+import com.zzmr.springcloud.entities.Payment;
+import com.zzmr.springcloud.service.PaymentService;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.web.bind.annotation.*;
+
+/**
+ * @author zzmr
+ * @create 2023-07-31 18:43
+ */
+@RestController
+@Slf4j
+public class PaymentController {
+
+    @Autowired
+    private PaymentService paymentService;
+
+    @Value("${server.port}")
+    private String serverPort;
+
+    @PostMapping("/payment/create")
+    public CommonResult create(@RequestBody Payment payment) {
+        int result = paymentService.create(payment);
+        log.info("*****插入结果：" + result);
+        if (result > 0) {
+            return new CommonResult<>(200, "插入数据成功,serverPort: " + serverPort, result);
+        } else {
+            return new CommonResult(444, "插入数据库失败", null);
+        }
+    }
+
+    @GetMapping("/payment/get/{id}")
+    public CommonResult getPaymentById(@PathVariable("id") Long id) {
+        Payment payment = paymentService.getPaymentById(id);
+        log.info("******查询成功:" + payment);
+        if (payment != null) {
+            return new CommonResult(200, "查询成功,serverPort" + serverPort, payment);
+        } else {
+            return new CommonResult(444, "没有对应数据,查询ID为" + id, null);
+        }
+    }
+
+}
+```
+
+**此时通过80访问,仍然还是只有8001接收到请求,那是因为consumer模块中的Controller是写死的:**
+```java
+    public static final String PAYMENT_URL = "http://localhost:8001";
+```
+发送请求的路径应该为服务名(8001和8002作为服务提供方的服务名)
+```java
+    public static final String PAYMENT_URL = "http://cloud-payment-service";
+```
+
+然后一测试,发现直接报错了...哈哈哈哈哈哈,原因是少个注解
+**要使用@LoadBalanced注解赋予RestTemplate负载均衡的能力**
+```java
+    @Bean
+    @LoadBalanced
+    public RestTemplate getRestTemplate() {
+        return new RestTemplate();
+    }
+```
+
+**此时通过80再访问,就是一替一次了(轮询)**
+
+### actuator微服务信息完善
+
+就是加别名
+
+原来的是这种:
+![20230801202320](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230801202320.png)
+
+是主机加模块名,我们要进行自定义:
+```yml
+  instance:
+    instance-id: payment8001
+```
+加上这个就可以实现此功能了:
+![20230801202536](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230801202536.png)
+
+加上这个就可以实现**显示ip地址了**
+```java
+  instance:
+    instance-id: payment8001
+    prefer-ip-address: true
+```
+
+在鼠标浮在payment800x上就会显示ip地址:
+![20230801202852](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230801202852.png)
+
+### 服务发现Discovery
+
+*洗澡去,一会再看*
+
+**简单来说,就是暴露自己的服务信息**
+
+1. 添加新的对象:
+```java
+    @Autowired
+    private DiscoveryClient discoveryClient;
+```
+2. 添加测试:
+```java
+    @GetMapping("/payment/discovery")
+    public Object discovery() {
+
+        // 获取服务清单列表
+        List<String> services = discoveryClient.getServices();
+        for (String service : services) {
+            log.info("*****element: " + service);
+        }
+
+        // 获取对应微服务名称含有的微服务列表
+        List<ServiceInstance> instances = discoveryClient.getInstances("CLOUD-PAYMENT-SERVICE");
+        for (ServiceInstance instance : instances) {
+            log.info("*****element: " + instance.getServiceId() + "\t" + instance.getHost() + "\t" + instance.getPort() + "\t" + instance.getUri());
+        }
+
+        return this.discoveryClient;
+    }
+```
+3. 启动类上添加注解:
+```java
+@EnableDiscoveryClient
+```
+
+就完工了
+
+
+![20230801205614](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230801205614.png)
+
+![20230801205638](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230801205638.png)
+
+### Eureka自我保护
+
+**概述**
+保护模式主要用于一组客户端和Eureka Server之间存在网络分区场景下的保护,**一旦进入保护模式,EurekaServer将会尝试保护其服务注册表中的信息,不再删除服务注册表中的数据,也就是不会注销任何微服务**
+
+**就是,某时刻某一个微服务不可用了,Eureka不会立刻清理,依旧会对该微服务的信息进行保存**
+
+---
+
+怎么禁止?
+
+7001模块上加
+```yml
+  server:
+    enable-self-preservation: false
+    eviction-interval-timer-in-ms: 2000
+```
+
+![20230801211950](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230801211950.png)
+
+8001模块加上:
+```yml
+  instance:
+    instance-id: payment8001
+    prefer-ip-address: true
+    # Eureka客户端向服务端发送心跳的时间间隔,单位为秒,默认是30s
+    lease-renewal-interval-in-seconds: 1
+```
+
+此时就会非常的`无情`
+
