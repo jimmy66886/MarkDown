@@ -849,3 +849,211 @@ public class PaymentController {
 
 此时就会非常的`无情`
 
+## 6 Zookeeper服务注册与发现
+
+SpringCloud整合Zookeeper代替Eureka-Eureka已经停止更新了
+
+**注册中心Zookeeper**
+- zookeeper是一个分布式协调工具,可以实现注册中心功能
+- 关闭Linux服务器防火墙后启动zookeeper服务器
+- zookeeper服务器取代Eureka服务器,zk作为服务注册中心
+
+**这老师没讲如何安装**
+1. 下载:[链接](https://downloads.apache.org/zookeeper/zookeeper-3.5.10/)
+2. 解压:`tar -zxvf apache-zookeeper-3.5.10-bin.tar.gz`
+3. 新建配置文件:
+![20230802100034](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230802100034.png)
+
+这样就OK了
+
+### 服务提供者
+
+新建一个module:`cloud-provider-payment8004`
+
+一个新的依赖:
+```xml
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-starter-zookeeper-discovery</artifactId>
+        </dependency>
+```
+
+配置文件:
+```yml
+server:
+  port: 8004
+
+spring:
+  application:
+    name: cloud-provider-payment
+  cloud:
+    zookeeper:
+      connect-string: 192.168.168.101:2181
+```
+
+此时使用zookeeper,就不会再使用eureka的注解了:
+```java
+@SpringBootApplication
+@EnableDiscoveryClient
+public class PaymentMain8004 {
+
+    public static void main(String[] args) {
+        SpringApplication.run(PaymentMain8004.class, args);
+    }
+
+}
+```
+
+**Controller**
+```java
+@RestController
+@Slf4j
+public class PaymentController {
+
+    @Value("${server.port}")
+    private String serverPort;
+
+    @GetMapping("/payment/zk")
+    public String paymentZk() {
+        return "spring-cloud with zookeeper: " + serverPort + "\t" + UUID.randomUUID().toString();
+    }
+
+}
+```
+
+此时进行测试,先将zookeeper启动,然后启动8004
+
+![20230802100055](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230802100055.png)
+
+![20230802100152](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230802100152.png)
+
+然后就进入到客户端里了?
+![20230802100235](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230802100235.png)
+
+我的是好了,因为springcloud默认带的是3.5.3,我装的是3.5.10,所以能兼容,但是老师的是3.4.9,所以他要解决一下jar包冲突的问题:
+
+老师换成了:
+```xml
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-starter-zookeeper-discovery</artifactId>
+            <!--先排除自带的zookeeper3.5.3-->
+            <exclusions>
+                <exclusion>
+                    <groupId>org.apache.zookeeper</groupId>
+                    <artifactId>zookeeper</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <!--添加zookeeper3.4.9版本-->
+        <dependency>
+            <groupId>org.apache.zookeeper</groupId>
+            <artifactId>zookeeper</artifactId>
+            <version>3.5.10</version>
+        </dependency>
+```
+
+当然,他下面是3.4.9,那我就3.5.10呗
+
+![20230802101107](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230802101107.png)
+
+这就证明连上了:
+![20230802101133](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230802101133.png)
+
+访问接口也是没问题:
+![20230802101242](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230802101242.png)
+
+层级递进:
+![20230802101429](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230802101429.png)
+
+而注册信息在这:
+```json
+{
+    "name": "cloud-provider-payment",
+    "id": "2831e6f2-adc0-4056-9112-430c35849cad",
+    "address": "localhost",
+    "port": 8004,
+    "sslPort": null,
+    "payload": {
+        "@class": "org.springframework.cloud.zookeeper.discovery.ZookeeperInstance",
+        "id": "application-1",
+        "name": "cloud-provider-payment",
+        "metadata": {}
+    },
+    "registrationTimeUTC": 1690942240064,
+    "serviceType": "DYNAMIC",
+    "uriSpec": {
+        "parts": [
+            {
+                "value": "scheme",
+                "variable": true
+            },
+            {
+                "value": "://",
+                "variable": false
+            },
+            {
+                "value": "address",
+                "variable": true
+            },
+            {
+                "value": ":",
+                "variable": false
+            },
+            {
+                "value": "port",
+                "variable": true
+            }
+        ]
+    }
+}
+```
+
+证明我们的微服务成功入住进zookeeper
+
+---
+
+那么服务节点是临时节点还是持久节点
+
+当8004服务关闭时,过几秒钟zookeeper就会将该服务删去
+
+### 订单服务注册进Zookeeper
+
+新建一个`cloud-consumerzk-order80`
+
+依赖和之前的8004一样
+
+yml也是差不多,只是把端口号改为80,服务名改为消费者的服务名
+
+还是要用到restTemplate,然后写一个简单的controller测试
+```java
+@RestController
+@Slf4j
+public class OrderZKController {
+
+    public static final String INVOKE_URL = "http://cloud-provider-payment";
+
+    @Autowired
+    private RestTemplate restTemplate;
+
+    @GetMapping("/consumer/payment/zk")
+    public String paymentInfo() {
+        String result = restTemplate.getForObject(INVOKE_URL + "/payment/zk", String.class);
+        return result;
+    }
+
+}
+```
+
+测试:
+![20230802104142](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230802104142.png)
+
+测试services中就有了新的服务:`cloud-consumerzk-order80`
+
+再测试接口:
+![20230802104244](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230802104244.png)
+
+访问成功,也没问题
+
+## 7 Consul服务注册与发现
+
