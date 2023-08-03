@@ -1057,3 +1057,357 @@ public class OrderZKController {
 
 ## 7 Consul服务注册与发现
 
+Consul是一套开源的分布式服务发现和配置管理系统,Go语言开发
+
+### 安装
+
+[安装网站](https://developer.hashicorp.com/consul/downloads?product_intent=consul)
+
+解压,双击运行:
+![20230802214724](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230802214724.png)
+
+
+启动:`consul agent -dev`
+
+访问`localhost:8500`
+![20230802214930](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230802214930.png)
+
+### 服务提供者注册
+
+建一个8006:微服务提供者
+
+```xml
+        <!--SpringCloud consul-server -->
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-starter-consul-discovery</artifactId>
+        </dependency>
+```
+
+yml:
+```yml
+server:
+  port: 8006
+spring:
+  application:
+    name: consul-provider-payment
+
+  cloud:
+    consul:
+      host: localhost
+      port: 8500
+      discovery:
+        # hostname: 127.0.0.1
+        service-name: ${spring.application.name}
+```
+
+然后就是编写接口
+
+好了,已经注册进去了:
+![20230802215943](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230802215943.png)
+
+接口也注册成功:
+![20230802220031](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230802220031.png)
+
+### 服务消费者注册
+
+还是这些步骤,
+
+```yml
+server:
+  port: 80
+spring:
+  application:
+    name: cloud-consumer-order
+
+  cloud:
+    consul:
+      host: localhost
+      port: 8500
+      discovery:
+        # hostname: 127.0.0.1
+        service-name: ${spring.application.name}
+
+```
+
+![20230802220705](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230802220705.png)
+
+
+测试也是没问题:
+![20230802220804](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230802220804.png)
+
+
+### 三个注册中心的异同点
+
+![20230802221110](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230802221110.png)
+
+分为CP和AP
+
+AP:eureka
+CP:Zookeeper/consul
+
+AP架构中,当网络分区出现后,为了保证可用性,系统B可以返回旧值,保证系统的可用性
+
+结论:违背了一执行C的要求,只满足可用性和分区容错,即AP
+
+CP架构,为了保证一致性,就必须拒接请求,否则无法保证一执行
+
+结论:违背了可用性A的要求,只满足一致性和分区容错,即CP
+
+## 8 Ribbon负载均衡服务调用
+
+>概述
+简单来说,Ribbon是Netflix发布的开源项目,主要功能是提供**客户端的软件负载均衡算法和服务调用**,在配置文件中列出Load Balancer(简称LB)后面所有的机器,Ribbon会自动帮助你基于某种规则(简单轮询,随机连接)去连接这些机器,我们很容易使用Ribbon实现自定义的负载均衡算法
+
+>LB负载均衡是什么
+将用户的请求平摊的分配到多个服务上,而达到系统的HA(高可用)
+常见的负载均衡有软件Nginx,LVS,硬件F5等
+
+**Ribbon本地负载均衡客户端VS Nginx服务端负载均衡区别**
+Nginx是服务器负载均衡,客户端所有请求都会交给nginx,然后由nginx实现转发请求,即负载均衡是由服务端实现的
+Ribbon本地负载均衡,在调用微服务接口时,会在注册中心上获取注册信息服务列表之后缓存到JVM本地,从而在本地实现RPC远程服务调用技术
+
+---
+
+**集中式LB**
+即在服务的消费方和提供方之间使用独立的LB设施(可以是硬件如F5,也可以是软件,如nginx),由该设施负责把访问请求通过某种策略转发至服务的提供方
+
+**进程内LB**
+将LB逻辑集成到消费方,消费方从服务注册中心获知有哪些地址可用,然后自己再从这些地址中选择出一个合适的服务器
+
+Ribbon就属于进程内LB,它只是一个类库,集成于消费方进程,消费方通过它来获取到服务提供方的地址
+
+**总结**
+Ribbon其实就是一个软负载均衡的客户端组件,它可以和其他所需请求的客户端结合使用,和eureka结合只是其中的一个实例
+
+Ribbon的工作流程
+1. 选择EurekaServer,它优先选择在同一区域内负载较少的server
+2. 根据用户指定的策略,从server取到的服务注册列表中选择一个地址
+其中Ribbon提供了多种策略,比如轮询,随机和根据相应时间加权
+
+---
+
+之前写的80并没有引入spring-cloud-starter-ribbon,也可以使用ribbon,那是因为eureka中包含了ribbon
+![20230803105612](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230803105612.png)
+
+### 详解RestTemplate
+
+两种方法:
+1. xxxForObject
+    - 返回对象为响应体中数据转换成的对象,基本上就是json
+2. xxxForEntity
+    - 返回对象为ResponseEntity对象,包含了响应中的一些重要信息,比如响应头,响应状态码,响应体等
+![20230803110122](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230803110122.png)
+
+
+测试代码:
+```java
+    @GetMapping("/consumer/payment/getForEntity/{id}")
+    public CommonResult<Payment> getPayment2(@PathVariable("id") Long id) {
+        ResponseEntity<CommonResult> entity = restTemplate.getForEntity(PAYMENT_URL + "/payment/get/" + id, CommonResult.class);
+        if (entity.getStatusCode().is2xxSuccessful()){
+            return entity.getBody();
+        }else {
+            return new CommonResult<>(444,"操作失败");
+        }
+    }
+
+    @GetMapping("/consumer/payment/postForEntity/create")
+    public CommonResult<Payment> create2(Payment payment) {
+        ResponseEntity<CommonResult> entity = restTemplate.postForEntity(PAYMENT_URL + "/payment/create", payment, CommonResult.class);
+        if (entity.getStatusCode().is2xxSuccessful()) {
+            return entity.getBody();
+        } else {
+            return new CommonResult<>(444, "操作失败");
+        }
+    }
+```
+
+没问题:
+![20230803111235](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230803111235.png)
+
+其实就是entity比object返回的结果比较多一些,但是还是object比较常用
+
+### Ribbon默认的负载均衡规则
+
+IRule:根据特定算法中从服务列表中选取一个要访问的服务
+
+这个接口的实现:
+![20230803205441](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230803205441.png)
+
+![20230803205504](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230803205504.png)
+
+**规则替换**
+1. 修改cloud-consumer-order80
+    - 官方文档明确给出了警告,这个自定义配置类不能放在@ComponentScan所扫描的当钱包以及子包下,否则我们自定义的这个配置类就会被所有的Ribbon客户端所共享,达不到特殊化定制的目的了
+    - ![20230803210131](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230803210131.png)
+2. 配置类:
+```java
+@Configuration
+public class MySelfRule {
+
+    @Bean
+    public IRule myRule(){
+        return new RandomRule(); // 自定义为随机        
+    }
+
+}
+```
+3. 在主机启动类上加上`@RibbonClient(name = "CLOUD_PAYMENT_SERVICE", configuration = MySelfRule.class)`
+
+启动服务即可
+
+### Ribbon负载均衡算法
+
+*手写一个*
+
+**负载均衡算法: rest接口第几次请求数 `%` 服务器集群总数量 = 实际调用服务器位置下标 ,每次服务重启动后rest接口计数从1开始**
+
+总机器数是2,那么第一次请求1 对2取余,则下标为1,则是第二台机器
+![20230803212755](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230803212755.png)
+
+*好像还挺简单的,但是怎么实现呢*
+
+源码:
+```java
+public Server choose(ILoadBalancer lb, Object key) {
+        if (lb == null) {
+            log.warn("no load balancer");
+            return null;
+        }
+
+        Server server = null;
+        int count = 0;
+        while (server == null && count++ < 10) {
+            List<Server> reachableServers = lb.getReachableServers();
+            List<Server> allServers = lb.getAllServers();
+            int upCount = reachableServers.size();
+            int serverCount = allServers.size();
+
+            if ((upCount == 0) || (serverCount == 0)) {
+                log.warn("No up servers available from load balancer: " + lb);
+                return null;
+            }
+
+            int nextServerIndex = incrementAndGetModulo(serverCount);
+            server = allServers.get(nextServerIndex);
+
+            if (server == null) {
+                /* Transient. */
+                Thread.yield();
+                continue;
+            }
+
+            if (server.isAlive() && (server.isReadyToServe())) {
+                return (server);
+            }
+
+            // Next.
+            server = null;
+        }
+
+        if (count >= 10) {
+            log.warn("No available alive servers after 10 tries from load balancer: "
+                    + lb);
+        }
+        return server;
+    }
+```
+
+取下标的方法:
+```java
+    /**
+     * Inspired by the implementation of {@link AtomicInteger#incrementAndGet()}.
+     *
+     * @param modulo The modulo to bound the value of the counter.
+     * @return The next value.
+     */
+    private int incrementAndGetModulo(int modulo) {
+        for (;;) {
+            int current = nextServerCyclicCounter.get();
+            int next = (current + 1) % modulo;
+            if (nextServerCyclicCounter.compareAndSet(current, next))
+                return next;
+        }
+    }
+```
+
+### 手写一个
+
+1. 改写8001/8002的Controller
+```java
+    @GetMapping("/payment/lb")
+    public String getPaymentLB() {
+        return serverPort;
+    }
+```
+2. ApplicationContextConfig中去掉`@LoadBalanced`注解
+3. 编写接口和实现类:
+```java
+
+package com.zzmr.springcloud.lb;
+
+import org.springframework.cloud.client.ServiceInstance;
+
+import java.util.List;
+
+/**
+ * @author zzmr
+ * @create 2023-08-03 21:49
+ */
+public interface LoadBalancer {
+
+    ServiceInstance instances(List<ServiceInstance> serviceInstances);
+
+}
+
+
+@Component
+public class MyLB implements LoadBalancer {
+
+    private AtomicInteger atomicInteger = new AtomicInteger(0);
+
+    public final int getAndIncrement() {
+        int current;
+        int next;
+
+        do {
+            current = this.atomicInteger.get();
+            next = current == 2147483647 ? 0 : current + 1;
+        } while (!this.atomicInteger.compareAndSet(current, next));
+        System.out.println("****第几次访问,次数next:" + next);
+        return next;
+    }
+
+    @Override
+    public ServiceInstance instances(List<ServiceInstance> serviceInstances) {
+
+        int index = getAndIncrement() % serviceInstances.size();
+
+        return serviceInstances.get(index);
+    }
+}
+```
+4. 改写的controller:
+```java
+    @GetMapping("/consumer/payment/lb")
+    public String getPaymentLB() {
+        List<ServiceInstance> instances = discoveryClient.getInstances("CLOUD-PAYMENT-SERVICE");
+        if (instances == null || instances.size() == 0) {
+            return null;
+        }
+
+        // 将服务传给负责负载均衡的配置
+        ServiceInstance serviceInstance = loadBalancer.instances(instances);
+        URI uri = serviceInstance.getUri();
+        return restTemplate.getForObject(uri + "/payment/lb", String.class);
+    }
+```
+
+测试成功:
+![20230803221218](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230803221218.png)
+
+嗯,还有好多要学啊
+
+后天就去西安吧
+
