@@ -1411,3 +1411,214 @@ public class MyLB implements LoadBalancer {
 
 后天就去西安吧
 
+## 9 OpenFeign服务接口调用
+
+OpenFeign是一个声明式WebSevice客户端,使用Feign能让编写Web Service客户端更加简单
+**它的使用方法是定义一个服务接口然后在上面添加注解**
+
+**Feign可以与Eureka和Ribbon组合使用以支持负载均衡**
+
+![20230804090820](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230804090820.png) 
+
+
+### OpenFeign使用
+
+新建`cloud-consumer-feign-order80`
+```xml
+        <!--openfeign-->
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-starter-openfeign</artifactId>
+        </dependency>
+```
+
+配置文件:
+```yml
+server:
+  port: 80
+eureka:
+  client:
+    register-with-eureka: false
+    service-url:
+      defaultZone: http://eureka7001.com:7001,http://eureka7002.com:7002/eureka/
+```
+主启动类添加注解:
+```java
+@SpringBootApplication
+@EnableFeignClients
+public class OrderFeignMain80 {
+    public static void main(String[] args) {
+        SpringApplication.run(OrderFeignMain80.class, args);
+    }
+}
+```
+
+接口,这个就有意思了一个注解加接口,直接表示找到`CLOUD-PAYMENT-SERVICE`服务中的`/payment/get{id}`接口(虽然在service中写了Mapping就离谱哈哈哈)
+```java
+@Component
+@FeignClient(value = "CLOUD-PAYMENT-SERVICE")
+public interface PaymentFeignService {
+
+    @GetMapping("/payment/get{id}")
+    public CommonResult<Payment> getPaymentById(@Param("id") Long id);
+
+}
+```
+
+Controller:
+```java
+@RestController
+@Slf4j
+public class OrderFeignController {
+
+    @Autowired
+    private PaymentFeignService paymentFeignService;
+
+    @GetMapping("/consumer/payment/get/{id}")
+    public CommonResult<Payment> getPaymentById(@PathVariable("id") Long id) {
+        return paymentFeignService.getPaymentById(id);
+    }
+
+}
+```
+
+这里就不用再写restTemplate了,因为openfeign已经封装了,在service接口中已经实现了该功能
+
+没问题:
+![20230804094528](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230804094528.png)
+
+突然感觉也是好清晰啊,但是如果用了这个OpenFeign,那么如何自己写一个负载均衡的算法呢?*我应该用不到*
+
+### OpenFeign的超时控制
+
+**故意设置超时演示出错情况**
+8001接口中
+```java
+    public String paymentFeignTimeout() {
+        try {
+            TimeUnit.SECONDS.sleep(3);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        return serverPort;
+    }
+```
+
+80端口进行调用,出现超时报错
+![20230804100021](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230804100021.png)
+
+所以可以修改Feign客户端的等待时间,在yml配置文件中设置
+
+```yml
+ribbon:
+  ReadTimeout: 5000
+  ConnectTimeout: 5000
+```
+
+成功:
+![20230804100343](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230804100343.png)
+
+### OpenFeign日志打印功能
+
+Feign提供了日志打印功能,我们可以通过配置来调整日志级别,从而了解Feign中http请求的细节
+
+说白了就是**对Feign接口的调用情况进行监控和输出**
+
+日志级别:
+- NONE: 默认的,不显示任何日志
+- BASIC: 仅记录请求方法,URL,响应状态码以及执行时间
+- HEADERS: 除了BASIC中定义的信息之外,还有请求和响应的头信息
+- FULL: 除了HEADERS中定义的信息之外,还有请求和响应的正文及元数据
+
+配置类:
+```java
+@Configuration
+public class FeignConfig {
+
+    @Bean
+    Logger.Level feignLoggerLevel() {
+        return Logger.Level.FULL;
+    }
+
+}
+```
+
+配置文件
+```yml
+logging:
+  level:
+    # feign日志以什么级别监控哪个接口
+    com.zzmr.springcloud.service.PaymentFeignService: debug
+```
+
+没问题:
+![20230804101230](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230804101230.png)
+
+
+
+## 10 Hystrix
+
+这就已经到了`服务降级`了
+
+**分布式系统面临的问题**
+复杂分布式体系结构中的应用程序有数十个依赖关系,每个依赖关系在某些时候将不可避免地失败
+
+Histrix是一个用于处理分布式系统的延迟和容错的开源库,在分布式系统里,许多依赖不可避免的会调用失败,比如超市,异常等,Hystrix能够保证在一个依赖出问题的情况下,**不会导致整体服务失败,避免级联故障,以提高分布式系统的弹性**
+
+**断路器**本身是一种开关装置,当某个服务单元发生故障之后,通过断路器的故障监控(类似熔断保险丝),向调用方返回一个符合预期的,可处理的备选响应(FallBack),而不是长时间的等待或者抛出调用方法无法处理的异常,这样就保证了服务调用方的线程不会被长时间,不必要地占用,从而避免了故障在分布式系统中的蔓延,乃至雪崩
+
+### Hystrix重要概念
+
+1. 服务降级
+    - 对方系统不可用了,你需要给我一个兜底的解决方法
+    - 程序运行异常
+    - 超时
+    - 服务熔断触发服务降级
+    - 线程池/信号量打满也会导致服务降级
+2. 服务熔断
+    - 类比保险丝达到最大服务访问后,直接拒绝访问,拉闸限电,然后调用服务降级的方法并返回友好提示
+3. 服务限流
+    - 秒杀高并发等操作,严禁一窝蜂的过来拥挤,大家排队,一秒钟N个,有序进行
+
+### 使用
+
+新建:`cloud-provider-hystrix-payment8001`
+
+```xml
+        <!--hystrix-->
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-starter-netflix-hystrix</artifactId>
+        </dependency>
+```
+
+配置文件:
+```yml
+server:
+  port: 8001
+
+spring:
+  application:
+    name: cloud-provider-hystrix-payment
+
+eureka:
+  client:
+    register-with-eureka: true
+    fetch-registry: true
+    service-url:
+      #defaultZone: http://eureka7001.com:7001/eureka,http://eureka7002.com:7002/eureka
+      defaultZone: http://eureka7001.com:7001/eureka
+```
+
+写测试方法,并以上述方法为根基平台
+`正确-错误-降级熔断-恢复`
+
+高并发测试:
+开启Jmeter,来20000个并发压死8001,20000个请求都去访问paymentinfo_Timeout
+
+没有啊,看一下得了
+
+给timeout发20000个请求,此时ok也被拖慢了,因为这个微服务集中资源都去给timeout接口处理了
+
+上面还是服务**提供者8001自测**,假如此时外部的消费者80也来访问,那消费者只能干等,最终导致消费者端80不满意,服务端8001直接被拖死
+
