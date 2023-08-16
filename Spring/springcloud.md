@@ -1921,3 +1921,60 @@ public interface PaymentHystrixService {
 ### hystrix工作流程
 
 ![20230815224303](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230815224303.png)
+
+### hystrix仪表盘
+
+除了隔离依赖服务的调用之外,hystrix还提供了准实时的调用监控(hystrix dashboard),hystrix会持续地记录所有通过Hystrix发起的请求的执行信息,并以统计报表和图形的形式展示给用户,包括每秒执行多少成功,多少失败,netflix通过hystrix-metrics-event-stream项目实现了对以上指标的监控,SpringCloud也提供了Hystrix Dashboard的整合,对监控内容转化为可视化界面
+
+---
+
+新建项目:`cloud-consumer-hystrix-dashboard9001`
+
+新依赖:
+```xml
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-starter-netflix-hystrix-dashboard</artifactId>
+        </dependency>
+```
+
+新注解:`@EnableHystrixDashboard`给主启动类加上,**每多一个功能,都要在主启动类上开启**
+
+访问可得:
+![20230816104755](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230816104755.png)
+
+**被监控的前提是要有如下依赖**
+```xml
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-actuator</artifactId>
+        </dependency>
+```
+
+新版本Hystrix需要在主启动类MainAppHystrix8001中指定监控路径,不然会报404
+```java
+    /**
+     *此配置是为了服务监控而配置，与服务容错本身无关，springcloud升级后的坑
+     *ServletRegistrationBean因为springboot的默认路径不是"/hystrix.stream"，
+     *只要在自己的项目里配置上下面的servlet就可以了
+     */
+    @Bean
+    public ServletRegistrationBean getServlet() {
+        HystrixMetricsStreamServlet streamServlet = new HystrixMetricsStreamServlet();
+        ServletRegistrationBean registrationBean = new ServletRegistrationBean(streamServlet);
+        registrationBean.setLoadOnStartup(1);
+        registrationBean.addUrlMappings("/hystrix.stream");
+        registrationBean.setName("HystrixMetricsStreamServlet");
+        return registrationBean;
+    }
+```
+
+9001监控8001
+1. 填写监控地址:`http://localhost:8001/hystrix.stream`
+2. 开启监控
+
+还是挺直观的,circuit那里有当前的情况显示
+![20230816110023](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230816110023.png)
+
+到这就ok了,但是这些可能都不用吧,毕竟后面还有alibaba
+
