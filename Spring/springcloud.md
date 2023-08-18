@@ -1978,3 +1978,296 @@ public interface PaymentHystrixService {
 
 到这就ok了,但是这些可能都不用吧,毕竟后面还有alibaba
 
+## 11 zuul路由网关和Gateway新一代网关
+
+主要看这个`新一代`,但是zuul还是要看的
+
+>Cloud全家桶中有个很重要的组件就是网关，在1.x版本中都是采用的zuul网关;但是在2.x版本中,zuul的升级一直跳票,SpringCluod最后自己研发了一个网关替代zuul,那就是SpringCloud Gateway
+一句话:gate是原zuul1.x版的替代
+
+Gateway是在Spring生态系统之上构建的API网关服务,基于Spring5,SpringBoot2和ProjectReactor等技术,Gateway旨在提供一种简单而有效的方式来对API进行路由,以及提供一些强大的过滤器功能,例如:**熔断,限流,重试等**
+
+SpringCloud Gateway使用的是Webflux中的reactor-netty响应式编程组件,底层使用了Netty通讯框架
+
+### Gateway网关工作流程
+
+客户端向Spring Cloud Gateway发出请求,然后在Gateway Handler Mapping中找到与请求相匹配的路由,将其发送到Gateway Web Handler
+
+Handler再通过指定的过滤器链来请求发送到我们实际的服务执行业务逻辑,然后返回.
+
+过滤器之间用虚线分开是因为过滤器可能会发送代理请求之前("pre")或之后("post")执行业务逻辑
+
+>核心逻辑:**路由转发+执行过滤器链
+
+### 创建Gateway9527模块
+
+新加依赖**注意,加上这个依赖后,就不用再加上starter-web和acatur了,加上会报错**
+```xml
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-starter-gateway</artifactId>
+        </dependency>
+```
+
+配置文件:
+```yml
+server:
+  port: 9527
+
+spring:
+  application:
+    name: cloud-gateway
+
+eureka:
+  instance:
+    hostname: cloud-gateway-service
+  client: #服务提供者provider注册进eureka服务列表内
+    service-url:
+      register-with-eureka: true
+      fetch-registry: true
+      defaultZone: http://eureka7001.com:7001/eureka
+```
+
+---
+
+>**三大核心概念**
+1. Route(路由):路由是构建网关的基本模块，它由ID，目标URI，一系列的断言和过滤器组成，如果断言为true则匹配该路由
+2. Predicate(断言):参考的是Java8的java.util.function.Predicate开发人员可以匹配HTTP请求中的所有内容(例如请求头或请求参数),如果请求与断言相匹配则进行路由
+3. Filter(过滤):指的是Spring框架中GatewayFilter的实例,使用过滤器,可以在请求被路由前或者之后对请求进行修改
+
+![20230818114408](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230818114408.png)
+
+所以要在8001外面包一层9527,再给9527加上一些配置
+```yml
+server:
+  port: 9527
+
+spring:
+  application:
+    name: cloud-gateway
+  cloud:
+    gateway:
+      routes:
+        - id: payment_routh #payment_route    #路由的ID，没有固定规则但要求唯一，建议配合服务名
+          uri: http://localhost:8001          #匹配后提供服务的路由地址
+          predicates:
+            - Path=/payment/get/**         # 断言，路径相匹配的进行路由
+
+        - id: payment_routh2 #payment_route    #路由的ID，没有固定规则但要求唯一，建议配合服务名
+          uri: http://localhost:8001          #匹配后提供服务的路由地址
+          predicates:
+            - Path=/payment/lb/**         # 断言，路径相匹配的进行路由
+
+eureka:
+  instance:
+    hostname: cloud-gateway-service
+  client: #服务提供者provider注册进eureka服务列表内
+    service-url:
+      register-with-eureka: true
+      fetch-registry: true
+      defaultZone: http://eureka7001.com:7001/eureka
+```
+
+
+**此时,如果要访问8001的lb或者是get方法,都会先打到9527**
+
+启动成功后
+1. 添加网关前:`http://localhost:8001/payment/get/31`
+2. 添加网关后:`http://localhost:9527/payment/get/31`
+
+上面的配置其实就是,当访问9527下的接口时,会自动映射到配置中uri对应的接口
+
+---
+
+上面gateway配置的routes,照着这个格式配就行了,但是gateway还有一种配置方式:硬编码
+
+>gateway硬编码配置方式
+
+**代码中注入RouteLocator的Bean**
+
+然后实现一个功能:`通过9527网关访问到外网的网址:blog.zzmr.club`
+
+```java
+package com.zzmr.springcloud.config;
+
+import org.springframework.cloud.gateway.route.RouteLocator;
+import org.springframework.cloud.gateway.route.builder.RouteLocatorBuilder;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+
+/**
+ * @author zzmr
+ * @create 2023-08-18 12:15
+ */
+@Configuration
+public class GateWayConfig {
+
+    @Bean
+    public RouteLocator customRouteLocator(RouteLocatorBuilder routeLocatorBuilder) {
+        RouteLocatorBuilder.Builder routes = routeLocatorBuilder.routes();
+        routes.route("path_route_zzmr",
+                r -> r.path("/maps")
+                        .uri("http://blog.zzmr.club/maps")).build();
+        return routes.build();
+    }
+
+}
+```
+
+添加这个配置类,就可以实现访问外网的功能了
+
+**流程就是这样的,对9527的请求:`localhost:9527/maps`会自动映射到`http://blog.zzmr.club/maps`**
+
+### GateWay配置动态路由
+
+上面的配置问题:
+1. 地址写死了
+2. 无法实现负载均衡
+
+所以要用动态路由来实现负载均衡
+
+**通过微服务名实现动态路由**
+
+*默认情况下Gateway会根据注册中心注册的服务列表,以注册中心上微服务名为路径创建`动态路由进行转发,从而实现动态路由的功能`*
+
+为了实现这个效果,开一个7001和8001和8002
+
+改写9527的配置文件
+```yml
+server:
+  port: 9527
+
+spring:
+  application:
+    name: cloud-gateway
+  cloud:
+    gateway:
+      discovery:
+        locator:
+          enabled: true #开启从注册中心动态创建路由的功能，利用微服务名进行路由
+      routes:
+        - id: payment_routh #payment_route    #路由的ID，没有固定规则但要求唯一，建议配合服务名
+          #          uri: http://localhost:8001          #匹配后提供服务的路由地址
+          uri: lb://CLOUD-PAYMENT-SERVICE  # 匹配后提供服务的路由地址
+          predicates:
+            - Path=/payment/get/**         # 断言，路径相匹配的进行路由
+
+        - id: payment_routh2 #payment_route    #路由的ID，没有固定规则但要求唯一，建议配合服务名
+          #          uri: http://localhost:8001          #匹配后提供服务的路由地址
+          uri: lb://CLOUD-PAYMENT-SERVICE  # 匹配后提供服务的路由地址
+          predicates:
+            - Path=/payment/lb/**         # 断言，路径相匹配的进行路由
+
+eureka:
+  instance:
+    hostname: cloud-gateway-service
+  client: #服务提供者provider注册进eureka服务列表内
+    service-url:
+      register-with-eureka: true
+      fetch-registry: true
+      defaultZone: http://eureka7001.com:7001/eureka
+```
+
+**相当于还是通过服务名了,感觉和之前的ribbon没啥区别**
+
+此时再访问:`http://localhost:9527/payment/lb`,就能发现,实现了负载均衡
+
+### Predicate的使用
+
+**断言**
+
+断言分为好多种,
+
+>1. `-After`
+
+这里的时间格式比较特别:`2023-08-18T22:26:34.784+08:00[Asia/Shanghai]`是这个格式的,要通过以下代码获取:
+```java
+public class T2 {
+    public static void main(String[] args) {
+        ZonedDateTime zbj = ZonedDateTime.now(); // 默认时区
+        System.out.println(zbj); //2023-08-18T22:26:34.784+08:00[Asia/Shanghai]
+    }
+}
+```
+
+是这样配置的:
+```yml
+          predicates:
+            - Path=/payment/lb/**         # 断言，路径相匹配的进行路由
+            - After=2023-08-18T22:26:34.784+08:00[Asia/Shanghai] # 表示在这个时间以后,lb访问请求才有效
+```
+
+**就表示这这个配置时间之后才该请求才有效**
+
+这里测试,把时间调到一个小时以后,再次访问,就得到404了
+![20230818223125](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230818223125.png)
+
+*一般用于上线未来的接口,但是又不能立即启用*
+
+和之相似的还有Before,和Between,between就是配置两个时间,用逗号隔开:
+`- Between=2023-08-18T21:26:34.784+08:00[Asia/Shanghai],2023-08-18T23:26:34.784+08:00[Asia/Shanghai]`
+
+>2. Cookie
+
+Cookie Route Predicate需要两个参数,一个是Cookie name,一个是正则表达式,路由规则会通过获取对应的Cookie name值和正则表达式去匹配,如果匹配上就会执行路由,如果没有匹配上则不执行
+
+```yml
+    - Path=/payment/lb/**         # 断言，路径相匹配的进行路由
+    - Cookie=username,zzmr
+```
+
+**使用curl命令来发送请求**
+
+这个还是第一次知道,就直接在控制台:
+![20230818225355](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230818225355.png)
+
+后面`--cookie "username=zzmr"`就表示该请求携带cookie
+
+如果不带指定格式的cookie,就会报404
+![20230818225503](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230818225503.png)
+
+>3. Header请求头
+
+```yml
+    - Header=X-Request-Id, \d+  # 请求头要有X-Request-Id属性并且值为整数的正则表达式
+```
+
+此时还是用curl命令来测试:`http://localhost:9527/payment/lb -H "X-Request-Id:20"`
+
+测试:
+![20230818230351](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230818230351.png)
+
+>4. Host
+
+Host Route Predicate 接受一组参数,一组匹配的域名列表,这个模板是ant分隔的模板,用.号作为分隔符,它通过参数中的主机地址作为匹配规则
+
+![20230818231059](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230818231059.png)
+
+>5. Method
+
+这个更简单了,就是指定发送请求的类型:
+```yml
+    - Method=GET
+```
+
+这时就只能接收到GET请求,发送post请求会报404
+![20230818231748](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230818231748.png)
+
+>6. Path
+
+就是上面用的那个:`- Path=/payment/lb/**         # 断言，路径相匹配的进行路由`
+
+指定请求路径的
+
+>7. Query(请求参数)
+```yml
+    - Query=username, \d+  # 要有参数名username并且值还要是整数才能路由
+```
+
+就是这样用:
+![20230818232458](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230818232458.png)
+
+**注意正则表达式里的反斜杠,刚写错了,看了半天**
+
+
+
