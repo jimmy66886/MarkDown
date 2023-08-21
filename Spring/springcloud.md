@@ -2269,5 +2269,255 @@ Host Route Predicate 接受一组参数,一组匹配的域名列表,这个模板
 
 **注意正则表达式里的反斜杠,刚写错了,看了半天**
 
+### Filter
 
+**路由过滤器可用于修改进入的HTTP请求和返回的HTTP响应，路由过滤器只能指定路由进行使用**
+
+SpringCloud Gateway内置了多种路由过滤器，他们都由GatewayFilter的工厂类来产生
+
+>生命周期:
+1. pre(之前)
+2. post(之后)
+
+>种类:
+1. GatewayFilter(单一)
+2. GlobalFilter(全局)
+
+---
+
+过滤器种类太多了,全局的:
+```yml
+          filters:
+            - AddRequestParameter=X-Request-Id,1024 #过滤器工厂会在匹配的请求头加上一对请求头，名称为X-Request-Id值为1024
+```
+
+这里只讲自定义全局过滤器
+
+自定义配置:
+```java
+package com.zzmr.springcloud.filter;
+
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.cloud.gateway.filter.GatewayFilterChain;
+import org.springframework.cloud.gateway.filter.GlobalFilter;
+import org.springframework.core.Ordered;
+import org.springframework.http.HttpStatus;
+import org.springframework.stereotype.Component;
+import org.springframework.web.server.ServerWebExchange;
+import reactor.core.publisher.Mono;
+
+import java.util.Date;
+
+/**
+ * @author zzmr
+ * @create 2023-08-19 10:47
+ */
+@Component
+@Slf4j
+public class MyLogGateWayFilter implements GlobalFilter, Ordered {
+    @Override
+    public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
+        log.info("*******come in MyLogGateWayFilter: " + new Date());
+        // 表示要求请求带有请求参数，且第一个为uname
+        String uname = exchange.getRequest().getQueryParams().getFirst("uname");
+        if (uname == null) {
+            log.info("*******用户名为null,非法用户");
+            exchange.getResponse().setStatusCode(HttpStatus.NOT_ACCEPTABLE);
+            return exchange.getResponse().setComplete();
+        }
+        return chain.filter(exchange);
+    }
+
+    // 这个返回值越小，优先级越高
+    @Override
+    public int getOrder() {
+        return 0;
+    }
+}
+```
+
+此时访问,如果参数不符合要求,则会报406
+
+## 12 SpringCloud Config
+
+分布式配置中心
+
+不知不觉已经看到这了:
+![20230819113003](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230819113003.png)
+
+为什么要用这个?-**配置问题**
+
+微服务意味着要将单体应用中的业务拆分成一个个子服务,每个服务的粒度相对较小,因此系统中会出现大量的服务,由于每个服务都需要必要的配置信息才能运行,所以一套集中式的,动态的配置管理设施是必不可少的
+
+springCloud提供了ConfigServer来解决这个问题,我们每一个微服务自己带着一个application.yml,上百个配置文件的管理
+
+---
+
+>是什么
+SpringCloud Config为微服务架构中的微服务提供集中化的外部配置支持,配置服务器**为各个不同微服务应用**的所有环境提供了一个**中心化的外部配置**
+![20230819113838](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230819113838.png)
+
+>怎么玩
+SpringCloud Config分为**服务端和客户端**两个部分
+
+服务端也称为**分布式配置中心,它是一个独立的微服务应用**,用来连接配置服务器并为客户端提供获取配置信息,加密/解密信息等访问接口
+
+客户端则是通过指定的配置中心来管理应用资源,以及与业务相关的配置内容,并在启动的时候从配置中心获取和加载配置信息,配置服务器默认采用git来存储配置信息,这样就有助于对环境配置进行版本管理,并且可以通过git客户端工具来方便的管理和访问配置内容
+
+>能干嘛
+1. 集中管理配置文件
+2. 不同环境不同配置,动态化的配置更新,分环境部署比如`dev/test/prod/beta/release`
+3. 运行期间动态调整配置,不再需要在每个服务部署的机器上编写配置文件,服务会向配置中心统一拉取配置自己的信息
+4. 当配置发生变动时,服务不需要重启即可感知到配置的变化并应用新的配置
+5. 将配置信息以REST接口的形式暴露
+
+### Config服务端配置
+
+1. 在github新建一个`springcloud-config的新Repository`
+2. 由上一步获取刚新建的git地址
+
+然后就是将仓库clone到本地,然后添加些文件什么的
+
+新建模块:`cloud-config-center-3344`
+```xml
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-config-server</artifactId>
+        </dependency>
+```
+
+然后是配置文件:
+```yml
+server:
+  port: 3344
+
+spring:
+  application:
+    name:  cloud-config-center #注册进Eureka服务器的微服务名
+  cloud:
+    config:
+      server:
+        git:
+          uri: git@github.com:jimmy66886/springcloud-config.git #GitHub上面的git仓库名字
+          ####搜索目录
+          search-paths:
+            - springcloud-config
+      ####读取分支
+      label: master
+
+#服务注册到eureka地址
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:7001/eureka
+```
+
+主启动类上加入新的注解:
+```java
+@EnableConfigServer
+```
+
+然后加映射:
+![20230819121030](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230819121030.png)
+
+配置这块有坑,如果开着梯子,就访不了7001,然后3344这个也有问题,关了梯子后发现认证失败,解决办法:
+1. 将ssh改成https:
+2. 加上用户名和密码
+```yml
+#          uri: git@github.com:jimmy66886/springcloud-config.git #GitHub上面的git仓库名字
+          uri: https://github.com/jimmy66886/springcloud-config.git
+          ####搜索目录
+          search-paths:
+            - springcloud-config
+#          username: jimmy66886
+#          password: 
+```
+
+还有就是,分支要改成main,不然还是访问不到:
+![20230819122559](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230819122559.png)
+
+---
+
+>配置读取规则
+
+另外的一种访问模式:
+![20230820151229](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230820151229.png)
+
+
+### 客户端配置
+
+新建模块:`cloud-config-client3355`
+
+新依赖:
+```xml
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-starter-config</artifactId>
+        </dependency>
+```
+
+引入`bootstrap.yml`
+>是什么
+application.yml是用户及的资源配置项
+bootstrap.yml是系统级的,**优先级更高**
+
+SpringCloud会创建一个`Bootstrap context`,作为Spring应用的Application Context的父上下文,初始化的时候,bootstrap Context负责从**外部源**加载配置属性并解析配置,这两个上下文共享一个从外部获取的Environment
+
+Bootstrap属性由高优先级,默认情况下,它们不会被本地配置覆盖,Bootstrap context和application Context有着不同的约定,所以新增了一个bootstrap.yml文件,保证Bootstrap Context和Application Context配置的分离
+
+**要将Client模块下的applicaiton.yml文件改为bootstarp.yml,这时很关键的**
+
+内容:
+```yml
+server:
+  port: 3355
+
+spring:
+  application:
+    name: config-client
+  cloud:
+    #Config客户端配置
+    config:
+      label: main #分支名称
+      name: config #配置文件名称
+      profile: dev #读取后缀名称   上述3个综合：master分支上config-dev.yml的配置文件被读取http://config-3344.com:3344/master/config-dev.yml
+      uri: http://localhost:3344 #配置中心地址k
+
+#服务注册到eureka地址
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:7001/eureka
+```
+![20230820153001](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230820153001.png)
+
+
+访问成功,表示3355从3344拿到了配置信息
+![20230820153554](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230820153554.png)
+
+---
+
+此时如果修改了仓库里的内容,再次访问,3344是能检测到改变的,因为直连的数据库,但3355拿不到新的数据
+
+**所以要实现`动态刷新`**
+
+### 动态刷新
+
+对3355进行修改
+
+1. 修改YML,暴露监控端口
+```yml
+management:
+  endpoint:
+    web:
+      exposure:
+        include: "*"
+```
+2. `@RefreshScope`业务类Controller修改
+
+然后测试就行了,但是吧,这个网,不开梯子,进不去github,开了梯子,本地的eureka就有问题,我真是服了
+
+最后一步就是,要给3355发送一个post请求,请求刷新`curl -X POST "http://localhost:3355/actuator/refresh`
+
+...好困
 
