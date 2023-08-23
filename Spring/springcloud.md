@@ -2521,3 +2521,415 @@ management:
 
 ...好困
 
+## 13 Bus消息总线
+
+这个看来要配置RabbitMq,记得docker上配置的还在吧
+
+>Bus配置
+1. 分布式自动刷新配置功能
+2. Spring Cloud Bus配合Spring Cloud Config使用可以实现配置的动态刷新
+
+>是什么
+Bus支持两种消息代理:RabbitMQ和kafka
+
+>什么是总线
+在微服务架构的系统中,通常会使用**轻量级的消息代理**来构建一个**共用的消息主题**,并让系统中所有微服务实例都链接上来.由于**该主题中产生的消息会被所有实例监听和消费,所以称它为消息总线**,在总线上的各个实例,都可以方便地广播一些需要让其他连接在该主题上的实例都知道的消息
+
+>基本原理
+ConfigClient实例都监听MQ中同一个topic(默认是springCloudBus),当一个服务刷新的时候,它会把这个信息放入到Topic中,这样其他监听同一topic的服务就能得到通知,然后去更新自身的配置
+
+### 配置RabbitMq
+
+还是用docker来配置
+
+也没啥配置的,直接起一个容器就行了
+
+### 设计思想
+
+1. 利用消息总线触发一个客户端/bus/refresh,而刷新所有客户端的配置
+2. 利用消息总线触发一个服务ConfigServer的/bus/refresh端点,而刷新所有客户端的配置
+
+但是第一种方式不太推荐,原因如下:
+- 打破了微服务的职责单一性,因为微服务本身是业务模块,它本不应该承担配置刷新的职责
+- 破坏了微服务各节点的对等性
+- 有一定的局限性,例如,微服务在迁移时,它的网络地址常常会发生变化,此时如果要做到自动刷新,那么就会增加更多的修改
+
+### 更改配置
+
+1. 修改3344
+```xml
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-starter-bus-amqp</artifactId>
+        </dependency>
+```
+2. 改yml
+```yml
+rabbitmq:
+  host: 1.14.102.11
+  port: 5672
+  username: admin
+  password: admin
+
+management:
+  endpoint:
+    web:
+      exposure:
+        include: "bus-refresh"
+```
+
+这配置的零零散散,好乱啊,晕了已经,甚至还没启动成功
+
+害,贵在坚持,但是不贵
+
+## 14 cloud Stream
+
+>为什么要学
+因为后端的数据可能是用的RabbitMq,而大数据层面是用的kafka,这样两者的消息就不适配了
+
+>有一种新的技术诞生,让我们不再关注具体MQ的细节,我们只需要用一种适配绑定的方式,自动的给我们在各种MQ内切换
+
+### cloud Steam简介
+
+>是什么
+**屏蔽底层消息中间件的差异,降低切换成本,统一消息的编程模型**
+
+官方定义:Spring Cloud Steam是一个构建消息驱动微服务的框架
+
+应用程序通过inputs或者outputs来与Spring Cloud Stream中的binder对象交互,通过我们配置来binding,而Spring Cloud Stream的binder对象负责与消息中间件交互
+**所以,我们只需要搞清楚如何与Spring Cloud Stream交互就可以方便的使用消息驱动的方式**
+
+>就是发布和订阅的模式
+
+### Spring Cloud Stream标准流程套路
+
+1. Binder:很方便的连接中间件,屏蔽差异
+2. Channel:通道,是队列Queue的一种抽象,在消息通讯系统中就是实现存储和转发的媒介,通过Channel对队列进行配置
+3. Source和Sink:简单的可理解为参照对象是Spring Cloud Steam自身,从Stream发布消息就是输出,接受消息就是输入
+
+### 实操
+
+好家伙,又是3台机子一块来
+
+8801模块,新依赖:
+```xml
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-starter-stream-rabbit</artifactId>
+        </dependency>
+```
+
+配置文件:
+```yml
+server:
+  port: 8801
+
+spring:
+  application:
+    name: cloud-stream-provider
+  cloud:
+    stream:
+      binders: # 在此处配置要绑定的rabbitmq的服务信息；
+        defaultRabbit: # 表示定义的名称，用于于binding整合
+          type: rabbit # 消息组件类型
+          environment: # 设置rabbitmq的相关的环境配置
+            spring:
+              rabbitmq:
+                host: localhost
+                port: 5672
+                username: admin
+                password: admin
+      bindings: # 服务的整合处理
+        output: # 这个名字是一个通道的名称 --生产者
+          destination: studyExchange # 表示要使用的Exchange名称定义
+          content-type: application/json # 设置消息类型，本次为json，文本则设置“text/plain”
+          binder: defaultRabbit # 设置要绑定的消息服务的具体设置
+
+eureka:
+  client: # 客户端进行Eureka注册的配置
+    service-url:
+      defaultZone: http://localhost:7001/eureka
+  instance:
+    lease-renewal-interval-in-seconds: 2 # 设置心跳的时间间隔（默认是30秒）
+    lease-expiration-duration-in-seconds: 5 # 如果现在超过了5秒的间隔（默认是90秒）
+    instance-id: send-8801.com  # 在信息列表时显示主机名称
+    prefer-ip-address: true     # 访问的路径变为IP地址
+```
+
+
+*但是不知道为什么这个配置文件有些配置是爆红的*
+
+**消息接口实现类**
+```java
+package com.zzmr.springcloud.service.impl;
+
+import com.zzmr.springcloud.service.IMessageProvider;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cloud.stream.annotation.EnableBinding;
+import org.springframework.messaging.MessageChannel;
+import org.springframework.messaging.support.MessageBuilder;
+import org.springframework.stereotype.Service;
+
+import javax.annotation.Resource;
+import javax.xml.transform.Source;
+import java.util.UUID;
+
+/**
+ * @author zzmr
+ * @create 2023-08-22 16:53
+ */
+@EnableBinding(Source.class) // 定义消息的推送管道
+public class IMessageProviderImpl implements IMessageProvider {
+
+    @Resource
+    private MessageChannel output;
+
+    @Override
+    public String send() {
+        String serial = UUID.randomUUID().toString();
+        output.send(MessageBuilder.withPayload(serial).build());
+        System.out.println("**********serial: "+serial);
+        return null;
+    }
+}
+```
+
+这次不是`@Service`了,而是`@EnableBinding(Source.class)`,特别容易引错包的..
+
+---
+
+下午走的时候8801都没启动,回来搞了好久也没启动,才发现原来是Source.class导错包了
+
+>**消费者**
+
+依赖还是那些依赖,但是配置文件改了些内容,从output(生产者)变成了input(消费者)
+
+*倦了吗*
+
+```yml
+server:
+  port: 8802
+
+spring:
+  application:
+    name: cloud-stream-consumer
+  cloud:
+    stream:
+      binders: # 在此处配置要绑定的rabbitmq的服务信息；
+        defaultRabbit: # 表示定义的名称，用于于binding整合
+          type: rabbit # 消息组件类型
+          environment: # 设置rabbitmq的相关的环境配置
+            spring:
+              rabbitmq:
+                host: 1.14.102.11
+                port: 5672
+                username: admin
+                password: admin
+      bindings: # 服务的整合处理
+        input: # 这个名字是一个通道的名称
+          destination: studyExchange # 表示要使用的Exchange名称定义
+          content-type: application/json # 设置消息类型，本次为对象json，如果是文本则设置“text/plain”
+          binder: defaultRabbit # 设置要绑定的消息服务的具体设置
+
+eureka:
+  client: # 客户端进行Eureka注册的配置
+    service-url:
+      defaultZone: http://localhost:7001/eureka
+  instance:
+    lease-renewal-interval-in-seconds: 2 # 设置心跳的时间间隔（默认是30秒）
+    lease-expiration-duration-in-seconds: 5 # 如果现在超过了5秒的间隔（默认是90秒）
+    instance-id: receive-8802.com  # 在信息列表时显示主机名称
+    prefer-ip-address: true     # 访问的路径变为IP地址
+```
+
+因为是消费者,自己并没有业务逻辑,只有一个controller
+```java
+package com.zzmr.springcloud.controller;
+
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cloud.stream.annotation.EnableBinding;
+import org.springframework.cloud.stream.annotation.StreamListener;
+import org.springframework.cloud.stream.messaging.Sink;
+import org.springframework.messaging.Message;
+import org.springframework.web.bind.annotation.RestController;
+
+/**
+ * @author zzmr
+ * @create 2023-08-23 13:05
+ */
+@RestController
+@EnableBinding(Sink.class)
+public class ReceiveMessageListenerController {
+
+    @Value("${server.port")
+    private String serverPort;
+
+    @StreamListener(Sink.INPUT)
+    public void input(Message<String> message) {
+        System.out.println("消费者1号,---->接收到的消息:" + message.getPayload() + "\t    port: " + serverPort);
+    }
+
+
+}
+```
+
+这里导包还是有问题,先测试看看吧
+
+看来导包没有问题,先是8801发消息,成功
+![20230823131729](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230823131729.png)
+
+然后是8802接收消息,成功
+![20230823131749](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230823131749.png)
+
+### 分组消费与持久化
+
+先新建一个8803消费者,现在就是两个消费者(8802和8803),一个生产者8801,和一个服务注册7001
+
+此时生产者发出消息,两个生产者都能接受到消息
+
+#### 重复消费问题
+
+*我记得之前学rabbitmq里面学到了重复消费这个东西,但是现在已经忘光了*
+
+这是8801发出的消息
+![20230823133931](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230823133931.png)
+
+这是8802和8803接收到的消息
+![20230823134002](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230823134002.png)
+![20230823134133](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230823134133.png)
+
+目前是8802和8803都接收到了消息,存在重复消费的问题
+
+>案例
+在以下场景中,订单系统我们做集群部署,都会从RabbitMQ中获取订单信息,那如果**一个订单同时被两个服务获取到**,那么就会造成数据错误,我们得避免这种情况,这时**我们就可以使用stream中的消息分组来解决**
+![20230823134840](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230823134840.png)
+
+**注意在Stream中处于同一个group中的多个消费者是竞争关系,就能够保证消息只会被其中一个应用消费一次**
+
+```
+不同组是可以全面消费的(重复消费)
+同一组会发生竞争关系
+```
+
+>所以为什么会出现这个重复消费的问题呢?上面看:`不同组是可以全面消费的`,此时在mq中能看到分了两个组,也即是8802和8803是不同的组,所以两者都可以消费到这个消息
+![20230823135451](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230823135451.png)
+
+>解决
+进行分组(group),将消费者分成一个组,这样8802和8803就不会存在重复消费的问题了
+1. 自定义配置分组
+2. 自定义配置为同一个组,解决重复消费问题
+
+设置分组,只需要在8802和8803的配置文件中加上`group: zzmrA`
+```yml
+      bindings: # 服务的整合处理
+        input: # 这个名字是一个通道的名称
+          destination: studyExchange # 表示要使用的Exchange名称定义
+          content-type: application/json # 设置消息类型，本次为对象json，如果是文本则设置“text/plain”
+          binder: defaultRabbit # 设置要绑定的消息服务的具体设置
+          group: zzmrA
+```
+
+*这里就写多一点,主要是为了看group的缩进在哪*
+
+目前是8802为`zzmrA`,8803为`zzmrB`,在mq中能看出:
+![20230823142222](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230823142222.png)
+
+>分布式微服务应用为了实现高可用和负载均衡,实际上都会部署多个实例,本例启动了8802和8803,多数情况,生产者发送消息给某个具体微服务时,只希望被消费一次,按照上面我们启动了两个应用的例子,虽然它们同属一个应用,但是这个消息出现了被重复消费两次的情况,为了解决这个问题,在Spring Cloud Stream中提供了**消费组**的概念
+
+---
+
+此时把8802和8803分成同一个组
+
+8801发送4条
+![20230823143644](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230823143644.png)
+8802收到两条
+![20230823143657](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230823143657.png)
+8803也是收到两条
+![20230823143708](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230823143708.png)
+
+在mq中,也能看到zzmrA组的消费者有两个:
+![20230823143843](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230823143843.png)
+
+#### 持久化
+
+1. 停掉8802/8803并去除掉8802的分组
+2. 8801先发送4条消息到mq
+3. 先启动8802,无分组属性配置,后台没有打出消息
+4. 再启动8803,有分组属性配置,后台打出了MQ上的消息
+
+?这就是持久化?
+
+也没配置东西,所以说这是默认的,也就说,消费者掉了之后,消息并不会丢失,会等消费者上线后重新接收
+
+## 15 Sleuth
+
+**分布式请求链路跟踪**(链路监控)
+
+看着好高级啊
+
+>为什么会出现这个技术
+在微服务框架中,一个由客户端发起的请求在后端系统中会经过多个不同的服务节点调用来协同产生最后的请求结果,每一个前端请求都会形成一条复杂的分布式服务调用链路,链路中的任何一环出现高延时或错误都会引起整个请求最后的失败---所以需要监控
+
+>是什么
+Spring Cloud Sleuth提供了一套完整的服务跟踪的解决方案
+在分布式系统中提供追踪解决方案并兼容支持了zipkin
+
+### 搭建链路监控
+
+1. 安装zipkin
+    - 下载:SpringCloud从F版起已不需要自己构建ZipkinServer了,只需要调用jar包即可,[链接](https://search.maven.org/remote_content?g=io.zipkin.java&a=zipkin-server&v=LATEST&c=exec)
+    - 运行jar包
+    - ![20230823152040](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230823152040.png)
+2. 图形化界面
+    - ![20230823152229](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230823152229.png)
+
+---
+
+流程:
+一条链路通过Trace Id唯一标识,Span标识发起的请求信息,各span通过parent id关联起来
+    - Trace:类似于树结构的Span集合,表示一条调用链路,存在唯一标识
+    - Span:表示调用链路来源,通俗的理解span就是一次请求信息
+![20230823152615](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230823152615.png)
+
+### 更改配置
+
+把之前的8001和80修改一下,加上依赖:
+```xml
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-starter-zipkin</artifactId>
+        </dependency>
+```
+
+然后再添加配置:
+```yml
+spring:
+  application:
+    name: cloud-payment-service
+  datasource:
+    type: com.alibaba.druid.pool.DruidDataSource            # 当前数据源操作类型
+    driver-class-name: com.mysql.cj.jdbc.Driver              # mysql驱动包
+    url: jdbc:mysql://localhost:3306/db2019?useUnicode=true&characterEncoding=utf-8&useSSL=false
+    username: root
+    password: "010203"
+  zipkin:
+    base-url: http://localhost:9411
+    sleuth:
+      sampler:
+        #采样率值介于 0 到 1 之间，1 则表示全部采集
+        probability: 1
+```
+
+就是这个位置,80也是一样加上`zipkin.base-url`以及其他的
+
+
+然后各加上一个接口,就不用写了
+
+然后呢?
+
+然后80调用8001,此时就能在`http://localhost:9411/zipkin`中检测到发起的请求信息啥的
+
+## SpringCloud Alibaba
+
+入门简介
+

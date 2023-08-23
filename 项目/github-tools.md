@@ -239,3 +239,5 @@ Vue.use(vueBeauty)
 优化之后:
 ![20230821140304](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230821140304.png)
 
+## docker部署
+
