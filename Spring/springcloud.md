@@ -2929,7 +2929,452 @@ spring:
 
 然后80调用8001,此时就能在`http://localhost:9411/zipkin`中检测到发起的请求信息啥的
 
-## SpringCloud Alibaba
+## 16 SpringCloud Alibaba 入门简介
 
-入门简介
+>是什么
+Spring Cloud Alibaba,它是由一些阿里巴巴的开源组件和云产品组成的,这个项目的目的是为了让大家所熟知的Spring框架,其优秀的设计模式和抽象理念,以给使用阿里巴巴产品的Java开发者带来使用Spring Boot和Spring Cloud的更多便利
+
+这段话怎么读起来这么别扭
+
+[Cloud Alibaba中文文档](https://github.com/alibaba/spring-cloud-alibaba/blob/2022.x/README-zh.md)
+
+![20230823171610](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230823171610.png)
+
+好,这一章就是闲聊,没什么代码啥的
+
+## 17 Nacos
+
+### 介绍和下载
+
+>为什么叫nacos
+na:Naming,co:Configuration,最后的s为Service(服务注册/配置)
+
+>是什么
+一个更易于构建云原生应用的动态服务发现,配置管理和服务管理平台
+Nacos=Eureka+Config+Bus
+
+*就把这玩意当成eureka*
+
+>下载
+下哪个版本呢?最新版都到2.1.2了,1.x的还有1.4.6,这个好像是稳定一些的,老师用的是1.1.4
+
+下了个1.4.6的,[下载链接](https://github.com/alibaba/nacos/releases/tag/1.4.6)
+
+找到/bin/startup.cmd,却发现报错:
+```
+"nacos is starting with cluster"
+Error occurred during initialization of VM
+Could not reserve enough space for 2097152KB object heap
+```
+说nacos在集群下启动,目前是用单机版的,所以要改配置
+```sh
+# 找到set MODE="cluster",改为standalone
+set MODE="standalone"
+```
+启动成功:
+![20230823202604](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230823202604.png)
+
+进入`http://localhost:8848/nacos`
+![20230823202814](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230823202814.png)
+
+这界面高级啊(账号密码nacos)
+![20230823202845](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230823202845.png)
+
+### nacos服务注册
+
+父工程已经引入了alibaba,子模块9001只需要引入:
+```xml
+        <groupId>com.alibaba.cloud</groupId>
+            <artifactId>spring-cloud-starter-alibaba-nacos-discovery</artifactId>
+        </dependency>
+```
+
+配置文件中:
+```yml
+spring:
+  application:
+    name: nacos-payment-provider
+  cloud:
+    nacos:
+      discovery:
+        server-addr: localhost:8848 #配置Nacos地址
+
+```
+
+随便写一个controller接口
+```java
+/**
+ * @author zzmr
+ * @create 2023-08-23 20:42
+ */
+@RestController
+public class PaymentController {
+
+    @Value("${server.port}")
+    private String serverPort;
+
+    @GetMapping("/payment/nacos/{id}")
+    public String getPayment(@PathVariable Integer id) {
+        return "nacos registry,serverPort: " + serverPort + "\t id: " + id;
+    }
+
+}
+```
+
+测试成功
+![20230823204602](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230823204602.png)
+
+在8848的服务管理里面可以看到服务列表:
+![20230823204800](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230823204800.png)
+
+根据9001再写一个9002出来:
+![20230823205659](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230823205659.png)
+
+*还可以拷贝虚拟端口映射,不过好像不太好用*
+
+>消费者服务注册`cloudalibaba-consumer-nacos-order83`,消费者的依赖是和生产者一样的,都是
+```xml
+        <!--SpringCloud ailibaba nacos -->
+        <dependency>
+            <groupId>com.alibaba.cloud</groupId>
+            <artifactId>spring-cloud-starter-alibaba-nacos-discovery</artifactId>
+        </dependency>
+```
+
+**nacos自带ribbon的负载均衡效果**
+
+83的配置文件:
+```yml
+server:
+  port: 83
+
+
+spring:
+  application:
+    name: nacos-order-consumer
+  cloud:
+    nacos:
+      discovery:
+        server-addr: localhost:8848
+
+
+#消费者将要去访问的微服务名称(注册成功进nacos的微服务提供者)
+service-url:
+  nacos-user-service: http://nacos-payment-provider
+```
+
+上面的`service-url`就可以根据服务名,自动实现负载均衡了(其实就是找到服务名为`nacos-payment-provider`的服务,然后自动分配调用)
+
+看看controller
+```java
+@RestController
+@Slf4j
+public class OrderNacosController {
+
+    @Resource
+    private RestTemplate restTemplate;
+
+    @Value("service-url.nacos-payment-provider")
+    private String serverURL;
+
+    @GetMapping("/consumer/payment/nacos/{id}")
+    public String paymentInfo(@PathVariable Integer id) {
+        return restTemplate.getForObject(serverURL + "/payment/nacos/" + id, String.class);
+    }
+
+}
+```
+
+也是没有写ip,而是用的服务名
+
+**这里要注意,使用restTemplate要使用配置类**
+```java
+package com.zzmr.springcloud.config;
+
+import org.springframework.cloud.client.loadbalancer.LoadBalanced;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.web.client.RestTemplate;
+
+/**
+ * @auther zzyy
+ * @create 2020-02-10 12:01
+ */
+@Configuration
+public class ApplicationContextBean
+{
+    @Bean
+    @LoadBalanced
+    public RestTemplate getRestTemplate()
+    {
+        return new RestTemplate();
+    }
+}
+```
+
+启动服务:
+![20230823213553](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230823213553.png)
+
+哈哈哈哈,老师正说:如果一切顺利..,然后就变成一切不顺利了,原来是没有给restTemplate的get方法上没加`@LoadBalanced`
+
+然后我又重启项目,发现还是报错,最好找到错误在`@Value`的`${}`取值上,取值的名字写错了
+
+即可实现负载均衡:
+![20230823214750](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230823214750.png)
+![20230823214808](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230823214808.png)
+
+### 各种注册中心对比
+
+Nacos的是可以AP/CP互换的
+![20230823215114](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230823215114.png)
+
+
+对比图:
+![20230823215248](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230823215248.png)
+
+>Nacos支持AP和CP模式的切换
+C是所有节点在同一时间看到的数据是一致的,而A的定义是所有的请求都会收到响应
+
+何时选择使用何种模式?
+一般来说
+- 如果不需要存储服务级别的信息且服务实例是通过nacos-client注册,并能够保持心跳上报,那么就可以选择AP模式,当前主流的服务如Spring Cloud和Dubbo服务,都适用于AP模式,AP模式为了服务的可用性而减弱了一致性,因此AP模式下只支持注册临时实例
+- 如果需要在服务级别编辑或者存储配置信息,那么CP是必须的,K8S服务和DNS服务则适用于CP模式,CP模式下则支持注册持久化实例,此时则是以Raft协议为集群运行模式,该模式下注册实例之前必须先注册服务,如果服务不存在,则会返回错误
+
+那么一般就是看这个图:
+![20230823215903](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230823215903.png)
+
+### nacos服务配置中心
+
+#### 基础配置
+
+新建模块:`cloudalibaba-config-nacos-client3377`
+
+新的依赖:
+```xml
+        <!--nacos-config-->
+        <dependency>
+            <groupId>com.alibaba.cloud</groupId>
+            <artifactId>spring-cloud-starter-alibaba-nacos-config</artifactId>
+        </dependency>
+        <!--nacos-discovery-->
+        <dependency>
+            <groupId>com.alibaba.cloud</groupId>
+            <artifactId>spring-cloud-starter-alibaba-nacos-discovery</artifactId>
+        </dependency>
+```
+
+就是多了个`nacos-config`
+
+然后配置文件多了,有两个
+1. bootstrap.yml
+```yml
+# nacos配置
+server:
+  port: 3377
+
+spring:
+  application:
+    name: nacos-config-client
+  cloud:
+    nacos:
+      discovery:
+        server-addr: localhost:8848 #Nacos服务注册中心地址
+      config:
+        server-addr: localhost:8848 #Nacos作为配置中心地址
+        file-extension: yaml #指定yaml格式的配置
+
+
+  # ${spring.application.name}-${spring.profile.active}.${spring.cloud.nacos.config.file-extension}
+```
+2. application.yml
+```yml
+spring:
+  profiles:
+    active: dev # 表示开发环境
+```
+
+**为什么要两个**
+Nacos同springcloud-config一样,在项目初始化时,要保证先从配置中心进行配置拉取,拉去配置后,才能保证项目的正常启动
+
+SpringBoot中配置文件的加载是存在优先级顺序的,bootstrap优先级高于application
+
+---
+
+在`Nacos Spring Cloud`中,dataId的完整格式如下
+`${prefix}-${spring.profile.active}.${file-extension}`
+
+1. `prefix`默认为`spring.application.name`的值,也可以通过配置项`spring.cloud.nacos.config.prefix`来配置
+2. `spring.profile.active`即为当前环境对应的profile,注意:当`spring.profile.active`为空时,对应的连接符-也将不存在,dataId的拼接格式变成`${prefix}.${file-extension}`
+3. `file-extension`为配置内容的数据格式,可以通过配置项`spring.cloud.nacos.config.file-extension`来配置,目前支持`properties`和`yaml`类型
+![20230823224331](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230823224331.png)
+
+所以,按照公式,这个3377拼出来的就是`nacos-config-client-dev.yml`
+
+然后去nacos配置页面配置:
+![20230823224113](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230823224113.png)
+
+然后就报错了,DataId写成yml,其实要写成yaml,也就是全称
+
+改成这样:
+![20230823224715](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230823224715.png)
+
+然后访问:
+![20230823225654](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230823225654.png)
+
+修改之后,也能动态刷新
+
+#### 分类配置
+
+>问题一:
+实际开发中,通常一个系统会准备
+- dev开发环境
+- test测试环境
+- prod生产环境
+如何保证指定环境启动时服务能正确读取到Nacos上相应环境的配置文件呢
+
+>问题2:
+一个大型分布式微服务系统会有很多微服务子项目,每个微服务项目又都会有相应的开发环境,测试环境,预发环境,正式环境,那么怎么对这些微服务配置进行管理呢
+
+---
+
+默认情况:Namespace=public,Group=DEFAULT_GROUP,默认Cluster是DEFAULT
+
+1. 指定spring.profile.active和配置文件的DataID来使不同环境下读取不同的配置
+2. 默认空间+默认分组+新建dev和test两个DataID
+3. 通过spring.profile.active属性就能进行多环境下配置文件的读取
+
+
+>**根据DataID配置**
+
+新的test配置,不同的DataId,但是是同一组的
+![20230824101701](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230824101701.png)
+
+这个application.yml
+```yml
+spring:
+  profiles:
+#    active: dev # 表示开发环境
+    active: test # 表示开发环境
+```
+
+激活哪个,就会用哪个
+
+测试成功
+![20230824102113](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230824102113.png)
+
+
+>**根据group来配置**
+
+新建配置:
+![20230824102523](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230824102523.png)
+
+再建一个test
+![20230824102811](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230824102811.png)
+
+然后更改配置文件:
+![20230824103002](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230824103002.png)
+
+指定TEST_GROUP,就会得到TEST
+![20230824103112](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230824103112.png)
+
+`group`改成啥就是啥
+
+>**NameSpace**方案
+
+1. 新建dev/test的Namespace
+  - ![20230824105704](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230824105704.png)
+2. 回到服务管理-服务列表查看
+3. 按照域名配置填写,新增`namespace`
+```yml
+        group: DEV_GROUP
+        namespace: a84323ef-99d0-463f-ae99-b3aa7eec8966
+```
+4. YML
+
+
+在dev配置中,添加这些配置:
+![20230824111022](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230824111022.png)
+
+...
+
+在考虑是不是要去看黑马的cloud的视频
+
+### **Nacos集群和持久化配置**
+
+默认Nacos使用嵌入式数据库实现数据的存储,如果启用多个默认配置下的Nacos节点,数据存储是存在一执行问题的,为了解决这个问题,Nacos采用了集中存储的方式来支持集群化部署,目前只支持MySql的存储
+
+#### Nacos集群和持久化配置
+
+*nacos默认自带的是嵌入式数据库derby*
+
+1. 去nacos的conf文件夹下,运行nacos-mysql.sql脚本,建库表
+2. 找到conf下的application.properties,加上
+```properties
+spring.datasource.platform=mysql
+ 
+db.num=1
+db.url.0=jdbc:mysql://127.0.0.1:3306/nacos_config?characterEncoding=utf8&connectTimeout=1000&socketTimeout=3000&autoReconnect=true&useUnicode=true&useSSL=false&serverTimezone=UTC
+db.user=root
+db.password=010203
+```
+
+---
+
+重启nacos,就会发现,之前的配置全没了(傻逼的是,那个url要加一堆东西,才能启动起来...)
+
+新建配置:
+![20230824120122](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230824120122.png)
+
+然后在config_info表中即可查看到数据:
+![20230824120154](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230824120154.png)
+
+---
+
+>**Linux版Nacos+MySql生产环境配置**
+
+这个有点麻烦了,服务器上不知道能不能配
+
+先把linux版的nacos下载下来,然后传输到服务器上,解压
+![20230825105114](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230825105114.png)
+
+集群配置步骤:
+1. 要用到数据库,看来还是要用docker来创建一个,创建了半天,还是有权限问题,所以把之前的配置文件路径换成新的了,现在是没问题了
+2. 编辑配置文件`application.properties`
+```txt
+spring.datasource.platform=mysql
+
+db.num=1db.url.0=jdbc:mysql://1.14.102.11:3306/nacos_config?characterEncoding=utf8&connectTimeout=1000&socketTimeout=3000&autoReconnect=true&useUnicode=true&useSSL=false&serverTimezone=UTC
+db.user=root
+db.password=123456
+```
+3. Linux服务器上的nacos的集群配置`cluster.conf`
+	- ![20230825112723](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230825112723.png)
+	- 配置内容:
+	- ![20230825112921](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230825112921.png)
+	- 顺便去控制台放行了端口的防火墙:![20230825113258](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230825113258.png)
+4. 编辑Nacos的启动脚本`startup.sh`,使它能够接受不同的启动端口 
+	- 集群启动,我们希望可以类似其他软件的shell命令,传递不同的端口号启动不同的nacos实例,命令:`./startup.sh -p 3333`表示启动端口号为3333的nacos服务器实例,和上一步的cluster.conf配置的一致
+	- 老师的是这个样子的:![20230825114028](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230825114028.png)
+	- 而我的新版默认就是四个参数,用不到加`:p`了
+	- 最后面改成:![20230825115050](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230825115050.png)
+
+---
+
+配置nginx
+1. docker配置nginx:
+	- 执行命令:`docker run --name nginx01 -p 80:80 -v /zzmr/nginx/nginx.conf:/etc/nginx/nginx.conf --privileged=true -d nginx`,即可创建一个nginx容器
+	- 该nginx的配置文件就在`/etc/nginx`,这里使用了容器卷,因为要改写配置文件,nginx容器中是没有这个编辑功能的,所以只能改好了然后挂载过去
+	- ![20230825130236](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230825130236.png)
+
+---
+
+**启动**
+
+直接执行`bash startup.sh -p 3333`,执行成功,另外两台同理
+![20230825131057](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230825131057.png)
+
+
+...
+
+nacos启动不了,一直提示jdk有问题
 
