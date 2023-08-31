@@ -91,3 +91,7 @@ public class Demo {
 }
 ```
 
+测试下如果吧OSS当成图床怎么样
+![20230830110833](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230830110833.png)
+<!-- ![20230830111454](https://zzmr-sky-take-out.oss-cn-beijing.aliyuncs.com/img/20230830111454.png) -->
+![20230830111622](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230830111622.png)
