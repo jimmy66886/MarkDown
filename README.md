@@ -7,4 +7,5 @@
 
 ```
 netstat -ano | findstr "端口号"
+taskkill /PID 15312 /F
 ```
