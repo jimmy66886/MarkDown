@@ -967,3 +967,46 @@ MASTER_LOG_FILE='mysql-bin.000001',MASTER_LOG_POS=156;
 ![20230916094038](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230916094038.png)
 
 
+## 存储引擎
+
+MySql中提到的存储引擎的概念:`存储引擎就是指表的类型`,其实存储引擎以前叫做`表处理器`,后来改名为存储引擎,它的功能就是接受上层传来的指令,然后对表的数据进行提取或者写入操作
+
+查看mysql的存储引擎:`show engines`
+![20230918184550](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230918184550.png)
+
+在创建表时,如果没有指定,那么默认的存储引擎就是innodb:
+![20230918185343](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230918185343.png)
+
+**修改存储引擎**
+1. 执行`SET DEFAULT_STORAGE_ENGINE=MyISAM;`,这种修改是临时的,在下次进入mysql时就会恢复成innodb
+![20230918191416](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230918191416.png)
+2. 修改已创建好的表的存储引擎:`alter table t1 engine = myisam;`
+![20230918194126](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230918194126.png)
+
+### InnoDB引擎:具备外键支持功能的事务存储引擎
+
+- InnoDB引擎时MySql的`默认事务型引擎`,它被设计用来处理大量的短期(short-lived)事务,可以确保事务的完整提交(Commit)和回滚(Rollback)
+- 除了增加和查询外,还需要更新,删除操作,那么,应该优先考虑Innodb引擎
+- 数据文件结构:
+	- `表名.frm` 存储表结构(MySql8.0时,合并在表名.ibd中)
+	- `表名.ibd` 存储数据和索引
+- InnoDB是`为处理巨大数据量的最大性能设计`
+	- 在以前的版本中,字典数据以元数据文件,非事务表等来存储,现在这些元数据文件被删除了,比如`.frm,.par,.trn,.isl,.db.opt`等都在mysql8中不存在了
+- **对比MyISAM的存储引擎**,InnoDB**写的效率差一些**,并且会占用更多的磁盘空间以保存数据和索引
+- MyISAM只缓存索引,不缓存真实数据;InnoDB不仅缓存索引还要缓存真实数据,对内存要求较高,而且内存大小对性能有决定性的影响
+
+### MyISAM引擎:主要的非事务处理存储引擎
+
+- MyISAM提供了大量的特性,包括全文索引,压缩,空间函数(GIS)等,但MyISAM`不支持事务,行级锁,外键`,有一个毫无疑问的缺陷就是`崩溃后无法安全恢复`
+- 优势是访问的`速度快`,对事务完整性没有要求或者以`select,insert`为主的应用
+- 针对数据统计有额外的常数存储,故而`count(*)`的查询效率很高
+- 数据文件结构:	
+	- `表名.frm`存储表结构
+	- `表名.MYD`存储数据(MYData)
+	- `表名.MYI`存储索引(MYIndex)
+- 应用场景:只读应用或者以读为主的业务
+
+二者对比
+![20230918201501](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230918201501.png)
+
+
