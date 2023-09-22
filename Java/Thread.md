@@ -766,3 +766,277 @@ lock和unlock中间的,其实就是之前放到同步代码块中的代码
 
 比如:线程A用来生产包子,线程B用来吃包子,包子可以理解为同一资源,线程A与线程B处理的动作,一个是生产者,一个是消费者,此时B线程必须等到A线程完成后才能执行,那么线程A与线程B之间就需要线程通信,即`等待唤醒机制`
 
+## 等待唤醒机制
+
+这是多个线程间的一种协作机制,谈到线程我们常常想到的是线程间的`竞争(race)`,比如去争夺锁,但这并不是故事的全部,线程间也会有协作机制
+
+在一个线程满足某个条件时,就进入等待状态`wait()/wait(time)`,等待其他线程执行完他们的指定代码过后再将其唤醒`notify()`或者可以指定wait的时间,等时间到了自动唤醒,在有多个线程进行等待时,如果需要,可以使用`notifyAll()`来唤醒所有等待线程,`wait/notify`就是线程间的一种协作机制
+
+**案例1**
+使用两个线程打印1-100,线程1,线程2交替打印
+
+```java
+class PrintNumber implements Runnable {
+
+    private int number = 1;
+
+    @Override
+    public void run() {
+        while (true) {
+            try {
+                Thread.sleep(100);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            synchronized (this) {
+                notify();
+                if (number <= 100) {
+                    System.out.println(Thread.currentThread().getName() + ": " + number);
+                    number++;
+                    try {
+                        // 线程一旦执行此方法，就进入等待状态，会释放对同步监视器的调用
+                        wait();
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                } else {
+                    break;
+                }
+            }
+        }
+    }
+}
+
+public class PrintNumberTest {
+    public static void main(String[] args) {
+        PrintNumber printNumber = new PrintNumber();
+        Thread t1 = new Thread(printNumber, "线程1");
+        Thread t2 = new Thread(printNumber, "线程2");
+        t1.start();
+        t2.start();
+    }
+}
+```
+
+主要流程就是,当线程一执行到`wait`时,会进入等待状态,且释放掉同步监视器,而后线程2拿到同步监视器,先执行了`notify`,这个方法会唤醒线程一,而后打印,再执行wait,线程2等待,此时线程一拿到同步监视器,后从等待的地方继续开始执行,以此往复,即可实现交替打印1-100
+
+下面是三个方法的介绍,**三个方法必须使用在同步代码块或者同步方法中,不能使用在lock中,且此方法的调用者,必须是同步监视器**
+1. `wait()`:线程一旦执行此方法,就进入等待状态,同时,会释放对同步监视器的调用
+2. `notify()`一旦执行,就会唤醒被wait()的线程中优先级最高的那个,如果多个线程的优先级相同,则随机唤醒一个,**被唤醒的线程从wait的位置继续执行** 
+3. `notifyAll()`,一旦执行此方法,就会唤醒所有被wait的方法
+
+---
+
+wait和sleep的区别
+**相同点**:一旦执行,当前线程都会进入阻塞状态
+**不同点**
+- 声明的位置
+    1. wait():声明在Object类中
+    2. sleep():声明在Thread类中,静态的
+- 使用的场景不同
+    1. wait()只能使用在同步代码块/同步方法中
+    2. sleep()使用在任何地方. 
+- 使用在同步代码块/同步方法中
+    1. wait()会释放同步监视器
+    2. sleep()不会释放同步监视器
+- 结束阻塞的方法
+    1. wait,到达指定时间自动结束阻塞,或通过notify唤醒
+    2. sleep,到达指定时间自动结束阻塞
+
+## 生产者消费者案例
+
+生产者(Productor)将产品交给店员(Clerk),而消费者(Customer)从店员处取走产品,店员一次只能持有固定数量的产品(比如:20),如果生产者视图生产更多的产品,店员会叫生产者停一下,如果店中有空位放产品了再通知生产者继续生产,如果店员中没有产品了,店员会告诉消费者等一下,如果店中有产品了再通知消费着来取走产品
+
+```java
+package com.zzmr.communication;
+
+/**
+ * @author zzmr
+ * @create 2023-09-22 16:28
+ */
+
+class Clerk {
+    private int productNumber = 0;
+
+    // 增加产品数量
+    public synchronized void addProduct() {
+        if (productNumber >= 20) {
+            // 等待
+            try {
+                wait();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        } else {
+            productNumber++;
+            // 唤醒消费者
+            notifyAll();
+            System.out.println(Thread.currentThread().getName() + "生产了第" + productNumber + "个产品");
+        }
+    }
+
+    // 减少产品数量
+    public synchronized void minusProduct() {
+        if (productNumber <= 0) {
+            try {
+                wait();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        } else {
+            System.out.println(Thread.currentThread().getName() + "消费了第" + productNumber + "个产品");
+            productNumber--;
+            // 唤醒生产者
+            notifyAll();
+        }
+    }
+
+}
+
+class Producer extends Thread {
+
+    private Clerk clerk;
+
+    public Producer(Clerk clerk) {
+        this.clerk = clerk;
+    }
+
+    @Override
+    public void run() {
+        while (true) {
+            System.out.println("生产者开始生产产品");
+
+            try {
+                Thread.sleep(50);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+
+            clerk.addProduct();
+        }
+
+    }
+}
+
+class Consumer extends Thread {
+
+    private Clerk clerk;
+
+    public Consumer(Clerk clerk) {
+        this.clerk = clerk;
+    }
+
+    @Override
+    public void run() {
+        while (true) {
+
+            try {
+                Thread.sleep(100);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+
+            System.out.println("消费者开始消费产品");
+            clerk.minusProduct();
+        }
+    }
+}
+
+public class ProducerCustomer {
+
+    public static void main(String[] args) {
+        Clerk clerk = new Clerk();
+        Producer producer = new Producer(clerk);
+        Consumer consumer = new Consumer(clerk);
+        Consumer consumer2 = new Consumer(clerk);
+        producer.setName("生产者1");
+        consumer.setName("消费者1");
+        consumer2.setName("消费者2");
+        producer.start();
+        consumer.start();
+        consumer2.start();
+    }
+}
+```
+
+# 补充
+
+## 新增两种创建线程的方式
+
+1. 实现Callable(JDK5.0新增的)
+    - call()可以有返回值
+    - call()可以使用throws的方式处理异常
+    - 提供泛型,可以决定call()方法的返回类型
+    - 如果在主线程需要获取分线程call()的返回值,则此时的主线程是阻塞状态的.
+2. 使用线程池
+
+现有问题,如果并发的线程数量很多,并且每个线程都是执行一个时间很短的任务就结束了,这样频繁创建线程就会大大降低系统的效率,因为频繁创建线程和销毁线程需要时间
+
+那么有没有一种办法使得线程可以复用,即执行完一个任务,并不被销毁,而是可以继续执行其他的任务
+
+**思路**:提前创建好多个线程,放入线程池中,使用时直接获取,使用完放回池中,可以避免频繁创建销毁,实现重复利用,类似生活中的公共交通工具
+![20230922172350](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230922172350.png)
+
+使用线程池的好处:
+1. 提高了程序执行的效率(因为线程已经提前创建好了)
+2. 提高资源的利用率
+3. 可以设置相关的参数,对线程池中的线程进行管理
+
+示例:
+```java
+package com.zzmr.pool;
+
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadPoolExecutor;
+
+/**
+ * @author zzmr
+ * @create 2023-09-22 17:33
+ */
+
+class NumberThread implements Runnable {
+
+    @Override
+    public void run() {
+        for (int i = 0; i <= 100; i++) {
+            if (i % 2 == 0) {
+                System.out.println(Thread.currentThread().getName() + ":" + i);
+            }
+        }
+    }
+}
+
+class NumberThread1 implements Runnable {
+
+    @Override
+    public void run() {
+        for (int i = 0; i <= 100; i++) {
+            if (i % 2 != 0) {
+                System.out.println(Thread.currentThread().getName() + ":" + i);
+            }
+        }
+    }
+}
+
+public class TestPool {
+    public static void main(String[] args) {
+        // 创建指定线程数量的线程池
+        ExecutorService service = Executors.newFixedThreadPool(10);
+        ThreadPoolExecutor service1 = (ThreadPoolExecutor) service;
+
+        // 设置线程池的属性
+        service1.setMaximumPoolSize(50);// 设置线程池中线程数的上限
+
+        // 执行指定的线程的操作，需要提供实现Runnable接口或者Callable接口实现类对象
+        service.execute(new NumberThread());
+        service.execute(new NumberThread1());
+
+        // service.execute(Callable callable); // 适用于Callable
+
+        // 关闭
+        service.shutdown();
+    }
+}
+```
