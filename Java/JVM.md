@@ -1201,7 +1201,7 @@ Java使用起来非常方便,然后有些层次的任务用Java实现起来不�
 
 ## 本地方法栈
 
-- Java虚拟机栈用于管理Java方法的调用,而本地方法栈用于管理本地方法的调用
+- **Java虚拟机栈用于管理Java方法的调用,而本地方法栈用于管理本地方法的调用**
 - 本地方法栈,也是线程私有的
 - 允许被实现成固定或者是可动态扩展的内存大小(在内存溢出方面是相同的)
     - 如果被线程请求分配的栈容量超过本地方法栈允许的最大容量,Java虚拟机将会抛出一个StackOverflowError异常
@@ -1216,4 +1216,214 @@ Java使用起来非常方便,然后有些层次的任务用Java实现起来不�
 - 在Hotspot JVM中,直接将本地方法栈和虚拟机栈和二为一
 
 ## 堆
+
+*运行时数据区最重要的一部分*
+
+### 堆的核心概述
+
+- 一个JVM实例只存在一个堆内存,堆也是Java内存管理的核心区域
+- Java堆区在JVM启动的时候即被创建,其空间大小也就确定了,是JVM管理的最大一块内存空间
+    - 堆内存的大小是可以调节
+- `《Java虚拟机规范》`规定,堆可以处于**物理上不连续**的内存空间,但是**逻辑上**它应该被视为**连续**的
+- 所有的线程共享Java堆,在这里还可以划分线程私有的缓冲区
+- `《Java虚拟机规范》`中对Java栈的描述是,所有的对象实例以及数组都应当在运行时分配在堆上(几乎所有的对象实例都在这里分配内存,从实际实用角度来看)
+- 数组和对象可能永远不会存储在栈上,因为栈帧中保存引用,这个引用指向对象或者数组在堆中的位置
+![2023-10-29112717](https://img01.zzmr.club/img/2023-10-29112717.jpg)
+- 在方法结束后,堆中的对象不会马上被删除,仅仅在垃圾收集的时候才会被删除(方法结束,栈中存储堆中对象地址的变量出栈,但堆中的对象并不会马上被删除,要等到GC时进行判断,判断出这两个对象没有引用了,没有地址了,此时就会进行垃圾回收)
+- 堆,是GC执行垃圾回收的重点区域
+
+---
+
+有两个类,内容一样
+```java
+package com.zzmr;
+
+/**
+ * @author zzmr
+ * @create 2023-10-29 10:30
+ */
+public class HeapDemo {
+
+    public static void main(String[] args) {
+        System.out.println("start...");
+        try {
+            Thread.sleep(1000000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        System.out.println("end...");
+    }
+
+}
+
+// ===
+
+package com.zzmr;
+
+/**
+ * @author zzmr
+ * @create 2023-10-29 10:30
+ */
+public class HeapDemo1 {
+
+    public static void main(String[] args) {
+        System.out.println("start...");
+        try {
+            Thread.sleep(1000000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        System.out.println("end...");
+    }
+
+}
+
+
+```
+
+1. 给这两个类配置运行参数,一个10,一个20
+![20231029104625](https://img01.zzmr.club/img/20231029104625.png)
+2. 然后打开jvisualVM,能看到正在运行的两个进程
+![20231029104719](https://img01.zzmr.club/img/20231029104719.png)
+3. 打开该进程,能看到详细数据,其中包含前面设置的参数
+![20231029105425](https://img01.zzmr.club/img/20231029105425.png)
+4. 点击visualGC,其中这四行相加对应的就是设置的参数,这里是20m
+![2023-10-29110444](https://img01.zzmr.club/img/2023-10-29110444.jpg)
+
+**这也就说明了,每一个JVM实例都对应一个堆空间**
+
+---
+
+**内存细分**
+现代垃圾收集器大部分都基于分代收集理论设计,堆空间细分为
+
+- Java7及之前堆内存逻辑上分为三部分:**新生区+养老区+永久区**
+    - `young generation space`新生区`young/new`,又被划分为Eden区和Survivor区
+    - `Tenure generation space`养老区`old/Tenure`
+    - `Permanent space`永久区,Perm
+- Java8及之后堆内存逻辑上分为三部分:**新生区+养老区+元空间**
+    - `young generation space`新生区`young/new`,又被划分为Eden区和Survivor区
+    - `Tenure generation space`养老区`old/Tenure`
+    - `Meta Space`元空间,Meta
+
+>如图所示,是7,8之间堆内存的区别
+![023-10-2960029](https://img01.zzmr.club/img/023-10-2960029.jpg)
+
+`约定:新生区=新生代=年轻化,养老区=老年区=老年代,永久区=永久代`
+
+上面是设置了10M大小的,也就是新生代+老年代=10M,或者说,堆空间目前只包括这两部分-**新生代和老年代**
+![2023-10-29155327](https://img01.zzmr.club/img/2023-10-29155327.png)
+
+### 设置堆内存大小与OOM
+
+1. Java堆区用于存储Java对象实例,那么堆的大小在JVM启动时就已经设定好了,大家可以通过选项`-Xmx`和`-Xms`来进行设置
+    - `Xmx`用于表示堆区的最大内存,等价于`-XX:MaxHeapSize`
+    - `Xms`表示堆区的起始内存,等价于`-XX:InitiaHeapSize`
+2. 一旦堆区的内存大小超过`-Xms`所指定的最大内存时,将会抛出`OutOfMemoryError`异常-也就是OOM
+3. 通常会将`-Xms`和`-Xmx`两个参数配置相同的值,其目的是**为了能够在Java垃圾回收机制清理完堆区后不需要重新分割计算堆区的大小,从而提高性能**
+    - `-X`是jvm的运行参数
+    - `ms`是memory start
+    - `Xmx`用来设置堆空间(年轻代+老年代)的最大内存大小
+    - `Xms`用来设置堆空间(年轻代+老年代)的初始内存大小
+4. 默认的堆空间大小
+    - 初始内存大小:电脑物理内存大小/64
+    - 最大内存大小:电脑物理内存大小/4
+
+
+**以下代码能查看堆内存以及系统内存**(但是我这里一直不能正确显示,得到的系统内存只有1GB,堆最大内存只有247MB)
+```java
+public class HeapSpaceInitial {
+    public static void main(String[] args) {
+        // 返回Java虚拟机中的堆内存总量
+        long initialMemory = Runtime.getRuntime().totalMemory() / 1024 / 1024;
+
+        // 返回Java虚拟机试图使用的最大堆内存量
+        long maxMemory = Runtime.getRuntime().maxMemory() / 1024 / 1024;
+
+        System.out.println("-Xms: " + initialMemory + "M");
+        System.out.println("-Xmx: " + maxMemory + "M");
+
+        System.out.println("系统内存大小为：" + initialMemory * 64.0 / 1024 + "G");
+        System.out.println("系统内存大小为：" + maxMemory * 4.0 / 1024 + "G");
+
+    }
+}
+```
+
+>查看设置的参数
+- 命令行执行`jps`
+![20231029205756](https://img01.zzmr.club/img/20231029205756.png)
+- 再执行`jstat -gc pid`,就是上一步输出的编号,就可以查看各个空间占用情况
+![20231029210505](https://img01.zzmr.club/img/20231029210505.png)
+
+或者可以添加参数`-XX:+PrintGCDetails`
+![20231029211524](https://img01.zzmr.club/img/20231029211524.png)
+
+>在开发中建议将初始堆内存和最大堆内存设置成相同的值,避免因为堆内存不够,扩容造成性能降低
+
+---
+
+**OOM异常**
+
+用下面这个代码来测试OOM异常
+```java
+package com.zzmr;
+
+import java.util.ArrayList;
+import java.util.Random;
+
+/**
+ * @author zzmr
+ * @create 2023-10-29 21:26
+ */
+public class OOMTest {
+
+    public static void main(String[] args) {
+
+        ArrayList<Picture> list = new ArrayList<>();
+        while (true) {
+            try {
+                Thread.sleep(20);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            list.add(new Picture(new Random().nextInt(1024 * 1024)));
+        }
+
+    }
+
+}
+
+class Picture {
+    private byte[] pixels;
+
+    public Picture(int length) {
+        this.pixels = new byte[length];
+    }
+}
+```
+
+设置一个小一点的堆内存大小,运行代码一段时间后就会报错:`OutOfMemoryError`
+![20231029214036](https://img01.zzmr.club/img/20231029214036.png)
+
+### 年轻代与老年代
+
+- 存储在JVM中的Java对象可以被划分为两类
+    1. 一类是生命周期较短的瞬时对象,这类对象的创建和消亡都非常迅速
+    2. 另外一类对象的生命周期却非常长,在某些极端的情况下还能够与JVM的生命周期保持一致
+- Java堆区进一步细分的话,可以划分为年轻代,老年代
+- 其中年轻代又可以划分为`Eden`空间,`Survivor0`空间和`Survivor1`空间(有时也叫做from区,to区)
+![20231029220852](https://img01.zzmr.club/img/20231029220852.png)
+- 下面这个参数开发中一般不会调
+![20231029221850](https://img01.zzmr.club/img/20231029221850.png)
+- 配置新生代与老年代在堆结构的占比
+    - 默认`-XX:NewRatio=2`,表示新生代占1,老年代占2,新生代占整个堆的1/3
+    - 可以修改为`-XX:NewRatio=4`,表示新生代占1,老年代占4,新生代占整个堆的1/5
+- 在HotSpot中,Eden空间和另外两个Survivor空间所占比是`8:1:1`,这里分配的是600M的内存,所以老年代是400,新生代是200,新生代中Eden占160,另外两个合占40(但是有时候并不是这么算的,可能会出现一个是150,另外两个分别是25,25,也就是自适应模式)
+![20231029223310](https://img01.zzmr.club/img/20231029223310.png)
+- 可以通过选项`-XX:SurvivorRatio`调整这个空间比例,比如`-XX:SurvivorRatio=8`
+- 几乎所有的Java对象都是在Eden区被new出来的
+- 绝大部分的Java对象的销毁都在新生代进行了
+    - 新生代中80%的对象都是**朝生夕死**
+- 可以使用选项`-Xmn`设置新生代最大内存大小(这个参数也是一般使用默认值)
 
