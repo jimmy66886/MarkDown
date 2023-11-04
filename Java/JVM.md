@@ -22,25 +22,25 @@ Java虚拟机就是二进制字节码的运行环境,负责装在字节码到其
 ---
 
 JVM的位置:JVM是运行在操作系统之上的,它与硬件没有直接的交互
-![第01章_JVM所处位置](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/第01章_JVM所处位置.jpg)
+![第01章_JVM所处位置](https://img01.zzmr.club/img/第01章_JVM所处位置.jpg)
 
 ## JVM的整体结构
 - HotSpot VM是目前市面上高性能虚拟机的代表作之一
 - 它采用解释器与即时编译器并存的架构
 - 在今天,Java程序的运行性能早已脱胎换骨,已经达到了以C/C++程序一较高下的的地步
 
-![第02章_JVM架构-简图](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/第02章_JVM架构-简图.jpg)
+![第02章_JVM架构-简图](https://img01.zzmr.club/img/第02章_JVM架构-简图.jpg)
 *注意,这个图要会画...*
 
 执行引擎(Execution Engine)的图解:
-![第02章_JVM架构-中](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/第02章_JVM架构-中.jpg)
+![第02章_JVM架构-中](https://img01.zzmr.club/img/第02章_JVM架构-中.jpg)
 英文版:
-![第02章_JVM架构-英](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/第02章_JVM架构-英.jpg)
+![第02章_JVM架构-英](https://img01.zzmr.club/img/第02章_JVM架构-英.jpg)
 
 ---
 
 >Java代码执行流程
-![20230707102218](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230707102218.png)
+![20230707102218](https://img01.zzmr.club/img/20230707102218.png)
 
 ## JVM的架构模型
 
@@ -141,28 +141,28 @@ IBM的J9
 
 ## 内存结构概述
 
-![第02章_JVM架构-简图](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/第02章_JVM架构-简图.jpg)
+![第02章_JVM架构-简图](https://img01.zzmr.club/img/第02章_JVM架构-简图.jpg)
 
 - 类加载器子系统负责从文件系统或网络中加载class文件,class文件在文件开头有特定的文件标识
 - ClassLoader只负责文件的加载,至于它是否可以运行,则由ExecutionEngine决定
 - 加载的类信息存放于一块称为方法去的内存空间,除了类的信息外,方法区中还有存放运行时常量池信息,可能还包括字符串字面量和数字常量(这部分常量信息是Class文件中常量池部分的内存映射)
 
-![20230708103023](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230708103023.png)
+![20230708103023](https://img01.zzmr.club/img/20230708103023.png)
 
 >类加载器ClassLoader角色
 1. class file存在于本地磁盘上,可以理解为设计师画在纸上的模板,而最终这个模板在执行的时候是要加载到JVM当中来根据这个文件实例化出n个一摸一样的实例
 2. class flie加载到JVM中,被称为DNA元数据模板,放在方法区
 3. 在.class文件->JVM->最终成为元数据模板,此过程就要一个运输工具(类装载器Class loader),扮演一个快递员的角色.
 
-![20230708103708](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230708103708.png)
+![20230708103708](https://img01.zzmr.club/img/20230708103708.png)
 
 ---
 
 类加载过程:
-![第02章_类的加载过程](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/第02章_类的加载过程.jpg)
+![第02章_类的加载过程](https://img01.zzmr.club/img/第02章_类的加载过程.jpg)
 
 还有一张细分的图:
-![20230708104839](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230708104839.png)
+![20230708104839](https://img01.zzmr.club/img/20230708104839.png)
 
 1. 加载
     1. 通过一个类的全限定名获取定义此类的二进制字节流
@@ -183,17 +183,17 @@ IBM的J9
         - 解析动作主要针对类或接口,字段,类方法,接口方法,方法类型等,对应常量池中的CONSTANT_Class_info,ConSTANT_Fieldref_info,CONSTANT_Methodref_info等
 3. 初始化
     - 初始化阶段就是执行类构造器方法`<clinit>()`的过程
-    - ![20230708163645](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230708163645.png)
+    - ![20230708163645](https://img01.zzmr.club/img/20230708163645.png)
     - 此方法不需要定义,是Javac编译器自动收集类中的所有类变量的赋值动作和静态代码块中的语句合并而来
-    - ![20230708163915](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230708163915.png)
+    - ![20230708163915](https://img01.zzmr.club/img/20230708163915.png)
     - 构造器方法中指令按语句在源文件中出现的顺序执行
-    - ![20230708164257](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230708164257.png)
+    - ![20230708164257](https://img01.zzmr.club/img/20230708164257.png)
     - `<clinit>()`不同于类的构造器(关联:构造器是虚拟机视角下的`<init>()`)
     - 若该类具有父类,JVM会保证子类的`<clinit>()`执行前,父类的`<clinit>()`已经执行完毕
     - 虚拟机必须保证一个类的`<clinit>()`方法在多线程下被同步加锁
 
 如果没有静态变量,或者静态代码块中的变量赋值,是不会有`<clinit>`方法的:
-![20230708164903](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230708164903.png)
+![20230708164903](https://img01.zzmr.club/img/20230708164903.png)
 
 任何一个类声明以后，内部至少存在一个类的构造器,对应的就是`<init>()`方法
 
@@ -203,7 +203,7 @@ IBM的J9
 - 从概念上来讲,自定义类加载器一般指的是程序中由开发人员自定义的一类类加载器,但是Java虚拟机规范却没有这么定义,而是将所有派生于抽象类ClassLoader的类加载器都划分为自定义类加载器
 - 无论类加载器的类型如何划分,在程序中我们最常见的类加载器**始终只有3个**
 
-![20230708172205](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230708172205.png)
+![20230708172205](https://img01.zzmr.club/img/20230708172205.png)
 
 **这里的四者之间的关系是包含关系,不是上层下层,也不是子父类继承关系**
 
@@ -317,7 +317,7 @@ public class ClassLoaderTest1 {
 
 >关于ClassLoader
 ClassLoader类,它是一个抽象类,其后所有的类加载器都继承自ClassLoader(不包括启动了加载器)
-![20230709112455](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230709112455.png)
+![20230709112455](https://img01.zzmr.club/img/20230709112455.png)
 
 获取类的加载器
 ```java
@@ -357,7 +357,7 @@ Java虚拟机对class文件采用的是**按需加载**的方式，也就是说�
 1. 如果一个类加载器收到了类加载请求,它并不会自己先去加载,而是把这个请求委托给父类的加载器去执行
 2. 如果父类加载器还存在其他父类加载器,则进一步向上委托,以此递归,请求最终将到达顶层的启动类加载器
 3. 如果父类加载器可以完成类加载任务,就成功返回,倘若父类加载器无法完成此加载任务,子加载器才会尝试自己去加载,这就是双亲委派模式
-![20230709120828](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230709120828.png)
+![20230709120828](https://img01.zzmr.club/img/20230709120828.png)
 
 此时可以做一个测试
 一个测试类:
@@ -416,10 +416,10 @@ public class String {
 
 ```
 会报错:
-![20230709121830](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230709121830.png)
+![20230709121830](https://img01.zzmr.club/img/20230709121830.png)
 
 双亲委派机制举例图解:
-![20230709122003](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230709122003.png)
+![20230709122003](https://img01.zzmr.club/img/20230709122003.png)
 
 ---
 
@@ -457,7 +457,7 @@ Java程序对类的使用方式分为:主动使用和被动使用
 # 运行时数据区概述及线程
 
 运行时数据区简图:
-![20230709180551](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230709180551.png)
+![20230709180551](https://img01.zzmr.club/img/20230709180551.png)
 
 内存是非常重要的系统资源,是硬盘和CPU的中间仓库及桥梁,承载着操作系统和应用程序的实时运行,JVM内存布局规定了Java在运行过程中内存申请,分配,管理的策略,保证了JVM的高效稳定运行,**不同的JVM对于内存的划分方式和管理机制存在着部分差异**,结合JVM虚拟机规范,来探讨一下经典的JVM内存布局
 
@@ -479,11 +479,11 @@ Java虚拟机定义了若干种程序运行期间会使用到的运行时数据�
 - 操作系统负责所有线程的安排调度到任何一个可用的CPU上,一旦本地线程初始化成功,它就会调用Java线程中的run()方法
 - 如果你使用jconsole或者任何一个调试工具,都能看到在后台有许多线程在运行,这些后台线程不包括调用`public static void main(String[])`的main线程以及所有这个线程自己创建的线程
 - 这些主要的后台系统线程在Hotspot JVM里主要是以下几个:
-![20230711185443](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230711185443.png)
+![20230711185443](https://img01.zzmr.club/img/20230711185443.png)
 
 ## 程序计数器(PC寄存器)
 
-![20230711190245](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230711190245.png)
+![20230711190245](https://img01.zzmr.club/img/20230711190245.png)
 
 JVM中的程序计数寄存器(Program Counter Register)中,Register的命令源于CPU的寄存器,寄存器存储指令相关的现场信息,CPU只有把数据装载到寄存器才能够运行
 
@@ -499,14 +499,14 @@ JVM中的程序计数寄存器(Program Counter Register)中,Register的命令源
 
 ### PC寄存器的使用举例
 
-![20230711193122](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230711193122.png)
+![20230711193122](https://img01.zzmr.club/img/20230711193122.png)
 - 最左边的数值是**指令地址(偏移地址)**
 - 第二列`bipush,iadd什么的`是**操作指令**
 
 对于`5`来说,PC寄存器存储的就是这个`5`,执行引擎会取PC寄存器中存储的指令地址对应的操作指令(操作局部变量表,操作数栈),并翻译为机器指令,CPU再执行该指令
 
 看下图:
-![20230711193839](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230711193839.png)
+![20230711193839](https://img01.zzmr.club/img/20230711193839.png)
 
 ### 两个常见问题
 
@@ -524,7 +524,7 @@ JVM的字节码解释器就需要通过改变PC寄存器的值来明确吓一跳
 由于CPU时间片轮转限制,众多线程在并发执行过程中,任何一个确定的时刻,一个处理器或者多核处理器中的一个内核,只会执行某个线程中的一条指令
 
 这样必然导致经常中断或恢复,如何保证分号无差呢?每个线程在创建后,都会产生自己的程序计数器和栈帧,程序计数器在各个线程之间互不影响
-![20230711195425](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230711195425.png)
+![20230711195425](https://img01.zzmr.club/img/20230711195425.png)
 
 ---
 
@@ -532,7 +532,7 @@ CPU时间片
 CPU时间片即CPU分配给各个程序的时间,每个线程被分配一个时间段,称作它的时间片
 在宏观上:我们可以同时打开多个应用程序,每个程序并行不悖,同时运行
 但在微观上:由于只有一个CPU,一次只能处理程序要求的一部分,如何处理公平,一种方法就是引入时间片,每个程序轮流执行
-![20230711195707](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230711195707.png)
+![20230711195707](https://img01.zzmr.club/img/20230711195707.png)
 
 ## 虚拟机栈
 
@@ -569,7 +569,7 @@ CPU时间片即CPU分配给各个程序的时间,每个线程被分配一个时�
     - 执行结束后的出栈工作
 - 对于栈来说不存在垃圾回收问题
 
-![20230712220103](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230712220103.png)
+![20230712220103](https://img01.zzmr.club/img/20230712220103.png)
 
 
 ---
@@ -597,14 +597,14 @@ public class StackErrorTest {
     }
 }
 ```
-报错:![20230712222201](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230712222201.png)
+报错:![20230712222201](https://img01.zzmr.club/img/20230712222201.png)
 
 ---
 
 ### 设置栈内存大小
 
 我们可以使用参数-Xss选项来设置线程的最大栈空间,栈的大小直接决定了函数调用的最大可达深度
-![20230712222936](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230712222936.png)
+![20230712222936](https://img01.zzmr.club/img/20230712222936.png)
 ```java
 package com.zzmr.java;
 
@@ -674,10 +674,10 @@ public class StackFrameTest {
 }
 ```
 
-![20230721121322](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230721121322.png)
+![20230721121322](https://img01.zzmr.club/img/20230721121322.png)
 就是一个嵌套的感觉
 
-![第05章_方法与栈桢](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/第05章_方法与栈桢.jpg)
+![第05章_方法与栈桢](https://img01.zzmr.club/img/第05章_方法与栈桢.jpg)
 
 ---
 
@@ -694,7 +694,7 @@ public class StackFrameTest {
 - 动态链接(Dynamic Linking)或指向运行时常量池的方法引用
 - 方法返回地址(Return Address)或方法正常退出或异常退出的定义
 - 一些附加信息
-![第05章_栈桢内部结构](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/第05章_栈桢内部结构.jpg)
+![第05章_栈桢内部结构](https://img01.zzmr.club/img/第05章_栈桢内部结构.jpg)
 
 #### 局部变量表
 
@@ -706,7 +706,7 @@ public class StackFrameTest {
 - **局部变量表中的变量只在当前方法调用中有效**,在方法执行时,虚拟机通过使用局部变量表完成参数值到参数列表的传递过程,当方法调用结束后,**随着方法栈帧的销毁,局部变量表也会随之销毁**
 
 main方法:
-![20230721132426](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230721132426.png)
+![20230721132426](https://img01.zzmr.club/img/20230721132426.png)
 
 #### 关于Slot的理解
 
@@ -716,7 +716,7 @@ main方法:
 - 在局部变量表中,32位以内的类型只占用一个slot(包括returnAddress类型),64位的类型(long和double)占用两个slot
     - byte,short,char在存储前被转换为int,boolean也被转换成int,0表示false,非零表示true
     - long和double则占据两个slot
-![20230722162102](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230722162102.png)
+![20230722162102](https://img01.zzmr.club/img/20230722162102.png)
 
 ```txt
 这里刚好能理解为什么static方法中不能使用this了
@@ -736,10 +736,10 @@ main方法:
 ```
 
 它的局部变量表中就有4个变量,也就是说存在`this`,且放在首位
-![20230722162657](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230722162657.png)
+![20230722162657](https://img01.zzmr.club/img/20230722162657.png)
 
 test2中,由于weight是double类型的,会占用两个slot,weight的开始索引是3,所以下一个gender的开始索引就是5
-![20230722163137](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230722163137.png)
+![20230722163137](https://img01.zzmr.club/img/20230722163137.png)
 
 >**栈帧中的局部变量表中的槽位是可以重用的**,如果一个局部变量过了其作用域,那么在其作用域之后申明的新的局部变量就很有可能会复用过期局部变量的槽位,从而**达到节省资源额目的**
 ```java
@@ -755,7 +755,7 @@ test2中,由于weight是double类型的,会占用两个slot,weight的开始索�
 ```
 
 b的作用域只在代码块中,出了代码块,b就被销毁了,此时b的空间还在,所以c就直接使用的b的空间:
-![20230722164207](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230722164207.png)
+![20230722164207](https://img01.zzmr.club/img/20230722164207.png)
 
 ---
 
@@ -785,7 +785,7 @@ b的作用域只在代码块中,出了代码块,b就被销毁了,此时b的空�
 - **操作数栈,在方法执行过程中,根据字节码指令,往栈中写入数据或提取数据,即入栈/出栈**
     - 某些字节码指令将值压入操作数栈,其余的字节码指令将操作数去除栈,使用它们后再把结果压入栈
     - 比如:执行复制,交换,求和等操作
-- ![20230722170500](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230722170500.png)
+- ![20230722170500](https://img01.zzmr.club/img/20230722170500.png)
 - 操作数栈,**主要用于保存计算过程的中间结果,同时作为计算过程中变量临时的存储空间**
 - 操作数栈就是JVM执行引擎的一个工作区,当一个方法刚开始执行的时候,一个新的栈帧也会随之被创建出来,**这个方法的操作数栈是空的**
 - 每一个操作数栈都会拥有一个明确的栈深度用于存储数值,其所需的最大深度在编译器就定好了,保存在方法的Code属性中,为max_stack的值
@@ -815,7 +815,7 @@ public class OperandStackTest {
 ```
 
 得到的字节码指令:
-![20230722173635](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230722173635.png)
+![20230722173635](https://img01.zzmr.club/img/20230722173635.png)
 
 - byte,short,char,boolean,都以int型来保存,所以是`bipush`,然后将15放到操作数栈中
 - 第二行,`istore_1`,表示将上一步放入操作数栈的数据放到局部变量表中,索引为1(因为此方法是非静态的,所以0索引是this变量)
@@ -823,7 +823,7 @@ public class OperandStackTest {
 - `iload_1`和`iload_2`表示将数据从局部变量表中取出1,2,然后放到操作数栈中,入栈
 - `iadd`就是出栈,然后将两数相加,最终将结果放到操作数栈的栈顶
 - `istore_3`将结果存入局部变量表中,索引为3
-![20230722174428](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230722174428.png)
+![20230722174428](https://img01.zzmr.club/img/20230722174428.png)
 - 如果被调用的方法带有返回值的话,其返回值将会被压入当前栈帧的操作数栈中,并更新PC寄存器中下一条需要执行的字节码指令
 - 操作数栈中元素的数据类型必须与字节码指令的序列严格匹配,这由编译器在编译期间进行验证,同时在类加载过程中的类检验阶段的数据流分析阶段要再次验证
 - 另外,我们说Java虚拟机的**解释引擎是基于栈的执行引擎**,其中的栈指的就是操作数栈
@@ -844,7 +844,7 @@ public class OperandStackTest {
     }
 ```
 执行了`aload_0`
-![20230722181644](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230722181644.png)
+![20230722181644](https://img01.zzmr.club/img/20230722181644.png)
 
 
 ---
@@ -883,7 +883,7 @@ public class OperandStackTest {
 ```
 
 这么恶心的题吗哈哈哈操
-![20230722182213](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230722182213.png)
+![20230722182213](https://img01.zzmr.club/img/20230722182213.png)
 
 第一个问题,可以根据字节码指令来看,会发现字节码指令是完全一样的,这也就说明,第一种是一样的情况
 后面几个问题后续再讲
@@ -972,10 +972,10 @@ public class OperandStackTest {
     - 在字节码指令中,返回指令包含`ireturn(当返回值是boolean,byte,char,short和int类型时使用),lreturn,freturn,dreturn,以及areturn`,另外还有一个return指令供声明为void的方法,实例初始化方法,类和接口的初始化方法使用
 2. 在方法执行的过程中遇到了异常,并且这个异常没有在方法内进行处理,也就是说只要在本方法的异常表中没有搜索到匹配的异常处理,就会导致方法退出,简称异常完成出口
     - 方法执行过程中抛出异常时的异常处理,存储在一个异常处理表,方便在发生异常的时候找到处理异常的代码
-    - ![20230725111939](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230725111939.png)
+    - ![20230725111939](https://img01.zzmr.club/img/20230725111939.png)
 
 *各种返回类型对应的情况不同:*
-![20230725111330](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230725111330.png)
+![20230725111330](https://img01.zzmr.club/img/20230725111330.png)
 
 ```java
 package com.zzmr.java;
@@ -1685,4 +1685,347 @@ public class TLABTest {
 2. 当一个对象在方法中被定义后,它被外部方法所引用,则认为发生逃逸,例如作为调用参数传递到其他地方中
 
 **开发中能使用局部变量的,就不要使用在方法外定义**
+
+---
+
+### 代码优化
+
+使用逃逸分析,编译器可以对代码做如下优化
+1. **栈上分配**,将堆分配转化为栈分配,如果一个对象在子程序中被分配,要使指向该对象的指针永远不会逃逸,对象可能是栈分配的候选,而不是堆分配
+2. **同步省略**,如果一个对象被发现只能从一个线程被访问到,那么对于这个对象的操作可以不考虑同步
+3. **分离对象或标量替换**,有的对象可能不需要作为一个连续的内存结构存在也可以被访问到,那么对象的部分(或全部),可以不存储在内存,而是存储在CPU寄存器中
+
+---
+
+**栈上分配**
+JIT编译器在编译期间根据逃逸分析的结果,发现如果一个对象并没有逃逸出访问的话,就可能被优化成栈上分配,分配完成后,继续在调用栈内执行,最后线程结束,栈空间被回收,局部变量对象也被回收,这样就无须进行垃圾回收了
+
+栈上分配的例子
+```java
+public class StackAllocation {
+
+    public static void main(String[] args) {
+        long start = System.currentTimeMillis();
+        for (int i = 0; i < 10000000; i++) {
+            alloc();
+        }
+        long end = System.currentTimeMillis();
+        System.out.println("花费时间：" + (end - start) + "ms");
+
+        try {
+            Thread.sleep(1000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private static void alloc() {
+        User user = new User();
+    }
+    static class User {
+    }
+}
+```
+
+首先不开启逃逸分析(这个逃逸分析,要在Server模式下才是默认打开的)
+```java
+-Xmx1G -Xms1G -XX:-DoEscapeAnalysis -XX:+PrintGCDetails
+```
+
+运行代码后,使用jvisualVM能看到内存的使用情况,是有10000000的user对象的
+
+但是将参数设置为`-XX:+DoEscapeAnalysis`,也就是启用逃逸分析,就会发现堆内存中并没有10000000个对象,而且程序的运行速度也变快了
+
+---
+
+**同步省略**
+如果一个对象被发现只能从一个线程被访问到,那么对于这个对象的操作可以不考虑同步
+
+线程同步的代价是相当高的,同步的后果是降低并发性和性能
+
+在动态编译同步块的时候,JIT编译器可以借助逃逸分析来**判断同步块所使用的锁对象是否只能够被一个线程访问而没有被发布到其他线程**,如果没有,那么JIT编译器在编译这个同步块的时候就会取消对这部分代码的同步,这样就能大大提高并发性和性能,这个取消同步的过程就叫同步省略,也叫**锁消除**
+
+如以下代码
+```java
+    public void f() {
+        Object a = new Object();
+        synchronized (a) {
+            System.out.println(a);
+        }
+    }
+```
+同步代码块选择a作为同步监视器,但是这个a的生命周期只在f()方法中,并不会被其他线程所访问到,所以在JIT编译阶段就会被优化掉
+```java
+    public void f() {
+        Object a = new Object();
+        System.out.println(a);
+    }
+```
+
+**这恰恰说明,同步监视器要选择一个唯一的**
+
+---
+
+**分离对象或标量替换**
+
+有的对象可能不需要作为一个连续的内存结构存在也可以被访问到,那么对象的部分(或全部),可以不存储在内存,而是存储在CPU寄存器中
+
+**标量(Scalar)**是指一个无法再分解成更小的数据的数据,Java中的原始数据类型就是标量
+
+相对的,那些还可以分解的数据叫做**聚合量**,Java中的对象就是聚合量,因为他可以分解成其他聚合量和标量
+
+在JIT阶段,如果经过逃逸分析,发现一个对象不会被外界访问的话,那么经过JIT优化,就会把这个对象拆解成若干个其中包含的若干个成员变量来代替,这个过程就是**标量替换**
+
+```java
+public static void main(String[] args){
+    alloc();
+}
+
+private static void alloc(){
+    Point point = new Point(1,2);
+    System.out.println("point.x="+point.x+"; point.y="+point.y);
+}
+
+class Point{
+    private int x;
+    private int y;
+}
+```
+
+以上代码,经过标量替换,就会变成
+```java
+private static void alloc(){
+    int x = 1;
+    int y = 2;
+    System.out.println("point.x="+x+"; point.y="+y);
+}
+```
+
+可以看到,Point这个聚合量经过逃逸分析后,发现他并没有逃逸,就被替换成两个聚合量了,那么标量替换有什么好处呢?就是可以大大减少堆内存的占用,因为一旦不需要创建对象了,那么就不再需要分配堆内存了
+
+---
+
+**总结**
+上面问到的`堆空间是对象分配的唯一选择吗`,是,又不完全是,因为栈上分配并不成熟,**记住一句话:对象实例都是分配在堆上的**
+
+```
+-server -Xmx100m -Xms100m -XX:+DoEscapeAnalysis -XX:+PrintGC -XX:+EliminateAllocations
+```
+- `-server`:启动server模式,因为在Server模式下,才可以启用逃逸分析
+
+## 方法区
+
+### 栈-堆-方法区-的交互关系
+
+从线程共享与否的角度来看
+![2023-11-0183605](https://img01.zzmr.club/img/2023-11-0183605.jpg)
+
+创建对象时三者的关系
+![2023-11-0084158](https://img01.zzmr.club/img/2023-11-0084158.jpg)
+
+对象的访问定位-如何找到对应的堆
+![2023-11-084502](https://img01.zzmr.club/img/2023-11-084502.jpg)
+
+### 方法区的具体理解
+
+`《Java虚拟机规范》`中明确说明:尽管所有的方法区在逻辑上是堆空间的一部分,但是一些简单的实现可能不会选择去进行垃圾回收或者进行压缩,但是对于HotSpotJVM而言,方法区还有一个别名叫做**Non-Heap**,非堆,目的就是要和堆分开
+
+所以,方法去看作是一块独立于Java堆的内存空间
+
+---
+
+- 方法区与Java堆一样,是各个线程共享的内存区域
+- 方法区在JVM启动的时候被创建,并且它的实际的物理内存空间和Java堆区一样都可以是不连续的
+- 方法区的大小,跟堆空间一样,可以选择固定大小或者可扩展
+- **方法区的大小决定了系统可以保存多少个类**,如果系统定义了太多的类,导致方法区溢出,虚拟机同样会抛出内存溢出错误OOM
+- 关闭JVM就会释放这个区域的内存
+
+---
+
+如下代码,运行后,打开jvisualVM能看到装载的类有1000多个
+![20231101160322](https://img01.zzmr.club/img/20231101160322.png)
+```java
+public class MethodAreaDemo {
+    public static void main(String[] args) {
+        System.out.println("start...");
+        try {
+            Thread.sleep(1000000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+        System.out.println("end...");
+    }
+}
+```
+
+---
+
+**HotSpot中方法区的演进**
+- 在JDK7及以前,习惯上把方法区,称为永久代,JDK8开始,使用元空间取代了永久代
+- 本质上,方法区和永久代并不等价,仅是对HotSpot而言的,例如,在JRockit和IBM J9中不存在永久代概念
+- 现在看来,当年使用永久代是有问题的,会导致Java程序更容易OOM
+- 而到了JDK8,终于完全废弃了永久代的概念,改用与JRockit,J9一样在本地内存中实现的元空间(Metaspace)来代替
+![2023-11-0163309](https://img01.zzmr.club/img/2023-11-0163309.jpg)
+- **元空间的本质和永久代类似,都是对JVM规范中方法区的实现**,不过元空间与永久代最大的区别在于:**元空间不在虚拟机设置的内存中,而是使用本地内存**
+- 永久代,元空间而这并不只是名字变了,内部结构也调整了
+- 如果方法区无法满足新的内存分配需求时,将抛出OOM异常
+
+### 设置方法区大小与OOM
+
+方法区的大小不必是固定的,JVM可以根据应用的需要动态调整
+
+在JDK7及以前
+- 通过`-XX:PermSize`来设置永久代初始分配空间,默认值是20.75M
+- `-XX:MaxPermsize`来设置永久代最大可分配空间,32位机器默认值是64M,64位机器默认值82M
+- 当JVM加载的类信息容量超过了这个值,会报异常`OutOfMemoryError:PermGen`
+
+在JDK8以后
+- 元空间大小可以使用参数`-XX:MetaspaceSize`和`-XX:MaxMetaspaceSize`指定,替代上述原有的两个参数
+- 默认值依赖于平台,windows下,`-XX:MetaspaceSize`是21M,`-XX:MaxMetaspaceSize`的值是-1,即没有限制
+- 与永久代不同,如果不指定大小,默认情况下,虚拟机会耗尽所有的可用系统内存,如果元数据区发生溢出,虚拟机一样会抛出OOM:Metaspace
+![20231101170213](https://img01.zzmr.club/img/20231101170213.png)
+- `-XX:MetaspaceSize`,设置初始的元空间大小,对于一个64位服务器端JVM来说,其默认值21MB,这就是初始的高水位线,一旦触及这个水位线,FullGC将会被触发并卸载没用的类(即这些类对应的类加载器不再存活),然后这个高水位线将会重置,新的高水位线的值取决于GC后释放了多少元空间,如果释放的空间不足,那么在不超过`MaxMetaspaceSize`时,适当提高该值,如果释放空间过多,则适当降低该值
+- 如果初始化的高水位线设置过低,上述高水位线调整情况会发生很多次,通过垃圾回收器日志可以观察到FullGC多次调用,为了避免频繁的GC,建议将`-XX:MetaspaceSize`设置位一个相对较高的值
+
+下面就是设置元空间大小的参数
+```java
+-XX:MetaspaceSize=100m
+```
+
+---
+
+*如何解决OOM*
+1. 要解决OOM异常或Heap Space的异常,一般的手段是首先通过内存映射分析工具对dump出来的的堆转储快照进行分析,重点是确认内存中的对象是否是必要的,也就是要先分清楚到底是出现了内存泄露还是内存溢出
+2. 如果是内存泄漏,可进一步通过工具查看泄露对象到GC Roots的引用链,于是就能找到泄露对象是通过怎样的路径与GC Roots相关联并导致垃圾收集器无法自动回收它们的,掌握了泄露对象的类型信息,以及GC Roots引用链的信息,就可以比较准确定位出泄露代码的位置
+3. 如果不存在内存泄漏,换句话就是说内存中的对象确实都还必须存活着,那就应当检查虚拟机的堆参数(-Xmx与-Xms),与机器物理内存对比看是否还可以调大,从代码上检查是否存在某些对象声明周期过长,持有状态时间过长的情况,尝试减少程序运行期的内存消耗
+
+### 方法区的内部结构
+
+![2023-11-0211829](https://img01.zzmr.club/img/2023-11-0211829.jpg)
+
+`《深入理解Java虚拟机》`书中对方法区的描述如下:
+它用于存储已被虚拟机加载的类型信息,常量,静态变量,即时编译器编译后的代码缓存等
+
+**类型信息**
+对每个加载的类型(类class,接口interface,枚举enum,注解annotation),JVM必须在方法区中存储以下类型信息
+1. 这个类型的完整有效名称(全名=包名.类名)
+2. 这个类型直接父类的完整有效名(对于interface或者是java.lang.Object,都没有父类)
+3. 这个类型的修饰符(public,abstract,final的某个子集)
+4. 这个类型直接接口的一个有序列表
+
+**域信息**(属性)
+- JVM必须在方法区中保存类型的所有域的相关信息以及域的声明顺序
+- 域的相关信息包括:域名称,域类型,域修饰符(public,private,protected,static,final方法,volatile,transient的某个子集)
+
+**方法信息**
+JVM必须保存所有方法的以下信息,同域信息一样包括声明顺序
+- 方法名称
+- 方法的返回类型(或void)
+- 方法参数的数据和类型(按顺序)
+- 方法的修饰符(public,private,protected,static,final方法,synchronized,native,abstract的一个子集)
+- 方法的字节码(bytecodes),操作数栈,局部变量表及大小(abstarct和native方法除外)
+- 异常表(abstarct和native方法除外)
+    - 每个异常处理的开始位置,结束位置,代码处理在程序计数器中的偏移地址,被捕获的异常类的常量池索引
+
+**non-final的类变量**
+- 静态变量和类关联到一起,随着类的加载而加载,它们成为类数据在逻辑上的一部分
+- 类变量被列的所有实例共享,即使没有类实例时你也可以访问它
+
+---
+
+补充说明:全局常量
+被声明为final的类变量的处理方法则不同,每个全局常量在编译的时候就会被分配了
+
+```java
+public class MethodAreaTest {
+    public static void main(String[] args) {
+        Order order = null;
+        order.hello();
+        System.out.println(order.count);
+
+        // 都可以
+        Order.hello();
+        System.out.println(Order.count);
+    }
+}
+
+class Order {
+    public static int count = 1;
+    public static final int number = 2;
+
+    public static void hello() {
+        System.out.println("hello!");
+    }
+}
+```
+
+反编译Order,发现number这个final修饰的常量,是直接赋值为2的,但是count并没有直接赋值
+```java
+  public static int count;
+    descriptor: I
+    flags: ACC_PUBLIC, ACC_STATIC
+
+  public static final int number;
+    descriptor: I
+    flags: ACC_PUBLIC, ACC_STATIC, ACC_FINAL
+    ConstantValue: int 2
+```
+
+### 运行时常量池
+
+运行时常量池vs常量池
+- 方法区内部包含了运行时常量池
+- 字节码文件内部包含了常量池
+- 要弄清楚方法区,需要理解清楚classFile,因为加载类的信息都在方法区
+- 要弄清楚方法区的运行时常量池,需要理解清楚classFile中的常量池
+
+---
+
+一个有效的字节码文件中除了包含类的版本信息,字段,方法以及接口等描述信息外,还包含一项信息那就是常量池表(Constant Pool Table),包括各种字面量和对类型,域和方法的符号引用
+
+**为什么需要常量池?**
+一个Java源文件中类,接口,编译后产生一个字节码文件,而Java中的字节码需要数据支持,通常这种数据会很大以至于不能直接存到字节码中,换另一种方式,可以存到常量池,这个字节码包含了指向常量池的引用,在动态链接的时候会用到运行时常量池
+
+```java
+public class SimpleClass{
+    public void sayHello(){
+        System.out.println("hello);
+    }
+}
+```
+
+虽然这个文件只有194字节,但是里面却使用了String,System,PrintStream及Object等结构,这里代码量其实已经很小了,如果代码多,引用到的结构会更多,这里就需要常量池了
+
+---
+
+>常量池,可以看作是一张表,虚拟机指令根据这张常量表找到要执行的类名,方法名,参数类型,字面量等类型
+
+**运行时常量池**
+- 运行时常量池是方法区的一部分
+- 常量池表是Class文件的一部分,**用于存放编译期生成的各种字面量与符号引用**,这部分内容将在类加载后存放到方法区的运行时常量池中
+- 运行时常量池,在加载类和接口到虚拟机后,就会创建对应的运行时常量池
+- JVM为每个已加载的类型(类接口)都维护了一个常量池,池中的数据项像数组项一样,是通过索引访问的
+- 运行时常量池中包含多种不同的常量,包括编译期就已经明确的数值字面量,也包括到运行期解析后才能获得的方法或者字段引用,此时不再是常量池中的符号地址了,这里换位真实地址
+    - 运行时常量池:相对于Class文件常量池的另一重要特征是:**具备动态性**
+- 运行时常量池类似于传统编程语言中的符号表,但是它所包含的数据却比符号表要更加丰富一些
+- 当创建类或接口的运行时常量池时,如果构造运行时常量池所需的内存空间超过了方法区所能提供的最大值,则JVM会抛OOM异常
+
+### 方法区在6,7,8的演进过程
+
+**首先明确,只有HotSpot才有永久代**
+BEA JRockit,IBM J9等来说,是不存在永久代的概念的(它们用的都是元空间),原则上如何实现方法区属于虚拟机实现细节,不受`Java虚拟机规范`约束,并不要求统一
+
+**HotSpot方法区的变化**
+| 版本 | 变化 |
+| --- | --- |
+| jdk1.6及之前 | 有永久代(Permanent generation),静态变量存放在永久代上 |
+| jdk1.7 | 有永久代,但已经逐步去永久代,字符串常量池,静态变量移除,保存在堆中 |
+| jdk1.8及之后 | 无永久代,类型信息,字段,方法,常量保存在本地内存的元空间,**但字符串常量池,静态变量仍在在堆** |
+
+如图所示
+![hotspot](https://img01.zzmr.club/img/hotspot.jpg)
+
+>Motivation
+>This is part of the JRockit and Hotspot convergence effort.JRockit customers do not need to configure the permanent generation(since JRockit does not have a permanent generation)and are accustomed to not configuring the permanent generation
 

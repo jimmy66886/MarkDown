@@ -7,7 +7,7 @@
 下了一个XShell,看看这软件好用不
 
 修改虚拟机网络为静态IP,编辑`vi /etc/sysconfig/network-scripts/ifcfg-ens33`
-![20230617094332](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230617094332.png)
+![20230617094332](https://img01.zzmr.club/img/20230617094332.png)
 *改完之后,发现不能联网了,原来是Vmware设置的网关和虚拟机里面设置的不太一样,把虚拟机的修改成`192.168.168.2`就好了.
 
 ---
@@ -23,7 +23,7 @@
 这里我们先使用Nginx开源版
 
 传输到虚拟机:
-![20230617102715](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230617102715.png)
+![20230617102715](https://img01.zzmr.club/img/20230617102715.png)
 
 1. 然后就是编译安装,打开Nginx的文件夹,然后执行`./configure --prefix=/usr/local/nginx`
 2. 执行`make`
@@ -39,7 +39,7 @@
 
 
 访问成功:
-![20230617103927](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230617103927.png)
+![20230617103927](https://img01.zzmr.club/img/20230617103927.png)
 
 ---
 
@@ -76,7 +76,7 @@ WantedBy=multi-user.target
 ```
 
 然后将之前启动的nginx关闭,再执行脚本:
-![20230617105157](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230617105157.png)
+![20230617105157](https://img01.zzmr.club/img/20230617105157.png)
 
 设置开机启动:`systemctl enable nginx.service`
 
@@ -87,11 +87,11 @@ WantedBy=multi-user.target
 >**目录**
 
 主要的配置文件:
-![20230617105756](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230617105756.png)
+![20230617105756](https://img01.zzmr.club/img/20230617105756.png)
 
 ### Nginx多进程模型和基本请求流程
 
-![20230617110922](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230617110922.png)
+![20230617110922](https://img01.zzmr.club/img/20230617110922.png)
 
 ### Nginx基础配置
 
@@ -155,9 +155,9 @@ http {
 
 配置本机上的域名解析(在本机上模拟这个)
 首先找到C盘下的host文件`C:\Windows\System32\drivers\etc`
-![20230617215057](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230617215057.png)
+![20230617215057](https://img01.zzmr.club/img/20230617215057.png)
 ?该完之后,就能访问了?
-![20230617215552](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230617215552.png)
+![20230617215552](https://img01.zzmr.club/img/20230617215552.png)
 
 所以是虚拟中的nginx配置了这个域名?还是啥,有点晕
 
@@ -171,7 +171,7 @@ http {
 - A:将域名指向一个IPV4地址
 - CNAME:将域名执行另外一个域名
     - 所以这里使用了A来指向我pages的ip地址,CNAME指向了pages的域名
-    - ![20230617220210](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230617220210.png)
+    - ![20230617220210](https://img01.zzmr.club/img/20230617220210.png)
 - AAAA:将域名指向一个IPV6地址
 - NS:将子域名指定其他DNS服务器解析
 
@@ -290,7 +290,7 @@ http {
 - 基于反向代理的负载均衡器
 - 负载均衡策略
 
-![20230618094716](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230618094716.png)
+![20230618094716](https://img01.zzmr.club/img/20230618094716.png)
 
 就是数据透过Nginx进行传递?就是Nginx代理了用户的请求,tomcat服务器是没有与用户直接进行交互的,而是中间过了一手的Nginx,这就叫代理
 

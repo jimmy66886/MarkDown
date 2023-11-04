@@ -3993,7 +3993,7 @@ public class TestRequestMappingController {
 
 <!-- ![1670555849427](image/ssm_thinking/1670555849427.png) -->
 
-![20221209111735](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20221209111735.png)
+![20221209111735](https://img01.zzmr.club/img/20221209111735.png)
 
 > 如果遇到params属性不匹配的情况,就会报这个错误:
 > HTTP Status 400 - Parameter conditions "xxxxx" not met for actual request parameters:
@@ -4016,7 +4016,7 @@ public class TestRequestMappingController {
 
 <!-- ![1670555121712](image/ssm_thinking/1670555121712.png) -->
 
-![20221209110526](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20221209110526.png)
+![20221209110526](https://img01.zzmr.club/img/20221209110526.png)
 
 **但是param用的并不多,还是value和method用的比较多**
 
@@ -4030,7 +4030,7 @@ public class TestRequestMappingController {
 
 <!-- ![1670556190250](image/ssm_thinking/1670556190250.png) -->
 
-![20221209112315](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20221209112315.png)
+![20221209112315](https://img01.zzmr.club/img/20221209112315.png)
 
 若当前请求满足@RequestMapping注解的value和method属性,但是不满足headers属性,此时页面显示404错误,即资源未找到
 
@@ -4088,7 +4088,7 @@ public class TestRequestMappingController {
 
 <!-- ![1670638579526](image/ssm_thinking/1670638579526.png) -->
 
-![20221210101622](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20221210101622.png)
+![20221210101622](https://img01.zzmr.club/img/20221210101622.png)
 
 #### SpringMVC支持路径中的占位符(重点)
 
@@ -6083,9 +6083,9 @@ SqlSession创建代理实现类对象，并将这些对象交给ioc容器管理-
 
 表结构:
 1. t_emp_old:
-![20230526105411](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230526105411.png)
+![20230526105411](https://img01.zzmr.club/img/20230526105411.png)
 2. t_dept:
-![20230526105424](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230526105424.png)
+![20230526105424](https://img01.zzmr.club/img/20230526105424.png)
 
 
 > **当字段名和属性名不一致时,该怎么办**?
@@ -6224,7 +6224,7 @@ public class Dept {
 
 **区别在哪**?
 区别在于处理dept_id和dept_name和dept属性的映射关系时,使用了result,column依然是查询出的列名,而**property对应的就是`dept.deptId`和`dept.deptName`了**,这就相当于,将查询出的字段dept_id与Emp类中dept属性中的deptId属性进行对应(有点拗口,但是这么说没问题啊没问题),此时得到正确的数据:
-![20230525234025](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230525234025.png)
+![20230525234025](https://img01.zzmr.club/img/20230525234025.png)
 *不用在意dept后面有个emps,那个是toString的输出,只要查到deptId和deptName就算成功了*
 
 
@@ -6335,7 +6335,7 @@ sql:
 association中的property依然是用于将查询的结果赋值给emp中的dept属性(**这里由于第二步查询的返回值是一个dept对象,所以第一步不需要再处理一次dept_id和dept_name跟deptId和deptName的映射关系了**)
 
 查询结果:
-![20230526090830](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230526090830.png)
+![20230526090830](https://img01.zzmr.club/img/20230526090830.png)
 
 >那能用一条sql查出的结果,为什么要用两条sql呢?
 这里就要引入分步查询的优点-延迟加载
@@ -6363,10 +6363,10 @@ association中的property依然是用于将查询的结果赋值给emp中的dept
 ```
 
 此时我们只获取emp.getEmpName()而不获取部门信息,此时只会执行一条sql:
-![20230526094226](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230526094226.png)
+![20230526094226](https://img01.zzmr.club/img/20230526094226.png)
 
 把延迟加载配置给注掉,再测试,两条sql:
-![20230526094310](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230526094310.png)
+![20230526094310](https://img01.zzmr.club/img/20230526094310.png)
 
 此时就能感受到延迟加载的好处了
 
@@ -6428,7 +6428,7 @@ public class Dept {
 
 重点就在于,将联查得到的员工信息,封装为一个List集合,下图就是sql查询出的结果,可以看出,部门信息肯定是一样的,不同的地方就在于emp的信息,就要把这多个emp信息封装为一个`List<Emp>`集合
 
-![20230526103921](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230526103921.png)
+![20230526103921](https://img01.zzmr.club/img/20230526103921.png)
 
 看sql:
 ```xml
@@ -6466,7 +6466,7 @@ public class Dept {
 ```
 
 结果:
-![20230526105306](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230526105306.png)
+![20230526105306](https://img01.zzmr.club/img/20230526105306.png)
 
 ##### 分步查询处理一对多
 
@@ -6537,7 +6537,7 @@ sql:
 ```
 
 测试结果:
-![20230526120306](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230526120306.png)
+![20230526120306](https://img01.zzmr.club/img/20230526120306.png)
 
 当只获取getDeptName,此时就不涉及到员工的信息,所以只会执行第一条sql语句..
 

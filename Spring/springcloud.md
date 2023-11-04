@@ -35,8 +35,8 @@ bye
 SpringCloud=分布式微服务架构的一站式解决方案,是多种微服务架构落地技术的集合体,俗称微服务全家桶
 
 SpringCLoud的技术栈:
-![20230731120315](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230731120315.png)
-![20230731120510](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230731120510.png)
+![20230731120315](https://img01.zzmr.club/img/20230731120315.png)
+![20230731120510](https://img01.zzmr.club/img/20230731120510.png)
 
 ## 2 从2.2.x和H版开始说起
 
@@ -46,7 +46,7 @@ SpringCLoud的技术栈:
 
 **SpringCloud和SpringBoot之间的依赖关系**
 
-![20230731122342](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230731122342.png)
+![20230731122342](https://img01.zzmr.club/img/20230731122342.png)
 
 *所以我们的H要配上2.2.x, 2.3.x*
 
@@ -60,7 +60,7 @@ SpringCLoud的技术栈:
 ```
 
 老师给的版本:
-![20230731122852](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230731122852.png)
+![20230731122852](https://img01.zzmr.club/img/20230731122852.png)
 
 >为什么要这么选版本?不能直接选最新版?
 1. 只用boot,直接用最新
@@ -70,14 +70,14 @@ SpringCLoud的技术栈:
 
 *技术好多,各个部分都是技术技术技术*
 
-![20230731125207](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230731125207.png)
+![20230731125207](https://img01.zzmr.club/img/20230731125207.png)
 
 ## 4 微服务架构编码构建
 
 ### 新建项目
 
 建父工程,这老师好正经啊
-![20230731130457](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230731130457.png)
+![20230731130457](https://img01.zzmr.club/img/20230731130457.png)
 
 父工程的pom文件:
 ```xml
@@ -271,7 +271,7 @@ Maven中的DependencyManagement和Dependencies的区别
 ---
 
 正式写业务逻辑了,老师也是给了步骤:
-![20230731180735](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230731180735.png)
+![20230731180735](https://img01.zzmr.club/img/20230731180735.png)
 
 ...
 
@@ -280,7 +280,7 @@ Maven中的DependencyManagement和Dependencies的区别
 *热部署我就不用了,电脑带不动*
 
 **cloud-consumer-order80**,消费者下单的模块,此模块只有controller,调用payment8001模块的内容
-![20230731214303](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230731214303.png)
+![20230731214303](https://img01.zzmr.club/img/20230731214303.png)
 
 但是如何调用呢?
 
@@ -352,7 +352,7 @@ public class OrderController {
 这样就可以调用到了?
 
 还真的可以了:
-![20230731220019](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230731220019.png)
+![20230731220019](https://img01.zzmr.club/img/20230731220019.png)
 
 也就是说,当调用OrderController中的getPayment时,该Controller会去调用payment中的getPaymentById,这样就实现了服务调用?
 
@@ -362,7 +362,7 @@ public class OrderController {
 3. 请求返回结果类型
 
 但是,那个create请求,也能过,是为什么呢,根本没有往请求体里放东西啊:
-![20230731220644](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230731220644.png)
+![20230731220644](https://img01.zzmr.club/img/20230731220644.png)
 
 所以是自动将路径中的变量封装到请求体中了
 
@@ -419,9 +419,9 @@ Spring Cloud封装了Netflix公司开发的Eureka模块来实现服务治理
 ---
 
 什么是服务注册与发现
-![20230801113440](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230801113440.png)
+![20230801113440](https://img01.zzmr.club/img/20230801113440.png)
 **系统中每个微服务与Eureka Server服务注册中心维持心跳连接,来让Eureka Server来监控系统中各个微服务是否正常运行**
-![20230801113651](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230801113651.png)
+![20230801113651](https://img01.zzmr.club/img/20230801113651.png)
 
 **Eureka包含两个组件:Eureka Server和Eureka Client**
 1. Eureka Server提供服务注册服务
@@ -434,7 +434,7 @@ Spring Cloud封装了Netflix公司开发的Eureka模块来实现服务治理
 ### EurekaServer服务端安装
 
 大概就是这个样子:
-![20230801115023](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230801115023.png)
+![20230801115023](https://img01.zzmr.club/img/20230801115023.png)
 
 1. IDEA生成eurekaServer端服务注册中心,类似物业公司
 
@@ -543,7 +543,7 @@ public class EurekaMain7001 {
 ```
 
 启动成功:
-![20230801125240](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230801125240.png)
+![20230801125240](https://img01.zzmr.club/img/20230801125240.png)
 
 
 ### 微服务8001入住进Eureka Server
@@ -573,10 +573,10 @@ eureka:
 3. 主启动
 加上`@EnableEurekaClient`
 4. 测试
-![20230801130232](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230801130232.png)
+![20230801130232](https://img01.zzmr.club/img/20230801130232.png)
 
 >服务名的绑定关系:
-![20230801130344](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230801130344.png)
+![20230801130344](https://img01.zzmr.club/img/20230801130344.png)
 
 ### EurekeClient端cloud-consumer-order80
 
@@ -603,25 +603,25 @@ eureka:
 ```
 
 还是上面一样的步骤,这里不再赘述
-![20230801131013](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230801131013.png)
+![20230801131013](https://img01.zzmr.club/img/20230801131013.png)
 
 ### 集群配置
 
 Eureka集群:**互相注册,相互守望**
-![20230801133213](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230801133213.png)
+![20230801133213](https://img01.zzmr.club/img/20230801133213.png)
 
 服务注册:将服务信息注册进注册中心
 服务发现:从注册中心上获取服务信息
 实质:存key服务名,去value调用地址
 
-![20230801131820](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230801131820.png)
+![20230801131820](https://img01.zzmr.club/img/20230801131820.png)
 
 >问题:微服务RPC远程服务调用最核心的是什么
 是高可用,搭建Eureka注册中心集群,实现负载均衡+故障容错
 
 1. 参考7001新建模块7002
 2. 修改映射配置(模拟多台机器)
-![20230801133937](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230801133937.png)
+![20230801133937](https://img01.zzmr.club/img/20230801133937.png)
 3. 修改配置文件
 ```yml
 server:
@@ -641,7 +641,7 @@ eureka:
 ```
 
 4. 成功:
-![20230801134626](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230801134626.png)
+![20230801134626](https://img01.zzmr.club/img/20230801134626.png)
 
 #### 订单支付两微服务注册进Eureka集群
 
@@ -755,7 +755,7 @@ public class PaymentController {
 就是加别名
 
 原来的是这种:
-![20230801202320](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230801202320.png)
+![20230801202320](https://img01.zzmr.club/img/20230801202320.png)
 
 是主机加模块名,我们要进行自定义:
 ```yml
@@ -763,7 +763,7 @@ public class PaymentController {
     instance-id: payment8001
 ```
 加上这个就可以实现此功能了:
-![20230801202536](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230801202536.png)
+![20230801202536](https://img01.zzmr.club/img/20230801202536.png)
 
 加上这个就可以实现**显示ip地址了**
 ```java
@@ -773,7 +773,7 @@ public class PaymentController {
 ```
 
 在鼠标浮在payment800x上就会显示ip地址:
-![20230801202852](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230801202852.png)
+![20230801202852](https://img01.zzmr.club/img/20230801202852.png)
 
 ### 服务发现Discovery
 
@@ -814,9 +814,9 @@ public class PaymentController {
 就完工了
 
 
-![20230801205614](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230801205614.png)
+![20230801205614](https://img01.zzmr.club/img/20230801205614.png)
 
-![20230801205638](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230801205638.png)
+![20230801205638](https://img01.zzmr.club/img/20230801205638.png)
 
 ### Eureka自我保护
 
@@ -836,7 +836,7 @@ public class PaymentController {
     eviction-interval-timer-in-ms: 2000
 ```
 
-![20230801211950](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230801211950.png)
+![20230801211950](https://img01.zzmr.club/img/20230801211950.png)
 
 8001模块加上:
 ```yml
@@ -862,7 +862,7 @@ SpringCloud整合Zookeeper代替Eureka-Eureka已经停止更新了
 1. 下载:[链接](https://downloads.apache.org/zookeeper/zookeeper-3.5.10/)
 2. 解压:`tar -zxvf apache-zookeeper-3.5.10-bin.tar.gz`
 3. 新建配置文件:
-![20230802100034](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230802100034.png)
+![20230802100034](https://img01.zzmr.club/img/20230802100034.png)
 
 这样就OK了
 
@@ -923,12 +923,12 @@ public class PaymentController {
 
 此时进行测试,先将zookeeper启动,然后启动8004
 
-![20230802100055](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230802100055.png)
+![20230802100055](https://img01.zzmr.club/img/20230802100055.png)
 
-![20230802100152](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230802100152.png)
+![20230802100152](https://img01.zzmr.club/img/20230802100152.png)
 
 然后就进入到客户端里了?
-![20230802100235](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230802100235.png)
+![20230802100235](https://img01.zzmr.club/img/20230802100235.png)
 
 我的是好了,因为springcloud默认带的是3.5.3,我装的是3.5.10,所以能兼容,但是老师的是3.4.9,所以他要解决一下jar包冲突的问题:
 
@@ -955,16 +955,16 @@ public class PaymentController {
 
 当然,他下面是3.4.9,那我就3.5.10呗
 
-![20230802101107](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230802101107.png)
+![20230802101107](https://img01.zzmr.club/img/20230802101107.png)
 
 这就证明连上了:
-![20230802101133](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230802101133.png)
+![20230802101133](https://img01.zzmr.club/img/20230802101133.png)
 
 访问接口也是没问题:
-![20230802101242](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230802101242.png)
+![20230802101242](https://img01.zzmr.club/img/20230802101242.png)
 
 层级递进:
-![20230802101429](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230802101429.png)
+![20230802101429](https://img01.zzmr.club/img/20230802101429.png)
 
 而注册信息在这:
 ```json
@@ -1046,12 +1046,12 @@ public class OrderZKController {
 ```
 
 测试:
-![20230802104142](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230802104142.png)
+![20230802104142](https://img01.zzmr.club/img/20230802104142.png)
 
 测试services中就有了新的服务:`cloud-consumerzk-order80`
 
 再测试接口:
-![20230802104244](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230802104244.png)
+![20230802104244](https://img01.zzmr.club/img/20230802104244.png)
 
 访问成功,也没问题
 
@@ -1064,13 +1064,13 @@ Consul是一套开源的分布式服务发现和配置管理系统,Go语言开�
 [安装网站](https://developer.hashicorp.com/consul/downloads?product_intent=consul)
 
 解压,双击运行:
-![20230802214724](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230802214724.png)
+![20230802214724](https://img01.zzmr.club/img/20230802214724.png)
 
 
 启动:`consul agent -dev`
 
 访问`localhost:8500`
-![20230802214930](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230802214930.png)
+![20230802214930](https://img01.zzmr.club/img/20230802214930.png)
 
 ### 服务提供者注册
 
@@ -1104,10 +1104,10 @@ spring:
 然后就是编写接口
 
 好了,已经注册进去了:
-![20230802215943](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230802215943.png)
+![20230802215943](https://img01.zzmr.club/img/20230802215943.png)
 
 接口也注册成功:
-![20230802220031](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230802220031.png)
+![20230802220031](https://img01.zzmr.club/img/20230802220031.png)
 
 ### 服务消费者注册
 
@@ -1130,16 +1130,16 @@ spring:
 
 ```
 
-![20230802220705](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230802220705.png)
+![20230802220705](https://img01.zzmr.club/img/20230802220705.png)
 
 
 测试也是没问题:
-![20230802220804](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230802220804.png)
+![20230802220804](https://img01.zzmr.club/img/20230802220804.png)
 
 
 ### 三个注册中心的异同点
 
-![20230802221110](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230802221110.png)
+![20230802221110](https://img01.zzmr.club/img/20230802221110.png)
 
 分为CP和AP
 
@@ -1188,7 +1188,7 @@ Ribbon的工作流程
 ---
 
 之前写的80并没有引入spring-cloud-starter-ribbon,也可以使用ribbon,那是因为eureka中包含了ribbon
-![20230803105612](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230803105612.png)
+![20230803105612](https://img01.zzmr.club/img/20230803105612.png)
 
 ### 详解RestTemplate
 
@@ -1197,7 +1197,7 @@ Ribbon的工作流程
     - 返回对象为响应体中数据转换成的对象,基本上就是json
 2. xxxForEntity
     - 返回对象为ResponseEntity对象,包含了响应中的一些重要信息,比如响应头,响应状态码,响应体等
-![20230803110122](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230803110122.png)
+![20230803110122](https://img01.zzmr.club/img/20230803110122.png)
 
 
 测试代码:
@@ -1224,7 +1224,7 @@ Ribbon的工作流程
 ```
 
 没问题:
-![20230803111235](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230803111235.png)
+![20230803111235](https://img01.zzmr.club/img/20230803111235.png)
 
 其实就是entity比object返回的结果比较多一些,但是还是object比较常用
 
@@ -1233,14 +1233,14 @@ Ribbon的工作流程
 IRule:根据特定算法中从服务列表中选取一个要访问的服务
 
 这个接口的实现:
-![20230803205441](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230803205441.png)
+![20230803205441](https://img01.zzmr.club/img/20230803205441.png)
 
-![20230803205504](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230803205504.png)
+![20230803205504](https://img01.zzmr.club/img/20230803205504.png)
 
 **规则替换**
 1. 修改cloud-consumer-order80
     - 官方文档明确给出了警告,这个自定义配置类不能放在@ComponentScan所扫描的当钱包以及子包下,否则我们自定义的这个配置类就会被所有的Ribbon客户端所共享,达不到特殊化定制的目的了
-    - ![20230803210131](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230803210131.png)
+    - ![20230803210131](https://img01.zzmr.club/img/20230803210131.png)
 2. 配置类:
 ```java
 @Configuration
@@ -1264,7 +1264,7 @@ public class MySelfRule {
 **负载均衡算法: rest接口第几次请求数 `%` 服务器集群总数量 = 实际调用服务器位置下标 ,每次服务重启动后rest接口计数从1开始**
 
 总机器数是2,那么第一次请求1 对2取余,则下标为1,则是第二台机器
-![20230803212755](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230803212755.png)
+![20230803212755](https://img01.zzmr.club/img/20230803212755.png)
 
 *好像还挺简单的,但是怎么实现呢*
 
@@ -1405,7 +1405,7 @@ public class MyLB implements LoadBalancer {
 ```
 
 测试成功:
-![20230803221218](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230803221218.png)
+![20230803221218](https://img01.zzmr.club/img/20230803221218.png)
 
 嗯,还有好多要学啊
 
@@ -1418,7 +1418,7 @@ OpenFeign是一个声明式WebSevice客户端,使用Feign能让编写Web Service
 
 **Feign可以与Eureka和Ribbon组合使用以支持负载均衡**
 
-![20230804090820](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230804090820.png) 
+![20230804090820](https://img01.zzmr.club/img/20230804090820.png) 
 
 
 ### OpenFeign使用
@@ -1485,7 +1485,7 @@ public class OrderFeignController {
 这里就不用再写restTemplate了,因为openfeign已经封装了,在service接口中已经实现了该功能
 
 没问题:
-![20230804094528](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230804094528.png)
+![20230804094528](https://img01.zzmr.club/img/20230804094528.png)
 
 突然感觉也是好清晰啊,但是如果用了这个OpenFeign,那么如何自己写一个负载均衡的算法呢?*我应该用不到*
 
@@ -1505,7 +1505,7 @@ public class OrderFeignController {
 ```
 
 80端口进行调用,出现超时报错
-![20230804100021](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230804100021.png)
+![20230804100021](https://img01.zzmr.club/img/20230804100021.png)
 
 所以可以修改Feign客户端的等待时间,在yml配置文件中设置
 
@@ -1516,7 +1516,7 @@ ribbon:
 ```
 
 成功:
-![20230804100343](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230804100343.png)
+![20230804100343](https://img01.zzmr.club/img/20230804100343.png)
 
 ### OpenFeign日志打印功能
 
@@ -1552,7 +1552,7 @@ logging:
 ```
 
 没问题:
-![20230804101230](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230804101230.png)
+![20230804101230](https://img01.zzmr.club/img/20230804101230.png)
 
 
 
@@ -1878,7 +1878,7 @@ public interface PaymentHystrixService {
 
 这就到总结了啊,感觉也没学到什么...
 
-![20230815215705](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230815215705.png)
+![20230815215705](https://img01.zzmr.club/img/20230815215705.png)
 
 好吧,只是服务熔断这块的小总结..
 
@@ -1920,7 +1920,7 @@ public interface PaymentHystrixService {
 
 ### hystrix工作流程
 
-![20230815224303](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230815224303.png)
+![20230815224303](https://img01.zzmr.club/img/20230815224303.png)
 
 ### hystrix仪表盘
 
@@ -1941,7 +1941,7 @@ public interface PaymentHystrixService {
 新注解:`@EnableHystrixDashboard`给主启动类加上,**每多一个功能,都要在主启动类上开启**
 
 访问可得:
-![20230816104755](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230816104755.png)
+![20230816104755](https://img01.zzmr.club/img/20230816104755.png)
 
 **被监控的前提是要有如下依赖**
 ```xml
@@ -1974,7 +1974,7 @@ public interface PaymentHystrixService {
 2. 开启监控
 
 还是挺直观的,circuit那里有当前的情况显示
-![20230816110023](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230816110023.png)
+![20230816110023](https://img01.zzmr.club/img/20230816110023.png)
 
 到这就ok了,但是这些可能都不用吧,毕竟后面还有alibaba
 
@@ -2035,7 +2035,7 @@ eureka:
 2. Predicate(断言):参考的是Java8的java.util.function.Predicate开发人员可以匹配HTTP请求中的所有内容(例如请求头或请求参数),如果请求与断言相匹配则进行路由
 3. Filter(过滤):指的是Spring框架中GatewayFilter的实例,使用过滤器,可以在请求被路由前或者之后对请求进行修改
 
-![20230818114408](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230818114408.png)
+![20230818114408](https://img01.zzmr.club/img/20230818114408.png)
 
 所以要在8001外面包一层9527,再给9527加上一些配置
 ```yml
@@ -2200,7 +2200,7 @@ public class T2 {
 **就表示这这个配置时间之后才该请求才有效**
 
 这里测试,把时间调到一个小时以后,再次访问,就得到404了
-![20230818223125](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230818223125.png)
+![20230818223125](https://img01.zzmr.club/img/20230818223125.png)
 
 *一般用于上线未来的接口,但是又不能立即启用*
 
@@ -2219,12 +2219,12 @@ Cookie Route Predicate需要两个参数,一个是Cookie name,一个是正则表
 **使用curl命令来发送请求**
 
 这个还是第一次知道,就直接在控制台:
-![20230818225355](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230818225355.png)
+![20230818225355](https://img01.zzmr.club/img/20230818225355.png)
 
 后面`--cookie "username=zzmr"`就表示该请求携带cookie
 
 如果不带指定格式的cookie,就会报404
-![20230818225503](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230818225503.png)
+![20230818225503](https://img01.zzmr.club/img/20230818225503.png)
 
 >3. Header请求头
 
@@ -2235,13 +2235,13 @@ Cookie Route Predicate需要两个参数,一个是Cookie name,一个是正则表
 此时还是用curl命令来测试:`http://localhost:9527/payment/lb -H "X-Request-Id:20"`
 
 测试:
-![20230818230351](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230818230351.png)
+![20230818230351](https://img01.zzmr.club/img/20230818230351.png)
 
 >4. Host
 
 Host Route Predicate 接受一组参数,一组匹配的域名列表,这个模板是ant分隔的模板,用.号作为分隔符,它通过参数中的主机地址作为匹配规则
 
-![20230818231059](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230818231059.png)
+![20230818231059](https://img01.zzmr.club/img/20230818231059.png)
 
 >5. Method
 
@@ -2251,7 +2251,7 @@ Host Route Predicate 接受一组参数,一组匹配的域名列表,这个模板
 ```
 
 这时就只能接收到GET请求,发送post请求会报404
-![20230818231748](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230818231748.png)
+![20230818231748](https://img01.zzmr.club/img/20230818231748.png)
 
 >6. Path
 
@@ -2265,7 +2265,7 @@ Host Route Predicate 接受一组参数,一组匹配的域名列表,这个模板
 ```
 
 就是这样用:
-![20230818232458](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230818232458.png)
+![20230818232458](https://img01.zzmr.club/img/20230818232458.png)
 
 **注意正则表达式里的反斜杠,刚写错了,看了半天**
 
@@ -2343,7 +2343,7 @@ public class MyLogGateWayFilter implements GlobalFilter, Ordered {
 分布式配置中心
 
 不知不觉已经看到这了:
-![20230819113003](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230819113003.png)
+![20230819113003](https://img01.zzmr.club/img/20230819113003.png)
 
 为什么要用这个?-**配置问题**
 
@@ -2355,7 +2355,7 @@ springCloud提供了ConfigServer来解决这个问题,我们每一个微服务�
 
 >是什么
 SpringCloud Config为微服务架构中的微服务提供集中化的外部配置支持,配置服务器**为各个不同微服务应用**的所有环境提供了一个**中心化的外部配置**
-![20230819113838](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230819113838.png)
+![20230819113838](https://img01.zzmr.club/img/20230819113838.png)
 
 >怎么玩
 SpringCloud Config分为**服务端和客户端**两个部分
@@ -2418,7 +2418,7 @@ eureka:
 ```
 
 然后加映射:
-![20230819121030](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230819121030.png)
+![20230819121030](https://img01.zzmr.club/img/20230819121030.png)
 
 配置这块有坑,如果开着梯子,就访不了7001,然后3344这个也有问题,关了梯子后发现认证失败,解决办法:
 1. 将ssh改成https:
@@ -2434,14 +2434,14 @@ eureka:
 ```
 
 还有就是,分支要改成main,不然还是访问不到:
-![20230819122559](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230819122559.png)
+![20230819122559](https://img01.zzmr.club/img/20230819122559.png)
 
 ---
 
 >配置读取规则
 
 另外的一种访问模式:
-![20230820151229](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230820151229.png)
+![20230820151229](https://img01.zzmr.club/img/20230820151229.png)
 
 
 ### 客户端配置
@@ -2489,11 +2489,11 @@ eureka:
     service-url:
       defaultZone: http://localhost:7001/eureka
 ```
-![20230820153001](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230820153001.png)
+![20230820153001](https://img01.zzmr.club/img/20230820153001.png)
 
 
 访问成功,表示3355从3344拿到了配置信息
-![20230820153554](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230820153554.png)
+![20230820153554](https://img01.zzmr.club/img/20230820153554.png)
 
 ---
 
@@ -2776,10 +2776,10 @@ public class ReceiveMessageListenerController {
 这里导包还是有问题,先测试看看吧
 
 看来导包没有问题,先是8801发消息,成功
-![20230823131729](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230823131729.png)
+![20230823131729](https://img01.zzmr.club/img/20230823131729.png)
 
 然后是8802接收消息,成功
-![20230823131749](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230823131749.png)
+![20230823131749](https://img01.zzmr.club/img/20230823131749.png)
 
 ### 分组消费与持久化
 
@@ -2792,17 +2792,17 @@ public class ReceiveMessageListenerController {
 *我记得之前学rabbitmq里面学到了重复消费这个东西,但是现在已经忘光了*
 
 这是8801发出的消息
-![20230823133931](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230823133931.png)
+![20230823133931](https://img01.zzmr.club/img/20230823133931.png)
 
 这是8802和8803接收到的消息
-![20230823134002](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230823134002.png)
-![20230823134133](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230823134133.png)
+![20230823134002](https://img01.zzmr.club/img/20230823134002.png)
+![20230823134133](https://img01.zzmr.club/img/20230823134133.png)
 
 目前是8802和8803都接收到了消息,存在重复消费的问题
 
 >案例
 在以下场景中,订单系统我们做集群部署,都会从RabbitMQ中获取订单信息,那如果**一个订单同时被两个服务获取到**,那么就会造成数据错误,我们得避免这种情况,这时**我们就可以使用stream中的消息分组来解决**
-![20230823134840](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230823134840.png)
+![20230823134840](https://img01.zzmr.club/img/20230823134840.png)
 
 **注意在Stream中处于同一个group中的多个消费者是竞争关系,就能够保证消息只会被其中一个应用消费一次**
 
@@ -2812,7 +2812,7 @@ public class ReceiveMessageListenerController {
 ```
 
 >所以为什么会出现这个重复消费的问题呢?上面看:`不同组是可以全面消费的`,此时在mq中能看到分了两个组,也即是8802和8803是不同的组,所以两者都可以消费到这个消息
-![20230823135451](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230823135451.png)
+![20230823135451](https://img01.zzmr.club/img/20230823135451.png)
 
 >解决
 进行分组(group),将消费者分成一个组,这样8802和8803就不会存在重复消费的问题了
@@ -2832,7 +2832,7 @@ public class ReceiveMessageListenerController {
 *这里就写多一点,主要是为了看group的缩进在哪*
 
 目前是8802为`zzmrA`,8803为`zzmrB`,在mq中能看出:
-![20230823142222](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230823142222.png)
+![20230823142222](https://img01.zzmr.club/img/20230823142222.png)
 
 >分布式微服务应用为了实现高可用和负载均衡,实际上都会部署多个实例,本例启动了8802和8803,多数情况,生产者发送消息给某个具体微服务时,只希望被消费一次,按照上面我们启动了两个应用的例子,虽然它们同属一个应用,但是这个消息出现了被重复消费两次的情况,为了解决这个问题,在Spring Cloud Stream中提供了**消费组**的概念
 
@@ -2841,14 +2841,14 @@ public class ReceiveMessageListenerController {
 此时把8802和8803分成同一个组
 
 8801发送4条
-![20230823143644](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230823143644.png)
+![20230823143644](https://img01.zzmr.club/img/20230823143644.png)
 8802收到两条
-![20230823143657](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230823143657.png)
+![20230823143657](https://img01.zzmr.club/img/20230823143657.png)
 8803也是收到两条
-![20230823143708](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230823143708.png)
+![20230823143708](https://img01.zzmr.club/img/20230823143708.png)
 
 在mq中,也能看到zzmrA组的消费者有两个:
-![20230823143843](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230823143843.png)
+![20230823143843](https://img01.zzmr.club/img/20230823143843.png)
 
 #### 持久化
 
@@ -2879,9 +2879,9 @@ Spring Cloud Sleuth提供了一套完整的服务跟踪的解决方案
 1. 安装zipkin
     - 下载:SpringCloud从F版起已不需要自己构建ZipkinServer了,只需要调用jar包即可,[链接](https://search.maven.org/remote_content?g=io.zipkin.java&a=zipkin-server&v=LATEST&c=exec)
     - 运行jar包
-    - ![20230823152040](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230823152040.png)
+    - ![20230823152040](https://img01.zzmr.club/img/20230823152040.png)
 2. 图形化界面
-    - ![20230823152229](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230823152229.png)
+    - ![20230823152229](https://img01.zzmr.club/img/20230823152229.png)
 
 ---
 
@@ -2889,7 +2889,7 @@ Spring Cloud Sleuth提供了一套完整的服务跟踪的解决方案
 一条链路通过Trace Id唯一标识,Span标识发起的请求信息,各span通过parent id关联起来
     - Trace:类似于树结构的Span集合,表示一条调用链路,存在唯一标识
     - Span:表示调用链路来源,通俗的理解span就是一次请求信息
-![20230823152615](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230823152615.png)
+![20230823152615](https://img01.zzmr.club/img/20230823152615.png)
 
 ### 更改配置
 
@@ -2938,7 +2938,7 @@ Spring Cloud Alibaba,它是由一些阿里巴巴的开源组件和云产品组�
 
 [Cloud Alibaba中文文档](https://github.com/alibaba/spring-cloud-alibaba/blob/2022.x/README-zh.md)
 
-![20230823171610](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230823171610.png)
+![20230823171610](https://img01.zzmr.club/img/20230823171610.png)
 
 好,这一章就是闲聊,没什么代码啥的
 
@@ -2972,13 +2972,13 @@ Could not reserve enough space for 2097152KB object heap
 set MODE="standalone"
 ```
 启动成功:
-![20230823202604](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230823202604.png)
+![20230823202604](https://img01.zzmr.club/img/20230823202604.png)
 
 进入`http://localhost:8848/nacos`
-![20230823202814](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230823202814.png)
+![20230823202814](https://img01.zzmr.club/img/20230823202814.png)
 
 这界面高级啊(账号密码nacos)
-![20230823202845](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230823202845.png)
+![20230823202845](https://img01.zzmr.club/img/20230823202845.png)
 
 ### nacos服务注册
 
@@ -3022,13 +3022,13 @@ public class PaymentController {
 ```
 
 测试成功
-![20230823204602](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230823204602.png)
+![20230823204602](https://img01.zzmr.club/img/20230823204602.png)
 
 在8848的服务管理里面可以看到服务列表:
-![20230823204800](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230823204800.png)
+![20230823204800](https://img01.zzmr.club/img/20230823204800.png)
 
 根据9001再写一个9002出来:
-![20230823205659](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230823205659.png)
+![20230823205659](https://img01.zzmr.club/img/20230823205659.png)
 
 *还可以拷贝虚拟端口映射,不过好像不太好用*
 
@@ -3113,24 +3113,24 @@ public class ApplicationContextBean
 ```
 
 启动服务:
-![20230823213553](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230823213553.png)
+![20230823213553](https://img01.zzmr.club/img/20230823213553.png)
 
 哈哈哈哈,老师正说:如果一切顺利..,然后就变成一切不顺利了,原来是没有给restTemplate的get方法上没加`@LoadBalanced`
 
 然后我又重启项目,发现还是报错,最好找到错误在`@Value`的`${}`取值上,取值的名字写错了
 
 即可实现负载均衡:
-![20230823214750](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230823214750.png)
-![20230823214808](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230823214808.png)
+![20230823214750](https://img01.zzmr.club/img/20230823214750.png)
+![20230823214808](https://img01.zzmr.club/img/20230823214808.png)
 
 ### 各种注册中心对比
 
 Nacos的是可以AP/CP互换的
-![20230823215114](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230823215114.png)
+![20230823215114](https://img01.zzmr.club/img/20230823215114.png)
 
 
 对比图:
-![20230823215248](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230823215248.png)
+![20230823215248](https://img01.zzmr.club/img/20230823215248.png)
 
 >Nacos支持AP和CP模式的切换
 C是所有节点在同一时间看到的数据是一致的,而A的定义是所有的请求都会收到响应
@@ -3141,7 +3141,7 @@ C是所有节点在同一时间看到的数据是一致的,而A的定义是所�
 - 如果需要在服务级别编辑或者存储配置信息,那么CP是必须的,K8S服务和DNS服务则适用于CP模式,CP模式下则支持注册持久化实例,此时则是以Raft协议为集群运行模式,该模式下注册实例之前必须先注册服务,如果服务不存在,则会返回错误
 
 那么一般就是看这个图:
-![20230823215903](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230823215903.png)
+![20230823215903](https://img01.zzmr.club/img/20230823215903.png)
 
 ### nacos服务配置中心
 
@@ -3206,20 +3206,20 @@ SpringBoot中配置文件的加载是存在优先级顺序的,bootstrap优先级
 1. `prefix`默认为`spring.application.name`的值,也可以通过配置项`spring.cloud.nacos.config.prefix`来配置
 2. `spring.profile.active`即为当前环境对应的profile,注意:当`spring.profile.active`为空时,对应的连接符-也将不存在,dataId的拼接格式变成`${prefix}.${file-extension}`
 3. `file-extension`为配置内容的数据格式,可以通过配置项`spring.cloud.nacos.config.file-extension`来配置,目前支持`properties`和`yaml`类型
-![20230823224331](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230823224331.png)
+![20230823224331](https://img01.zzmr.club/img/20230823224331.png)
 
 所以,按照公式,这个3377拼出来的就是`nacos-config-client-dev.yml`
 
 然后去nacos配置页面配置:
-![20230823224113](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230823224113.png)
+![20230823224113](https://img01.zzmr.club/img/20230823224113.png)
 
 然后就报错了,DataId写成yml,其实要写成yaml,也就是全称
 
 改成这样:
-![20230823224715](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230823224715.png)
+![20230823224715](https://img01.zzmr.club/img/20230823224715.png)
 
 然后访问:
-![20230823225654](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230823225654.png)
+![20230823225654](https://img01.zzmr.club/img/20230823225654.png)
 
 修改之后,也能动态刷新
 
@@ -3247,7 +3247,7 @@ SpringBoot中配置文件的加载是存在优先级顺序的,bootstrap优先级
 >**根据DataID配置**
 
 新的test配置,不同的DataId,但是是同一组的
-![20230824101701](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230824101701.png)
+![20230824101701](https://img01.zzmr.club/img/20230824101701.png)
 
 这个application.yml
 ```yml
@@ -3260,29 +3260,29 @@ spring:
 激活哪个,就会用哪个
 
 测试成功
-![20230824102113](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230824102113.png)
+![20230824102113](https://img01.zzmr.club/img/20230824102113.png)
 
 
 >**根据group来配置**
 
 新建配置:
-![20230824102523](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230824102523.png)
+![20230824102523](https://img01.zzmr.club/img/20230824102523.png)
 
 再建一个test
-![20230824102811](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230824102811.png)
+![20230824102811](https://img01.zzmr.club/img/20230824102811.png)
 
 然后更改配置文件:
-![20230824103002](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230824103002.png)
+![20230824103002](https://img01.zzmr.club/img/20230824103002.png)
 
 指定TEST_GROUP,就会得到TEST
-![20230824103112](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230824103112.png)
+![20230824103112](https://img01.zzmr.club/img/20230824103112.png)
 
 `group`改成啥就是啥
 
 >**NameSpace**方案
 
 1. 新建dev/test的Namespace
-  - ![20230824105704](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230824105704.png)
+  - ![20230824105704](https://img01.zzmr.club/img/20230824105704.png)
 2. 回到服务管理-服务列表查看
 3. 按照域名配置填写,新增`namespace`
 ```yml
@@ -3293,7 +3293,7 @@ spring:
 
 
 在dev配置中,添加这些配置:
-![20230824111022](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230824111022.png)
+![20230824111022](https://img01.zzmr.club/img/20230824111022.png)
 
 ...
 
@@ -3323,10 +3323,10 @@ db.password=010203
 重启nacos,就会发现,之前的配置全没了(傻逼的是,那个url要加一堆东西,才能启动起来...)
 
 新建配置:
-![20230824120122](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230824120122.png)
+![20230824120122](https://img01.zzmr.club/img/20230824120122.png)
 
 然后在config_info表中即可查看到数据:
-![20230824120154](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230824120154.png)
+![20230824120154](https://img01.zzmr.club/img/20230824120154.png)
 
 ---
 
@@ -3335,7 +3335,7 @@ db.password=010203
 这个有点麻烦了,服务器上不知道能不能配
 
 先把linux版的nacos下载下来,然后传输到服务器上,解压
-![20230825105114](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230825105114.png)
+![20230825105114](https://img01.zzmr.club/img/20230825105114.png)
 
 集群配置步骤:
 1. 要用到数据库,看来还是要用docker来创建一个,创建了半天,还是有权限问题,所以把之前的配置文件路径换成新的了,现在是没问题了
@@ -3348,15 +3348,15 @@ db.user=root
 db.password=123456
 ```
 3. Linux服务器上的nacos的集群配置`cluster.conf`
-	- ![20230825112723](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230825112723.png)
+	- ![20230825112723](https://img01.zzmr.club/img/20230825112723.png)
 	- 配置内容:
-	- ![20230825112921](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230825112921.png)
-	- 顺便去控制台放行了端口的防火墙:![20230825113258](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230825113258.png)
+	- ![20230825112921](https://img01.zzmr.club/img/20230825112921.png)
+	- 顺便去控制台放行了端口的防火墙:![20230825113258](https://img01.zzmr.club/img/20230825113258.png)
 4. 编辑Nacos的启动脚本`startup.sh`,使它能够接受不同的启动端口 
 	- 集群启动,我们希望可以类似其他软件的shell命令,传递不同的端口号启动不同的nacos实例,命令:`./startup.sh -p 3333`表示启动端口号为3333的nacos服务器实例,和上一步的cluster.conf配置的一致
-	- 老师的是这个样子的:![20230825114028](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230825114028.png)
+	- 老师的是这个样子的:![20230825114028](https://img01.zzmr.club/img/20230825114028.png)
 	- 而我的新版默认就是四个参数,用不到加`:p`了
-	- 最后面改成:![20230825115050](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230825115050.png)
+	- 最后面改成:![20230825115050](https://img01.zzmr.club/img/20230825115050.png)
 
 ---
 
@@ -3364,14 +3364,14 @@ db.password=123456
 1. docker配置nginx:
 	- 执行命令:`docker run --name nginx01 -p 80:80 -v /zzmr/nginx/nginx.conf:/etc/nginx/nginx.conf --privileged=true -d nginx`,即可创建一个nginx容器
 	- 该nginx的配置文件就在`/etc/nginx`,这里使用了容器卷,因为要改写配置文件,nginx容器中是没有这个编辑功能的,所以只能改好了然后挂载过去
-	- ![20230825130236](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230825130236.png)
+	- ![20230825130236](https://img01.zzmr.club/img/20230825130236.png)
 
 ---
 
 **启动**
 
 直接执行`bash startup.sh -p 3333`,执行成功,另外两台同理
-![20230825131057](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230825131057.png)
+![20230825131057](https://img01.zzmr.club/img/20230825131057.png)
 
 
 ...

@@ -73,7 +73,7 @@
    1. 安装docker CE `yum -y install docker-ce docker-ce-cli containerd.io`
    2. 启动docker `systemctl start docker`
    3. 验证docker安装是否成功 `docker version`查看版本号,输出hello-world `docker run hello-world`
-      ![20230205095159](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230205095159.png)
+      ![20230205095159](https://img01.zzmr.club/img/20230205095159.png)
 3. docker卸载
    1. `systemctl stop docker`
    2. `yum remove docker-ce docker-ce-cli containerd.io`
@@ -120,7 +120,7 @@ EOF
 #### 1.3.2 镜像命令
 
 1. 列出本机上的所有镜像:`docker images`
-   ![20230205103721](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230205103721.png)
+   ![20230205103721](https://img01.zzmr.club/img/20230205103721.png)
    - -a: 列出本地所有的镜像(含历史映像层)
    - -q: 只显示镜像ID
    - RESPOSITORY: 表示镜像的仓库源
@@ -134,7 +134,7 @@ EOF
    - `docker pull name[:TAG]`,指定版本号 `docker pull redis:6.0.8`
    - `docker pull name`,没有TAG,默认下载最新版
 4. `docker system df`查看镜像/容器/数据卷所占用的空间
-   ![20230205105757](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230205105757.png)
+   ![20230205105757](https://img01.zzmr.club/img/20230205105757.png)
 5. `docker rmi (-f) IMAGE_ID/name`根据镜像的名字或者id删除(-f:强制删除),**空格隔开,可以删除多个**,删除全部 `docker rmi -f $(docker images -qa)`
 
 > **面试题:谈谈docker虚悬镜像是什么**
@@ -154,14 +154,14 @@ EOF
    - `-t`为容器重新分配一个伪输入端,通常与-i同时使用,也即启动交互式容器(**前台有伪输入端,等待交互**)
    - `-P`随机端口映射
    - `-p`指定端口映射
-   - ![20230205140717](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230205140717.png)
+   - ![20230205140717](https://img01.zzmr.club/img/20230205140717.png)
    - 参数说明,`-i`:交互式操作,`-t`:终端,`ubuntu`:ubuntu镜像,`/bin/bash`:放在镜像后面的是命令,这里我们希望有个交互式shell,因此使用的是 `/bin/bash`,
    - 要退出终端,直接输入exit
 
 *这就相当于,我的centos装了docker,然后docker又装了一个ubuntu*
 
 2. 列出所有当前正在运行的容器:`docker ps [Options]`
-   - ![20230205141403](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230205141403.png)
+   - ![20230205141403](https://img01.zzmr.club/img/20230205141403.png)
    - `-a:`列出当前所有正在运行的容器+历史上运行过的
    - `-l`:显示最近创建的容器
    - `-n count`:显示最近count个创建的容器
@@ -194,7 +194,7 @@ EOF
    3. 意思就是,**有些容器就是要以前台(-it)的形式使用**
 4. 使用redis演示前台和后台
    1. 前台:`docker run -it redis:6.0.8`
-      ![20230225214012](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230225214012.png)
+      ![20230225214012](https://img01.zzmr.club/img/20230225214012.png)
    2. 后台:`docker run -d redis:6.0.8`
    3. 执行 `docker logs xxx(xxx是容器的id)`,可以获取容器的日志,这里获取的就是前台打印的那些信息
 
@@ -203,10 +203,10 @@ EOF
 1. 查看容器内运行的进程
    - Linux本机上是 `top`命令
    - 而docker中则是 `docker top xxx(容器id)`
-   - ![20230225215343](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230225215343.png)
+   - ![20230225215343](https://img01.zzmr.club/img/20230225215343.png)
 2. 查看容器内部细节
    - `docker inspect 容器id`
-   - ![20230225215530](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230225215530.png)
+   - ![20230225215530](https://img01.zzmr.club/img/20230225215530.png)
 3. 进入正在运行的容器并以命令行交互
    1. `docker exec -it 容器ID bashShell`
    2. 重新进入 `docker attach 容器ID`
@@ -215,22 +215,22 @@ EOF
       - exec是容器中打开新的终端，并且可以启动新的进程，用exit退出，不会导致容器的停止
       - 推荐使用docker exec命令,因为退出容器终端,不会导致容器的停止
    4. 使用redis测试,redis这个服务之前是开启的后台服务(守护式),所以现在可以使用 `docker exec -it 容器id /bin/bash`进入,再使用exit退出,还是可以进入的,容器并没有关闭
-      ![20230304180652](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230304180652.png)
+      ![20230304180652](https://img01.zzmr.club/img/20230304180652.png)
    5. 一般用-d后台启动的程序,再用exec进入对应容器实例
 4. 从容器内拷贝文件到主机上
    1. `docker cp 容器ID:容器内路径 目的主机路径`
-   2. ![20230304181749](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230304181749.png)
+   2. ![20230304181749](https://img01.zzmr.club/img/20230304181749.png)
 5. 导入和导出容器
    1. 导出容器:`docker export 容器ID > 目标位置/目标文件名`
    2. export导出容器的内容作为一个tar归档文件 `[对应import命令]`
-      ![20230304183405](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230304183405.png)
+      ![20230304183405](https://img01.zzmr.club/img/20230304183405.png)
    3. `cat 文件名.tar | docker import - 镜像用户/镜像名:镜像版本号`
    4. import从tar包中的内容创建一个新的文件系统再导入为镜像 `[对应export]`
-   5. ![20230304184156](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230304184156.png)
+   5. ![20230304184156](https://img01.zzmr.club/img/20230304184156.png)
 
 #### 1.3.6 总结
 
-![20230304184629](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230304184629.png)
+![20230304184629](https://img01.zzmr.club/img/20230304184629.png)
 
 ```
 attach    Attach to a running container                 # 当前 shell 下 attach 连接指定运行镜像
@@ -349,7 +349,7 @@ UnionFS是一种分层,**轻量级并且高性能的文件系统,**它支持对�
 `docker commit -m="vim cmd add ok" -a="zzmr" 容器ID zzmr/myubuntu:1.3`
 
 此时,就会发现,多了一个ubuntu的镜像
-![20230304212614](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230304212614.png)
+![20230304212614](https://img01.zzmr.club/img/20230304212614.png)
 
 再次run这个新的镜像,构造一个容器 `docker run -it 容器ID /bin/bash`,即可实现vim命令
 
@@ -360,7 +360,7 @@ UnionFS是一种分层,**轻量级并且高性能的文件系统,**它支持对�
 > **本地镜像发布到阿里云**
 
 1. 创建命名空间
-   ![20230304214824](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230304214824.png)
+   ![20230304214824](https://img01.zzmr.club/img/20230304214824.png)
 2. 然后创建仓库,创建完之后来到仓库基本信息页面
 3. 将镜像推送到Registry,分为三步:
 
@@ -370,7 +370,7 @@ $ docker tag [ImageId] registry.cn-qingdao.aliyuncs.com/zzmr/myubuntu:[镜像版
 $ docker push registry.cn-qingdao.aliyuncs.com/zzmr/myubuntu:[镜像版本号]
 ```
 
-![20230304215814](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230304215814.png)
+![20230304215814](https://img01.zzmr.club/img/20230304215814.png)
 
 > **从阿里云拉取镜像**
 
@@ -393,7 +393,7 @@ $ docker push registry.cn-qingdao.aliyuncs.com/zzmr/myubuntu:[镜像版本号]
    4. 成功
 4. 推送镜像
 
-   1. 推送之前,可以查看仓库中是否存在文件:`curl -XGET http://1.14.102.11:5000/v2/_catalog`![20230305093952](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230305093952.png)
+   1. 推送之前,可以查看仓库中是否存在文件:`curl -XGET http://1.14.102.11:5000/v2/_catalog`![20230305093952](https://img01.zzmr.club/img/20230305093952.png)
    2. 将新镜像zzmrubuntu:1.2修改符合私服规范的Tag `docker tag eca965faa1a1 1.14.102.11:5000/zzmrubuntu:1.2`
    3. 修改配置文件使之支持http
 
@@ -405,9 +405,9 @@ $ docker push registry.cn-qingdao.aliyuncs.com/zzmr/myubuntu:[镜像版本号]
    ```
 
    4. push推送到私服库 `docker push 1.14.102.11:5000/zzmrubuntu:1.2`
-   5. 再次执行get命令:![20230305095338](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230305095338.png)
+   5. 再次执行get命令:![20230305095338](https://img01.zzmr.club/img/20230305095338.png)
    6. pull到本地并运行 `docker pull 1.14.102.11:5000/zzmrubuntu:1.2`
-      ![20230305095951](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230305095951.png)
+      ![20230305095951](https://img01.zzmr.club/img/20230305095951.png)
 
 ### 1.5 Docker容器数据卷
 
@@ -415,7 +415,7 @@ $ docker push registry.cn-qingdao.aliyuncs.com/zzmr/myubuntu:[镜像版本号]
 
 > Docker挂载主机目录访问如果出现cannot open directory:Permission denied,解决办法:在挂载目录后多加一个 `--privileged=true`参数即可
 
-![20230305101703](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230305101703.png)
+![20230305101703](https://img01.zzmr.club/img/20230305101703.png)
 
 卷就是目录或文件，存在于一个或多个容器中，由docker挂载到容器，**但不属于联合文件系统**，因此能够绕过UnioFS提供一些用于**持续存储或共享数据的特征**
 
@@ -445,12 +445,12 @@ $ docker push registry.cn-qingdao.aliyuncs.com/zzmr/myubuntu:[镜像版本号]
 
 这时主机上的就会出现:`/tmp/host_data`目录,docker中就会出现 `/tmp/docker_data`,如果在这两个文件夹中的任意一个新建一个txt,另一方都能拿得到备份
 
-![20230305105403](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230305105403.png)
+![20230305105403](https://img01.zzmr.club/img/20230305105403.png)
 
 > **查看docker数据卷是否挂载成功**
 
 执行命令 `docker inspect 容器id`
-![20230305105916](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230305105916.png)
+![20230305105916](https://img01.zzmr.club/img/20230305105916.png)
 
 如果容器挂了,此时主机新建一个c.txt
 再启动容器,会发现容器内的文件夹内也多了一个c.txt,说明在容器启动后会同步数据
@@ -465,7 +465,7 @@ $ docker push registry.cn-qingdao.aliyuncs.com/zzmr/myubuntu:[镜像版本号]
 
 `docker run -it --privileged=true -v/mydocker/u:/tmp/u:ro --name=u2 ubuntu`
 
-![20230305205315](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230305205315.png)
+![20230305205315](https://img01.zzmr.club/img/20230305205315.png)
 
 也就是说,宿主机新建的文件可以传送到容器中,容器可以进行查看,但是不能修改,是只读的.
 
@@ -511,22 +511,22 @@ $ docker push registry.cn-qingdao.aliyuncs.com/zzmr/myubuntu:[镜像版本号]
    - `t:`终端
    - `d`后台
    - 实例命令:`docker run -d -p 8080:8080 --name t1 tomcat`
-   - ![20230305215159](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230305215159.png)
+   - ![20230305215159](https://img01.zzmr.club/img/20230305215159.png)
 5. 访问猫首页
    - 发现问题,访问首页:`http://1.14.102.11:8080/`,404,这是由于最新版的tomcat修改了配置
    - 解决:
      - 可能没有映射端口或者没有关闭防火墙
      - 把webapps.dist目录换成webapps
-     - 进入到tomcat容器中,打开webapps文件夹,发现是空的.![20230305215724](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230305215724.png)
+     - 进入到tomcat容器中,打开webapps文件夹,发现是空的.![20230305215724](https://img01.zzmr.club/img/20230305215724.png)
      - 删除webapps `rm -r webapps`
      - 将文件名更改 `mv webapps.dist webapps`
-     - 成功![cat](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/cat.png)
+     - 成功![cat](https://img01.zzmr.club/img/cat.png)
 6. 免修改版说明
    - 最新版的是要修改的,所以就有了免修改版,以后用的应该还是这个,tomcat8嘛
    - `docker pull billygoo/tomcat8-jdk8`
    - `docker run -d -p 8080:8080 --name mytomcat8 billygoo/tomcat8-jdk8`
    - 其实可以不执行pull,因为run时,如果本地没有这个镜像,就会自动pull
-   - 执行完,就直接有了![cat8](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/cat8.png)
+   - 执行完,就直接有了![cat8](https://img01.zzmr.club/img/cat8.png)
 
 #### 1.6.2 安装mysql
 
@@ -537,25 +537,25 @@ $ docker push registry.cn-qingdao.aliyuncs.com/zzmr/myubuntu:[镜像版本号]
 
 1. `docker pull mysql:8.0.26`
 2. 开启实例 `docker run -p 3306:3306 -e MYSQL_ROOT_PASSWORD=123456 -d mysql:8.0.26`
-   ![20230306141724](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230306141724.png)
+   ![20230306141724](https://img01.zzmr.club/img/20230306141724.png)
 3. 这个时候执行 `docker exec -it mysql容器ID /bin/bash`,进入mysql容器
 4. 执行 `mysql -uroot -p`,进入mysql
-   ![20230306141944](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230306141944.png)
+   ![20230306141944](https://img01.zzmr.club/img/20230306141944.png)
 5. 执行 `show databases;`,可以看到mysql内置的数据库
-   ![20230306142122](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230306142122.png)
+   ![20230306142122](https://img01.zzmr.club/img/20230306142122.png)
 6. 执行新建数据库,新建表,插入数据,查询等操作都没问题.证明run成功
 7. 远程连接出现问题:`Authentication plugin 'caching_sha2_password' cannot be loaded:`,解决办法:
    - 先使用mysql use mysql
    - 执行 `ALTER USER 'root'@'%' IDENTIFIED WITH mysql_native_password BY '123456';`,意思就是客户端使用不了新的加密权限,所以要把mysql的密码加密方式改为老版的
    - `FLUSH PRIVILEGES;`刷新权限
-8. 成功![20230306143346](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230306143346.png)
+8. 成功![20230306143346](https://img01.zzmr.club/img/20230306143346.png)
 
 ---
 
 但是问题也就是出现了,如果往数据库中插入中文,在客户端里面中文是没问题的,但是在命令行就会显示问好
-![20230306143800](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230306143800.png)
+![20230306143800](https://img01.zzmr.club/img/20230306143800.png)
 
-![20230306143819](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230306143819.png)
+![20230306143819](https://img01.zzmr.club/img/20230306143819.png)
 
 不过我感觉应该不影响使用哈哈哈
 
@@ -575,7 +575,7 @@ docker run -d -p 3306:3306 --privileged=true
 -e MYSQL_ROOT_PASSWORD=123456 --name mysql mysql:8.0.26
 ```
 
-![20230306150452](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230306150452.png)
+![20230306150452](https://img01.zzmr.club/img/20230306150452.png)
 2. 在 `/zzmruse/mysql/conf`新建my.cnf(配置文件),通过容器卷同步给mysql容器实例
 
 ```conf
@@ -587,8 +587,8 @@ character_set_server = utf8
 ```
 
 3. **重新启动mysql容器实例**,再重新进入并查看字符编码 `SHOW VARIABLES LIKE 'character%'`
-   ![20230306151355](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230306151355.png)
-4. 问题解决:![20230306151938](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230306151938.png),但是,不知道为啥,在命令行里不能输入中文了,可能是这个工具有问题.
+   ![20230306151355](https://img01.zzmr.club/img/20230306151355.png)
+4. 问题解决:![20230306151938](https://img01.zzmr.club/img/20230306151938.png),但是,不知道为啥,在命令行里不能输入中文了,可能是这个工具有问题.
 5. 数据卷也应用成功,如果删除这个mysql容器,再新建一个,发现里面的数据仍在,甚至客户端连接工具都能照样连上.
 
 #### 1.6.3 安装redis
@@ -596,7 +596,7 @@ character_set_server = utf8
 docker中安装redis要比直接安装redis要麻烦
 
 1. `docker run -d -p 6379:6379 redis:6.0.8`
-2. 发现是没什么问题的:![20230306181520](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230306181520.png)
+2. 发现是没什么问题的:![20230306181520](https://img01.zzmr.club/img/20230306181520.png)
 3. 参照mysql的配置,其实redis也是要进行配置的,并不是直接run一个这么简单
 
 ---
@@ -609,7 +609,7 @@ docker中安装redis要比直接安装redis要麻烦
    - `daemonize no`,这个选项是允许后台启动,会与 `-d`起冲突,所以要设为no或者注释到yes
    - 注释掉:`bind 127.0.0.1`,允许redis远程连接
    - 开启redis数据持久化 `appendonly yes`可选
-3. `docker run -p 6379:6379 --name myr1 --privileged=true -v /zzmruse/myredis/redis.conf:/etc/redis/redis.conf -v /zzmruse/myredis/data:/data -d redis:6.0.8 redis-server /etc/redis/redis.conf`,执行成功:![20230306185749](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230306185749.png)
+3. `docker run -p 6379:6379 --name myr1 --privileged=true -v /zzmruse/myredis/redis.conf:/etc/redis/redis.conf -v /zzmruse/myredis/data:/data -d redis:6.0.8 redis-server /etc/redis/redis.conf`,执行成功:![20230306185749](https://img01.zzmr.club/img/20230306185749.png)
 4. 连接时,由于设置了密码:`redis-cli -a 010203`
 
 完事,算是把这三个软件给装明白了,但是还有一个东西没搞,就是jdk啊哈哈哈哈
@@ -662,7 +662,7 @@ DockerFile就是用来一次性解决这个问题的,提供一个list清单,后�
 > **DockerFile,Docker镜像,Docker容器三者的关系**
 
 Dockerfile面向开发,Docker镜像成为交付标准,Docker容器则涉及部署与运维,三者缺一不可,合力充当Docker体系的基石
-![20230306211502](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230306211502.png)
+![20230306211502](https://img01.zzmr.club/img/20230306211502.png)
 
 1. DockerFile,需要定义一个DockerFile,DockerFile定义了进程需要的一切东西,DockerFile设计的内容包括执行代码或者是文件,环境变量,依赖包,运行时环境,动态链库,操作系统的发行版,服务进程和内核进程(当应用进程需要和系统服务和内核进程打交道,这时要考虑如何设计namespace的权限控制等)
 2. Docker镜像,在用DockerFile定义一个文件之后,docker build时会产生一个docker镜像,当运行Docker镜像时会真正开始提供服务
@@ -731,10 +731,10 @@ CMD /bin/bash
 ```
 
 4. 构建,`docker build -t 新镜像的名字:TAG .`,**注意,TAG后面有一个空格,和一个点**,`docker build -t centosjava8:1.5 .`,出现问题:`Failed to download metadata for repo 'appstream': Cannot prepare internal mirrorlist: No URLs in mirrorlist`,解决,就是在FROM的后面改成 `centos:7.9.2009`
-   ![20230307174534](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230307174534.png)
+   ![20230307174534](https://img01.zzmr.club/img/20230307174534.png)
 5. 运行 `docker run -it 新镜像名字:TAG`,自动跳转到 `/usr/local`,证明这个Dockerfile文件生效了
-   ![20230307174729](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230307174729.png)
-   ![20230307174821](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230307174821.png)
+   ![20230307174729](https://img01.zzmr.club/img/20230307174729.png)
+   ![20230307174821](https://img01.zzmr.club/img/20230307174821.png)
 
 算是完成了
 
@@ -796,10 +796,10 @@ EXPOSE 8888
 ```
 
 3. 构建镜像 `docker build -t zzmr_cms:1.0 .`,打包成镜像文件,构建成功:
-   ![20230307184835](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230307184835.png)
+   ![20230307184835](https://img01.zzmr.club/img/20230307184835.png)
 4. 创建运行容器:`docker run -d -p 8888:8888 zzmr_cms:1.0`
 
-![20230307185449](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230307185449.png)
+![20230307185449](https://img01.zzmr.club/img/20230307185449.png)
 
 **运行成功**,但是我好像忘了一件事,vue那边忘了搬进jar中了
 
@@ -810,7 +810,7 @@ EXPOSE 8888
 这样吧,把这个vue工程复制一份,改的名字,然后把要发布到服务器上的,都改成服务器的ip地址
 
 部署成功:
-![屏幕截图(724)](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/屏幕截图(724).png)
+![屏幕截图(724)](https://img01.zzmr.club/img/屏幕截图(724).png)
 
 带吃顿好的庆祝一下
 
@@ -825,14 +825,14 @@ EXPOSE 8888
 1. Docker不启动:默认网络情况
 2. Docker启动后,网络情况
    - 启动之后,会有一个docker0
-   - ![20230308131532](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230308131532.png)
+   - ![20230308131532](https://img01.zzmr.club/img/20230308131532.png)
 
 > **查看docker网络模式命令**
 
 当我们安装Docker后,默认会自动创建三个网络
 
 1. `docker network ls`
-   ![20230308131850](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230308131850.png)
+   ![20230308131850](https://img01.zzmr.club/img/20230308131850.png)
 
 > **Docker network 常用命令**
 
@@ -860,7 +860,7 @@ EXPOSE 8888
 
 1. 先创建两个ubuntu容器,命名为u1和u2
 2. 执行 `docker network inspect 容器名/ID`,也可以执行 `docker inspect u1|tail -n 20`,表示从后往前看,看20行
-   ![20230308140432](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230308140432.png)
+   ![20230308140432](https://img01.zzmr.club/img/20230308140432.png)
 
 此时,可以看出,u1的地址是 `172.17.0.4`,u2的地址是 `172.17.0.5`,然后将u2这个容器删除,再新建一个u3,会发现,u3的ip地址也成了 `172.17.0.5`
 
@@ -884,7 +884,7 @@ Docker使用Linux桥接,在宿主机虚拟一个Docker容器网桥(docker0),Dock
 数据库被入侵了哈哈哈
 
 bridge模式的对应关系
-![20230308192445](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230308192445.png)
+![20230308192445](https://img01.zzmr.club/img/20230308192445.png)
 
 > **host网络模式**
 
@@ -908,7 +908,7 @@ bridge模式的对应关系
      - `docker run -d -p 8082:8080 --network zzmr_network --name tomcat8082 billygoo/tomcat8-jdk8`
    - 新建容器加入上一步新建的自定义网络
    - 互相ping测试
-     ![20230308200744](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230308200744.png)
+     ![20230308200744](https://img01.zzmr.club/img/20230308200744.png)
 
 没问题,这也挺简单啊哈哈哈
 
@@ -940,7 +940,7 @@ Docker-compose允许用户通过一个单独的docker-compose.yml模板文件来
 4. `docker-compose --version`
 
 安装成功:
-![20230308205427](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230308205427.png)
+![20230308205427](https://img01.zzmr.club/img/20230308205427.png)
 
 #### 2.4.3 Compose使用
 
@@ -1006,7 +1006,7 @@ Docker-compose允许用户通过一个单独的docker-compose.yml模板文件来
 3. 容器间的启停或宕机,有可能导致IP地址对应的容器实例变化,映射出错,要么生产IP写死(可以但不推荐),要么通过服务调用
 
 使用compose和不使用compose
-![20230312225938](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230312225938.png)
+![20230312225938](https://img01.zzmr.club/img/20230312225938.png)
 
 ---
 
@@ -1157,16 +1157,16 @@ networks:
 - docker-compose start     启动服务
 - docker-compose stop      停止服务
 
-![20230313131605](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230313131605.png)
+![20230313131605](https://img01.zzmr.club/img/20230313131605.png)
 
 启动:
-![20230313131824](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230313131824.png)
+![20230313131824](https://img01.zzmr.club/img/20230313131824.png)
 
 启动成功:
-![20230313131846](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230313131846.png)
+![20230313131846](https://img01.zzmr.club/img/20230313131846.png)
 
 关闭也是一键:
-![20230313132727](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230313132727.png)
+![20230313132727](https://img01.zzmr.club/img/20230313132727.png)
 
 那我现在是怎么搞?
 
@@ -1181,15 +1181,15 @@ networks:
 docker命令安装:`docker run -d -p 8000:8000 -p 9000:9000 --name portainer --restart=always -v/var/run/docker.sock:/var/run/docker.sock -vportainer_data:/data portainer/portainer`
 
 安装成功:
-![20230313133936](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230313133936.png)
+![20230313133936](https://img01.zzmr.club/img/20230313133936.png)
 
 第一次登录需要创建admin,访问地址:xxx.xxx.xxx.xxx:9000
 设置密码:我设置的一个很复杂的
 选择local选项卡后本地docker详细信息展示
-![20230313134229](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230313134229.png)
+![20230313134229](https://img01.zzmr.club/img/20230313134229.png)
 
 登陆成功:
-![20230313134318](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230313134318.png)
+![20230313134318](https://img01.zzmr.club/img/20230313134318.png)
 
 #### 2.5.1 Portainer基本使用
 
@@ -1214,7 +1214,7 @@ docker命令安装:`docker run -d -p 8000:8000 -p 9000:9000 --name portainer --r
           url: jdbc:mysql://mysql:3306/db_cms?serverTimezone=UTC  # 固定写死的ip改成服务名
      ```
 3. 配置文件
-   ![20230313142710](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230313142710.png)
+   ![20230313142710](https://img01.zzmr.club/img/20230313142710.png)
 4. 执行build和compose对应的命令就可以了
    1. `docker build -t zzmr_cms:1.2 .`
    2. `docker-compose up -d`

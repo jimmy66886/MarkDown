@@ -43,7 +43,7 @@ print("结果为: ",end="")
 print(3+4)
 ```
 
-![20230304154313](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230304154313.png)
+![20230304154313](https://img01.zzmr.club/img/20230304154313.png)
 
 ## 2 数据类型
 
@@ -145,7 +145,7 @@ list = list(map(int,input().split(",")))
 
 这样就可以将输入的用逗号分隔开的字符串转换为一个列表了
 
-![20230422161933](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230422161933.png)
+![20230422161933](https://img01.zzmr.club/img/20230422161933.png)
 
 ## 4 列表和字典
 
@@ -172,7 +172,7 @@ for sid, grades in sorted_scores:
         print(f"{sid}:{grades}")
 ```
 
-![20230520180715](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230520180715.png)
+![20230520180715](https://img01.zzmr.club/img/20230520180715.png)
 
 >python中的数值比较
 ```py

@@ -231,13 +231,13 @@ Vue.use(vueBeauty)
 ## 页面
 
 输入信息界面:
-![20230821150906](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230821150906.png)
+![20230821150906](https://img01.zzmr.club/img/20230821150906.png)
 
 信息界面(很简陋啊很简陋)
-![20230821091205](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230821091205.png)
+![20230821091205](https://img01.zzmr.club/img/20230821091205.png)
 
 优化之后:
-![20230821140304](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230821140304.png)
+![20230821140304](https://img01.zzmr.club/img/20230821140304.png)
 
 ## docker部署
 

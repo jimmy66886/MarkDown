@@ -56,7 +56,7 @@ class Thread1 extends Thread {
     // t1.start();
     t1.run();
 ```
-![20230921165209](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230921165209.png)
+![20230921165209](https://img01.zzmr.club/img/20230921165209.png)
 
 `问题2`,如果创建两个分线程,启动两个分线程,该怎么操作?
 ```java
@@ -64,7 +64,7 @@ class Thread1 extends Thread {
     t1.start();
 ```
 调用两次start是不行的,会报错,所以,一个线程不能重复的start()
-![20230921165908](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230921165908.png)
+![20230921165908](https://img01.zzmr.club/img/20230921165908.png)
 
 所以要想再创建一个分线程,可以再创建一个线程对象
 ```java
@@ -228,7 +228,7 @@ class OddThread extends Thread {
     }
 }
 ```
-![20230921181344](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230921181344.png)
+![20230921181344](https://img01.zzmr.club/img/20230921181344.png)
 
 对于`public Thread(Runnable target, String name)`,就是在将接口实现类的对象放入Thread构造方法中,增加一个name
 ```java
@@ -248,7 +248,7 @@ class TesCon {
 }
 ```
 即可实现给线程命名:
-![20230921182005](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230921182005.png)
+![20230921182005](https://img01.zzmr.club/img/20230921182005.png)
 
 ## 常用方法
 
@@ -297,10 +297,10 @@ class TesCon {
 
 JDK1.5之前是这样的:
 线程的状态转换
-![20230921200903](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230921200903.png)
+![20230921200903](https://img01.zzmr.club/img/20230921200903.png)
 
 JDK1.5及之后,状态发生了变化
-![20230921221711](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230921221711.png)
+![20230921221711](https://img01.zzmr.club/img/20230921221711.png)
 
 1. 新建(NEW)
 2. 可运行(Runnable)
@@ -308,7 +308,7 @@ JDK1.5及之后,状态发生了变化
 4. 计时等待(TIMED_WAITNG)
 5. 无限等待(WAITING)
 6. 死亡(TERMINATED)
-![20230921221849](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230921221849.png)
+![20230921221849](https://img01.zzmr.club/img/20230921221849.png)
 
 **大概就是阻塞变得复杂了**
 
@@ -368,7 +368,7 @@ Java是如何解决线程的安全问题的:使用线程的同步机制
     - 需要被同步的代码,在被synchronized包裹以后,就使得一个线程在操作这些代码的过程中,其他线程必须等待
     - 同步监视器,锁,哪个线程获取了锁,哪个线程就能执行需要被同步的代码
     - 同步监视器,可以使用任何一个类的对象充当,但是多个线程必须公用同一个同步监视器,**必须唯一**
-    - ![20230921231357](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230921231357.png)
+    - ![20230921231357](https://img01.zzmr.club/img/20230921231357.png)
     - 关于同步监视器对象的选用,当线程是基于实现的,可以用this,而是基于继承的,可以用Class对象
 ```java
 class SaleTicket implements Runnable {
@@ -975,7 +975,7 @@ public class ProducerCustomer {
 那么有没有一种办法使得线程可以复用,即执行完一个任务,并不被销毁,而是可以继续执行其他的任务
 
 **思路**:提前创建好多个线程,放入线程池中,使用时直接获取,使用完放回池中,可以避免频繁创建销毁,实现重复利用,类似生活中的公共交通工具
-![20230922172350](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230922172350.png)
+![20230922172350](https://img01.zzmr.club/img/20230922172350.png)
 
 使用线程池的好处:
 1. 提高了程序执行的效率(因为线程已经提前创建好了)

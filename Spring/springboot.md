@@ -163,7 +163,7 @@ public class HelloController {
 
 <!-- ![1671419685856](image/springboot/1671419685856.png) -->
 
-![20221219111452](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20221219111452.png)
+![20221219111452](https://img01.zzmr.club/img/20221219111452.png)
 
 这相当于省略了什么?省略了配置web.xml,省略了配置SpringMVC的配置文件,省略了配置tomcat,甚至连页面都没写
 牛逼
@@ -176,7 +176,7 @@ server.port=8888
 
 <!-- ![1671420023903](image/springboot/1671420023903.png) -->
 
-![20221219112029](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20221219112029.png)
+![20221219112029](https://img01.zzmr.club/img/20221219112029.png)
 它能修改哪些内容?[点我查看](https://docs.spring.io/spring-boot/docs/2.4.13/reference/html/appendix-application-properties.html#common-application-properties)
 
 还有一个打包的插件
@@ -242,7 +242,7 @@ server.port=8888
 
 <!-- ![1671425079130](image/springboot/1671425079130.png) -->
 
-![20221219124441](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20221219124441.png)
+![20221219124441](https://img01.zzmr.club/img/20221219124441.png)
 
 - 开发导入starter场景启动器
   > 什么是starter呢?
@@ -295,7 +295,7 @@ server.port=8888
 
   <!-- - ![1671428315283](image/springboot/1671428315283.png) -->
 
-  - ![20221219133838](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20221219133838.png)
+  - ![20221219133838](https://img01.zzmr.club/img/20221219133838.png)
   - 要注意啊,只有放在主程序所在包以及子包里面才能被默认扫描出来,但是如果想自定义扫描的位置呢?,就要在@SpringBootApplication注解中添加scanBasePackages属性了:@SpringBootApplication(scanBasePackages = "com.zzmr")
   - 当然还有另一个注解:@ComponentScan(),这个注解就是专门用于扫描包的,叫做包扫,这个以后学,现在不能直接用
   - 而一个@SpringBootApplication就相当于
@@ -382,7 +382,7 @@ public class MyConfig {
 
 <!-- ![1671440570458](image/springboot/1671440570458.png) -->
 
-![20221219170254](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20221219170254.png)
+![20221219170254](https://img01.zzmr.club/img/20221219170254.png)
 
 而且,配置类里面使用@Bean注解注册的组件,默认也是单例的
 
@@ -540,7 +540,7 @@ public class Car {
 
 <!-- ![1671447400641](image/springboot/1671447400641.png) -->
 
-![20221219185644](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20221219185644.png)
+![20221219185644](https://img01.zzmr.club/img/20221219185644.png)
 
 还有第二种方式
 
@@ -603,7 +603,7 @@ getAutoConfigurationEntry(annotationMetadata);
 
 <!-- ![1671497537312](image/springboot/1671497537312.png) -->
 
-![20221220085221](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20221220085221.png)
+![20221220085221](https://img01.zzmr.club/img/20221220085221.png)
 
 ```xml
 文件里面写死了,SpringBoot一启动,就要给容器中加载的所有配置类
@@ -677,7 +677,7 @@ SpringBoot默认会在底层配好所有的组件，但是**如果用户自己�
 
 <!-- ![1671532963268](image/springboot/1671532963268.png) -->
 
-![20221220184245](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20221220184245.png)
+![20221220184245](https://img01.zzmr.club/img/20221220184245.png)
 
 3. 使用
 
@@ -722,13 +722,13 @@ public class Lom {
 <!-- ![1671534894203](image/springboot/1671534894203.png) -->
 
 在新建项目的地方选择Spring Initailizr,然后输入一些内容,项目就自动创建好了,里面的配置基本都是写好的
-![20221220191455](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20221220191455.png)
+![20221220191455](https://img01.zzmr.club/img/20221220191455.png)
 
 非常非常全:
 
 <!-- ![1671534963372](image/springboot/1671534963372.png) -->
 
-![20221220191604](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20221220191604.png)
+![20221220191604](https://img01.zzmr.club/img/20221220191604.png)
 不过要注意SpringBoot的版本,这个里面默认最低只有2.7了,不过可以创建好项目之后去pom里面更改
 
 ## 核心功能
@@ -862,7 +862,7 @@ public class HelloController {
 
 <!-- ![1671587177591](image/springboot/1671587177591.png) -->
 
-![20221221094621](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20221221094621.png)
+![20221221094621](https://img01.zzmr.club/img/20221221094621.png)
 
 以后都是推荐使用yaml进行配置了
 
@@ -927,12 +927,12 @@ public class HelloController {
 
 <!-- ![1671592481368](image/springboot/1671592481368.png) -->
 
-![20221221111446](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20221221111446.png)
+![20221221111446](https://img01.zzmr.club/img/20221221111446.png)
 此时直接在浏览器能访问到的(根路径/+静态资源名)
 
 <!-- ![1671592533606](image/springboot/1671592533606.png) -->
 
-![20221221111535](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20221221111535.png)
+![20221221111535](https://img01.zzmr.club/img/20221221111535.png)
 
 **原理: 静态映射/\*\***,请求进来,先去找Controller,看能不能处理,如果能处理,就由Controller处理,如果不能处理,又会交给静态资源处理,静态资源就回去上面那几个目录寻找资源,如果静态资源也找不到,就会报404
 
@@ -951,7 +951,7 @@ spring:
 
 <!-- ![1671593238564](image/springboot/1671593238564.png) -->
 
-![20221221112721](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20221221112721.png)
+![20221221112721](https://img01.zzmr.club/img/20221221112721.png)
 
 **静态资源的默认路径也是可以改的**
 但是我感觉没必要,至少现在没必要
@@ -965,7 +965,7 @@ spring:
 
 <!-- ![1671607244952](image/springboot/1671607244952.png) -->
 
-![20221221152047](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20221221152047.png)
+![20221221152047](https://img01.zzmr.club/img/20221221152047.png)
 
 - 编写一个cntroller能处理/index
 
@@ -1183,7 +1183,7 @@ public class WebConfig {
 
 <!-- ![1671626304574](image/springboot/1671626304574.png) -->
 
-![20221221203826](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20221221203826.png)
+![20221221203826](https://img01.zzmr.club/img/20221221203826.png)
 SpringMVC功能分析都从org.springframework.web.servlet.DispatcherServlet->doDispatch()
 
 ```java
@@ -1212,30 +1212,30 @@ protected void doDispatch(HttpServletRequest request, HttpServletResponse respon
 
 <!-- ![1671626977511](image/springboot/1671626977511.png) -->
 
-![20221221204938](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20221221204938.png)
+![20221221204938](https://img01.zzmr.club/img/20221221204938.png)
 一共五个
 RequestMappingHandlerMapping: 保存了所有@RequestMapping和handler的映射规则(项目一启动,就会扫描controller然后保存控制器方法)
 看,在执行增强for循环时,第一个就是RequestMappingHandlerMapping,然后打开mapping
 
 <!-- ![1671627615041](image/springboot/1671627615041.png) -->
 
-![20221221210018](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20221221210018.png)
+![20221221210018](https://img01.zzmr.club/img/20221221210018.png)
 **就会发现所有的控制器方法都在里面**
 一步步进入
 
 <!-- ![1671627780146](image/springboot/1671627780146.png) -->
 
-![20221221210255](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20221221210255.png)
+![20221221210255](https://img01.zzmr.club/img/20221221210255.png)
 先根据url找,会找到四个
 
 <!-- ![1671627930085](image/springboot/1671627930085.png) -->
 
-![20221221210532](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20221221210532.png)
+![20221221210532](https://img01.zzmr.club/img/20221221210532.png)
 找出最合适的
 
 <!-- ![1671628010356](image/springboot/1671628010356.png) -->
 
-![20221221210651](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20221221210651.png)
+![20221221210651](https://img01.zzmr.club/img/20221221210651.png)
 
 总结就是所有的请求映射都在HandlerMapping中
 
@@ -1393,7 +1393,7 @@ public class WebConfig {
 
 <!-- ![1671689333663](image/springboot/1671689333663.png) -->
 
-![20221222140855](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20221222140855.png)
+![20221222140855](https://img01.zzmr.club/img/20221222140855.png)
 0. 支持方法上标注@RequestMapping
 
 1. 支持函数式编程
@@ -1429,12 +1429,12 @@ SpringMVC目标方法能写多少种参数类型,取决于参数解析器
 
 <!-- ![1671690281071](image/springboot/1671690281071.png) -->
 
-![1671690281071](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/1671690281071.png)
+![1671690281071](https://img01.zzmr.club/img/1671690281071.png)
 这个可执行的方法,就是目标方法
 
 <!-- ![1671690497238](image/springboot/1671690497238.png) -->
 
-![20221222142818](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20221222142818.png)
+![20221222142818](https://img01.zzmr.club/img/20221222142818.png)
 
 **如何确定目标方法每一个参数的值**
 
@@ -1568,7 +1568,7 @@ public class ThymeleafAutoConfiguration {}
 
          <!-- ![1671846048056](image/springboot/1671846048056.png) -->
 
-         ![20221224094053](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20221224094053.png)
+         ![20221224094053](https://img01.zzmr.club/img/20221224094053.png)
 
 总结:
 视图解析
@@ -1713,7 +1713,7 @@ public class AdminWebConfig implements WebMvcConfigurer {
 
 <!-- ![1671860896379](image/springboot/1671860896379.png) -->
 
-![20221224134817](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20221224134817.png)
+![20221224134817](https://img01.zzmr.club/img/20221224134817.png)
 
 ## 文件上传
 
@@ -1834,13 +1834,13 @@ public class MultipartProperties {}
 
   <!-- ![1671872770216](image/springboot/1671872770216.png) -->
 
-  ![20221224170614](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20221224170614.png)
+  ![20221224170614](https://img01.zzmr.club/img/20221224170614.png)
   2. 参数解析器来解析请求中的文件内容,封装成MultipartFile
   3. 将request中文件信息封装为一个Map
 
 **FileCopyUtils 实现文件流的拷贝**
     `<!-- ![1671872947802](image/springboot/1671872947802.png) -->`
-    ![20221224170910](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20221224170910.png)
+    ![20221224170910](https://img01.zzmr.club/img/20221224170910.png)
 
 ## 异常处理
 
@@ -1868,7 +1868,7 @@ public class MultipartProperties {}
 
 <!-- ![1671883464739](image/springboot/1671883464739.png) -->
 
-![20221224200428](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20221224200428.png)
+![20221224200428](https://img01.zzmr.club/img/20221224200428.png)
 
 **这时所有的404和5xx都有自定义的页面了**
 
@@ -1889,7 +1889,7 @@ public class MultipartProperties {}
 
 <!-- ![1671883968343](image/springboot/1671883968343.png) -->
 
-![20221224201250](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20221224201250.png)
+![20221224201250](https://img01.zzmr.club/img/20221224201250.png)
 
 ### 异常处理原理
 
@@ -2058,12 +2058,12 @@ public class CustomerHandlerExceptionResolver implements HandlerExceptionResolve
 
    <!-- ![1671935187272](image/springboot/1671935187272.png) -->
 
-   3. ![20221225102629](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20221225102629.png)
+   3. ![20221225102629](https://img01.zzmr.club/img/20221225102629.png)
       轮到第二个处理,里面有3个解析器
 
       <!-- ![1671935628407](image/springboot/1671935628407.png) -->
 
-      ![20221225103350](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20221225103350.png)
+      ![20221225103350](https://img01.zzmr.club/img/20221225103350.png)
 
       1. DefaultErrorAttributes 先来处理异常,把异常信息保存到request域中,并且返回null
       2. 默认没有任何组件能处理异常,所以异常会被抛出
@@ -2195,7 +2195,7 @@ B: /my/1
 
 <!-- ![1671957103026](image/springboot/1671957103026.png) -->
 
-![20221225163145](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20221225163145.png)
+![20221225163145](https://img01.zzmr.club/img/20221225163145.png)
 **简单点说就是,系统会自动匹配最佳的,或者说最长最佳的tomcat中有/my/1,那发送/my/1就会来到tomcat,如果发送的是/my,那就会来到DispathcerServlet这里**
 
 ### 2. 使用RegistrationBean
@@ -2419,7 +2419,7 @@ public class AdminWebConfig implements WebMvcConfigurer {}
 
 <!-- ![1671971999749](image/springboot/1671971999749.png) -->
 
-![20221225204003](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20221225204003.png)
+![20221225204003](https://img01.zzmr.club/img/20221225204003.png)
 2. 数据库驱动没导,为什么呢?
 因为SpringBoot不知道要使用哪个数据库,所以我们要使用哪个数据库,就导入哪个驱动就行了
 SpringBoot有mysql的版本仲裁(数据库的版本要和驱动版本相同),默认都是8.xx了,我装的也是mysql8,
@@ -2561,7 +2561,7 @@ public class MyDataSourceConfig {
 
 <!-- ![1672019308077](image/springboot/1672019308077.png) -->
 
-![20221226094830](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20221226094830.png)
+![20221226094830](https://img01.zzmr.club/img/20221226094830.png)
 使用步骤:
 
 1. 开启监控功能
@@ -2732,7 +2732,7 @@ spring:
 
 <!-- ![1672029430623](image/springboot/1672029430623.png) -->
 
-![20221226123713](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20221226123713.png)
+![20221226123713](https://img01.zzmr.club/img/20221226123713.png)
 
 #### 配置模式
 
@@ -2811,7 +2811,7 @@ mybatis:
 
 <!-- ![1672032915239](image/springboot/1672032915239.png) -->
 
-![20221226133516](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20221226133516.png)
+![20221226133516](https://img01.zzmr.club/img/20221226133516.png)
 意思就是,全局配置文件和这个configuration配置项是不能同时存在的
 所以,如果想要使用yml的方式,就需要把上面的config-location注掉,如:
 
@@ -3060,7 +3060,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
 
 <!-- ![1672049525657](image/springboot/1672049525657.png) -->
 
-![20221226181207](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20221226181207.png)
+![20221226181207](https://img01.zzmr.club/img/20221226181207.png)
 
 然后想获取全部用户数据:
 
@@ -3330,7 +3330,7 @@ Spring Boot 2.2.0 版本开始引入 JUnit 5 作为单元测试默认库
 
 <!-- ![1672108983360](image/springboot/1672108983360.png) -->
 
-![20221227104305](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20221227104305.png)
+![20221227104305](https://img01.zzmr.club/img/20221227104305.png)
 
 ```java
     @DisplayName("测试displayName注解")
@@ -3345,7 +3345,7 @@ Spring Boot 2.2.0 版本开始引入 JUnit 5 作为单元测试默认库
 
 <!-- ![1672109229488](image/springboot/1672109229488.png) -->
 
-![20221227104730](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20221227104730.png)
+![20221227104730](https://img01.zzmr.club/img/20221227104730.png)
 
 ```java
     @BeforeEach
@@ -3414,7 +3414,7 @@ Spring Boot 2.2.0 版本开始引入 JUnit 5 作为单元测试默认库
 
 <!-- ![1672110556759](image/springboot/1672110556759.png) -->
 
-![20221227110919](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20221227110919.png)
+![20221227110919](https://img01.zzmr.club/img/20221227110919.png)
 
 - **assertEquals(expected,actual,String)**,判断值是否相等,第一个参数是期望的值,第二个是实际的值
 
@@ -3436,7 +3436,7 @@ Spring Boot 2.2.0 版本开始引入 JUnit 5 作为单元测试默认库
 
 <!-- ![1672111132427](image/springboot/1672111132427.png) -->
 
-![20221227111853](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20221227111853.png)
+![20221227111853](https://img01.zzmr.club/img/20221227111853.png)
 
 - **assertSame(obj1,obj2,String)**,判断两个对象是否相同
 
@@ -3450,7 +3450,7 @@ Spring Boot 2.2.0 版本开始引入 JUnit 5 作为单元测试默认库
 
 <!-- ![1672111394170](image/springboot/1672111394170.png) -->
 
-![20221227112316](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20221227112316.png)
+![20221227112316](https://img01.zzmr.club/img/20221227112316.png)
 
 > **注意,断言的情况下,前面的断言失败,后面的断言就不会再执行了**
 
@@ -3468,7 +3468,7 @@ Spring Boot 2.2.0 版本开始引入 JUnit 5 作为单元测试默认库
 
 <!-- ![1672111783968](image/springboot/1672111783968.png) -->
 
-![20221227112950](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20221227112950.png)
+![20221227112950](https://img01.zzmr.club/img/20221227112950.png)
 
 #### 3. 组合断言
 
@@ -3503,7 +3503,7 @@ Spring Boot 2.2.0 版本开始引入 JUnit 5 作为单元测试默认库
 
 <!-- ![1672113077935](image/springboot/1672113077935.png) -->
 
-![20221227115120](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20221227115120.png)
+![20221227115120](https://img01.zzmr.club/img/20221227115120.png)
 
 #### 5. 超时断言
 
@@ -3666,7 +3666,7 @@ class TestingAStackDemo {
 
 <!-- ![1672124973901](image/springboot/1672124973901.png) -->
 
-![20221227150936](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20221227150936.png)
+![20221227150936](https://img01.zzmr.club/img/20221227150936.png)
 
 还有@MethodSource
 
@@ -3723,7 +3723,7 @@ management:
 
 <!-- ![1672128396424](image/springboot/1672128396424.png) -->
 
-![20221227160638](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20221227160638.png)
+![20221227160638](https://img01.zzmr.club/img/20221227160638.png)
 
 具体有哪些可以访问[点击查看官方文档](https://docs.spring.io/spring-boot/docs/2.4.13/reference/html/production-ready-features.html#production-ready-endpoints-exposing-endpoints)
 
@@ -3734,7 +3734,7 @@ http://localhost:8080/actuator/metrics/jvm.buffer.memory.used
 
 <!-- ![1672128740176](image/springboot/1672128740176.png) -->
 
-![20221227161223](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20221227161223.png)
+![20221227161223](https://img01.zzmr.club/img/20221227161223.png)
 
 #### Actuator Endpoint
 
@@ -3765,7 +3765,7 @@ http://localhost:8080/actuator/metrics/jvm.buffer.memory.used
 
 <!-- ![1672129703742](image/springboot/1672129703742.png) -->
 
-![20221227162825](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20221227162825.png)
+![20221227162825](https://img01.zzmr.club/img/20221227162825.png)
 
 **Metrics Endpoint**
 提供详细的,层级的,空间指标信息,这些信息可以被pull(主动推送)或者push(被动获取)方式得到
@@ -3803,7 +3803,7 @@ management:
 
 <!-- ![1672130495097](image/springboot/1672130495097.png) -->
 
-![20221227164137](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20221227164137.png)
+![20221227164137](https://img01.zzmr.club/img/20221227164137.png)
 
 #### 定制Endpoint
 
@@ -3861,7 +3861,7 @@ public class MyComHealthIndicator extends AbstractHealthIndicator {
 
 <!-- ![1672131237245](image/springboot/1672131237245.png) -->
 
-![20221227165401](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20221227165401.png)
+![20221227165401](https://img01.zzmr.club/img/20221227165401.png)
 
 **定制info信息**
 
@@ -4004,7 +4004,7 @@ public class Boot05AdminserverApplication {
 
 <!-- ![1672136819587](image/springboot/1672136819587.png) -->
 
-![20221227182706](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20221227182706.png)
+![20221227182706](https://img01.zzmr.club/img/20221227182706.png)
 
 ## 原理解析
 
@@ -4051,7 +4051,7 @@ public class HelloController {
 
 <!-- ![1672138150857](image/springboot/1672138150857.png) -->
 
-![20221227184912](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20221227184912.png)
+![20221227184912](https://img01.zzmr.club/img/20221227184912.png)
 
 application-prod.yml(生产环境的配置文件)
 
@@ -4177,7 +4177,7 @@ public class Worker implements Person {
 
 <!-- ![1672284114925](image/springboot/1672284114925.png) -->
 
-![20221229112158](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20221229112158.png)
+![20221229112158](https://img01.zzmr.club/img/20221229112158.png)
 
 笑死
 问题是这个笔记是真不多知道怎么该怎么记

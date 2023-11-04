@@ -22,13 +22,13 @@ vue的特点
 
 <!-- ![1672834113415](image/vue/1672834113415.png) -->
 
-![20230104200835](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230104200835.png)
+![20230104200835](https://img01.zzmr.club/img/20230104200835.png)
 
 Vue实现
 
 <!-- ![1672834146593](image/vue/1672834146593.png) -->
 
-![20230104200908](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230104200908.png)
+![20230104200908](https://img01.zzmr.club/img/20230104200908.png)
 
 不得不说,vue官网的文档做的是真的nice
 
@@ -241,7 +241,7 @@ data与el的两种写法
 
 <!-- ![1672892036836](image/vue/1672892036836.png) -->
 
-![20230105121358](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230105121358.png)
+![20230105121358](https://img01.zzmr.club/img/20230105121358.png)
 
 特点:
 
@@ -316,7 +316,7 @@ data与el的两种写法
 
 <!-- ![1672902254165](image/vue/1672902254165.png) -->
 
-![20230105150416](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230105150416.png)
+![20230105150416](https://img01.zzmr.club/img/20230105150416.png)
 
 1. Vue中的数据代理
    - 通过vm对象来代理data对象中属性的操作(读/写)
@@ -1079,11 +1079,11 @@ computed和watch之间的区别
 
 <!-- ![1672991884340](image/vue/1672991884340.png) -->
 
-![20230106155810](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230106155810.png)
+![20230106155810](https://img01.zzmr.club/img/20230106155810.png)
 
 <!-- ![1672992212580](image/vue/1672992212580.png) -->
 
-![20230106160334](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230106160334.png)
+![20230106160334](https://img01.zzmr.club/img/20230106160334.png)
 
 但是如果不写,key就会默认加一个index,所以不写就和写了index一样出问题
 
@@ -1587,7 +1587,7 @@ Vue监视数据的原理：
 
 <!-- ![1673156323293](image/vue/1673156323293.png) -->
 
-![20230108133846](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230108133846.png)
+![20230108133846](https://img01.zzmr.club/img/20230108133846.png)
 这个说实话已经在springboot里体验过了,当时就是拿了cookie,然后用postman发送请求
 
 > **永远不要相信用户的输入**
@@ -1966,13 +1966,13 @@ v-pre指令
 
 <!-- ![1673233620255](image/vue/1673233620255.png) -->
 
-![lifecycle](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/lifecycle.png)
+![lifecycle](https://img01.zzmr.club/img/lifecycle.png)
 
 老师画的:
 
 <!-- ![1673233971134](image/vue/1673233971134.png) -->
 
-![生命周期](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/生命周期.png)
+![生命周期](https://img01.zzmr.club/img/生命周期.png)
 
 > 内容挺多的哎,但是没啥事,后面有总结,会说哪几个最常用
 
@@ -2091,13 +2091,13 @@ v-pre指令
 
 <!-- ![1673271146530](image/vue/1673271146530.png) -->
 
-![20230109213229](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230109213229.png)
+![20230109213229](https://img01.zzmr.club/img/20230109213229.png)
 
 组件方式编写应用
 
 <!-- ![1673271609925](image/vue/1673271609925.png) -->
 
-![20230109214011](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230109214011.png)
+![20230109214011](https://img01.zzmr.club/img/20230109214011.png)
 
 > 组件的定义:**实现应用中局部动能代码和资源的集合**
 
@@ -3230,7 +3230,7 @@ export default {
 
 <!-- ![1673496046780](image/vue/1673496046780.png) -->
 
-![20230112120049](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230112120049.png)
+![20230112120049](https://img01.zzmr.club/img/20230112120049.png)
 
 代码挺多的,到最后再粘贴吧
 
@@ -4039,7 +4039,7 @@ import 'animate.css'
 
 <!-- ![1673614351795](image/vue/1673614351795.png) -->
 
-![20230113205238](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230113205238.png)
+![20230113205238](https://img01.zzmr.club/img/20230113205238.png)
 3. 写法
     1. 准备好样式
         - 元素进入的样式
@@ -4211,7 +4211,7 @@ export default {
 
 老师给的那个url获取的图片已经没了
 所以用我自己的吧,我自己的favicon.ico
-![favicon](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/favicon.ico)
+![favicon](https://img01.zzmr.club/img/favicon.ico)
 
 这个案例还挺有意思,可以搜索github里的用户
 
@@ -4459,7 +4459,7 @@ Vue.use(vueResource)
 
 再给图床上传一张大的头像
 
-<!-- ![big](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/big.jpg) -->
+<!-- ![big](https://img01.zzmr.club/img/big.jpg) -->
 
 还行,没啥难的
 
@@ -4620,7 +4620,7 @@ button {
 ### vuex工作原理
 
 一张图:
-![vuex](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/vuex.png)
+![vuex](https://img01.zzmr.club/img/vuex.png)
 
 ### 安装及搭建vuex环境
 
@@ -5018,7 +5018,7 @@ router3版本对应vue2,现在是4版本了,对应vue3,所以要装3版本的
 
 实现如图的功能
 <!-- ![1673785034535](image/vue/1673785034535.png) -->
-![20230115201709](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230115201709.png)
+![20230115201709](https://img01.zzmr.club/img/20230115201709.png)
 
 应用插件,还是引入后直接user即可
 >看main.js

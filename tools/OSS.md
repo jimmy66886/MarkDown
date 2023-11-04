@@ -13,12 +13,12 @@
 
 在创建时,看好这几项,防止多余的服务-选本地冗余存储
 读写权限选公共读,私有的好像是访问很麻烦?
-![20230829093624](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230829093624.png)
+![20230829093624](https://img01.zzmr.club/img/20230829093624.png)
 
 ### 获取AccessKey
 
 直接点击右上角头像,有一个AccessKey管理
-![20230829103819](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230829103819.png)
+![20230829103819](https://img01.zzmr.club/img/20230829103819.png)
 
 直接创建即可
 ### 编写入门案例
@@ -92,9 +92,9 @@ public class Demo {
 ```
 
 测试下如果吧OSS当成图床怎么样
-![20230830110833](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230830110833.png)
+![20230830110833](https://img01.zzmr.club/img/20230830110833.png)
 <!-- ![20230830111454](https://zzmr-sky-take-out.oss-cn-beijing.aliyuncs.com/img/20230830111454.png) -->
-![20230830111622](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230830111622.png)
+![20230830111622](https://img01.zzmr.club/img/20230830111622.png)
 
 ![0605153937](https://zzmr-sky-take-out.oss-cn-beijing.aliyuncs.com/img/0605153937.jpg)
 ![0605153937](https://zzmr-sky-take-out.oss-cn-beijing.aliyuncs.com/img/0605153937.jpg)

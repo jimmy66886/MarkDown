@@ -218,7 +218,7 @@ public class ReflectionTest {
 作用:负责类的加载,并对应于一个Class的实例
 
 **双亲委派机制**
-![20230923214910](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230923214910.png)
+![20230923214910](https://img01.zzmr.club/img/20230923214910.png)
 能够保证系统核心API的安全:
 当用户自定义了一个`java.lang.String`,此时通过双亲委派机制,此类会交给引导类加载器加载,但是引导类加载器发现和本身的String不一样,这时就不会加载用户自定义的这个String,而还是使用原本的String,保证安全.
 

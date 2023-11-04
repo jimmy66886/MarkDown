@@ -218,7 +218,7 @@ axios
 ### axios的其他使用方式
 
 <!-- ![1672814601642](image/axios/1672814601642.png) -->
-![20230104144328](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230104144328.png)
+![20230104144328](https://img01.zzmr.club/img/20230104144328.png)
 >就像之前的@RequestMapping和@GetMapping一样,只是把方法名内置到了里面,axios.post()和直接在axios里面写method是一样的效果
 
 ```js
@@ -252,7 +252,7 @@ axios
 
 <!-- ![1672815711247](image/axios/1672815711247.png) -->
 内容挺多的
-![20230104150153](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230104150153.png)
+![20230104150153](https://img01.zzmr.club/img/20230104150153.png)
 
 ```js
 {

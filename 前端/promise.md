@@ -310,7 +310,7 @@ mineReadFile('./resource/content.txt').then(value => {
 说明:只有这两种,且一个promise对象只能改变一次,无论变为成功还是失败,都会有一个结果数据,成功的结果数据一般称为value,失败的结果一般称为reason
 
 <!-- ![1672634495554](image/promise/1672634495554.png) -->
-![20230102124138](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230102124138.png)
+![20230102124138](https://img01.zzmr.club/img/20230102124138.png)
 
 **Promise对象的值**
 
@@ -320,7 +320,7 @@ mineReadFile('./resource/content.txt').then(value => {
 ### promise的基本流程
 
 <!-- ![1672635128123](image/promise/1672635128123.png) -->
-![20230102125212](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230102125212.png)
+![20230102125212](https://img01.zzmr.club/img/20230102125212.png)
 
 ### API
 
@@ -375,7 +375,7 @@ mineReadFile('./resource/content.txt').then(value => {
         // 传什么返回的都是一个失败的promise对象
 ```
 <!-- ![1672637354292](image/promise/1672637354292.png) -->
-![20230102132916](https://gcore.jsdelivr.net/gh/jimmy66886/picgo_two@main/img/20230102132916.png)
+![20230102132916](https://img01.zzmr.club/img/20230102132916.png)
 
 
 6. Promise.all方法:(promises=>{})
