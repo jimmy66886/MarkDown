@@ -2029,3 +2029,31 @@ BEA JRockit,IBM J9等来说,是不存在永久代的概念的(它们用的都是
 >Motivation
 >This is part of the JRockit and Hotspot convergence effort.JRockit customers do not need to configure the permanent generation(since JRockit does not have a permanent generation)and are accustomed to not configuring the permanent generation
 
+---
+
+为什么要用元空间替换永久代?
+- 虽然自Java8开始,HotSpotVM中已经没有永久代了,但是这不意味着类的元数据也消失了,这些数据被移到了一个与**堆不相连的本地内存区域,这个区域叫做元空间**
+- 由于类的元数据分配在本地内存中,元空间的最大可分配空间就是系统可用内存空间
+- 这项改动是很有必要的,原因有:
+    - 为永久代设置空间大小是很难确定的,在某些场景下,如果动态加载类过多,容易产生Perm区的OOM,比如某个实际Web工程中,因为功能点比较多,在运行过程中,要不断动态加载很多类,经常出现致命错误OOM
+    - 而元空间和永久代之间最大的区别在于:元空间并不在虚拟机中,而是使用本地内存,因此,默认情况下,元空间的大小仅受本地内存限制
+- 对永久代进行调优是很困难的
+
+>The proposed implementation will allocate class meta-data in native memory and move interned Strings and class statics to the Java heap.[来源](https://openjdk.org/jeps/122)
+意思就是字符串常量池和静态变量都还是放在堆空间的
+
+---
+
+>StringTable字符串常量池为什么要调整
+JDK7中将StringTable放到了堆空间中,因为永久代的回收效率很低,在FullGC的时候才会触发,而FullGC是老年代的空间不足,永久代不足时才会触发,这就导致StringTable回收效率不高,而我们开发中会有大量的字符串被创建,回收效率低,导致永久代内存不足,放到堆中,能及时回收内存
+
+### 方法区的垃圾回收
+
+有些人认为方法区是没有垃圾收集行为的,**其实不然**
+
+`《Java虚拟机规范》`对方法区的约束是非常宽松的,提到过可以不要虚拟机在方法区中实现垃圾收集,事实上也确实有未实现或未能完整实现方法区类型卸载的收集器存在
+
+一般来说**这个区域的回收效果比较难以令人满意,尤其是类型的卸载,条件相当苛刻**,但是这个区域的回收**有时又确实是必要的**,老版的hotspot虚拟机容易出现对此区域未完全回收而导致内存泄漏
+
+**方法区的垃圾回收主要回收两部分内容,常量池中废弃的常量和不再使用的类型**
+
